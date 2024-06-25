@@ -1,0 +1,3 @@
+[submodule "vendor/gs"]
+	path = vendor/gs
+	url = https://github.com/MrFrenik/gunslinger
