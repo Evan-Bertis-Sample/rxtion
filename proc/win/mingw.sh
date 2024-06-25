@@ -4,7 +4,7 @@ rm -rf bin
 mkdir bin
 cd bin
 
-proj_name=App
+proj_name=rxtion
 proj_root_dir=$(pwd)/../
 
 flags=(
@@ -32,7 +32,7 @@ libs=(
 )
 
 # Build
-gcc -O0 ${inc[*]} ${src[*]} ${flags[*]} ${libs[*]} -lm -o ${proj_name}
+gcc -v -O0 ${inc[*]} ${src[*]} ${flags[*]} ${libs[*]} -lm -o ${proj_name}
 
 cd ..
 
