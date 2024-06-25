@@ -13,7 +13,7 @@ flags=(
 
 # Include directories
 inc=(
-	-I ../vendor/			# Gunslinger includes
+	-I ../vendor/						# Vendor includes
 	-I ../rxtion/						# Rxtion includes
 )
 

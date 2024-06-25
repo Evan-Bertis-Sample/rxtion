@@ -20,6 +20,13 @@ git submodule update --remote --rebase --recursive
 
 ## Build Instructions:
 
+*Note:* I have modified only the MINGW build script to work with my setup. The other build scripts are unmodified from the original Gunslinger project template. This means that the other build scripts may not work as expected.
+
+For quick building and running for MINGW, use the following commands:
+```
+./qbt.sh # QUICK BUILD AND TEST
+```
+
 ### Windows
 ## MSVC:
 - From start menu, open `{x86|x64} Native Tools for {VS Version Here}`
