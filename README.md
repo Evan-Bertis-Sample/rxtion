@@ -4,8 +4,8 @@ A custom game-engine & game, written in C99, inspired by Noita. It uses Gunsling
 
 I'm using this project to get better with C (not C++!), particularly programming lower-level game engines.
 
-You can also check the main **Gunslinger** repository here, where you'll find documentation on how to get started:
-[Gunlinger repository](https://github.com/MrFrenik/gunslinger)
+You can also check the main **Gunslinger** repository here,
+[Gunlinger repository](https://github.com/MrFrenik/gunslinger).
  
 ## Cloning instructions: 
 - Use the following command to clone the repo and init the gunslinger submodule

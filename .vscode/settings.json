@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.compute": "hlsl",
+        "app.h": "c",
+        "gs.h": "c"
+    }
+}
