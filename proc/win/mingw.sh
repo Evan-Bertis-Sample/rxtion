@@ -14,6 +14,7 @@ flags=(
 # Include directories
 inc=(
 	-I ../third_party/include/			# Gunslinger includes
+	-I ../rxtion/						# Rxtion includes
 )
 
 # Source files
@@ -32,7 +33,11 @@ libs=(
 )
 
 # Build
-gcc -v -O0 ${inc[*]} ${src[*]} ${flags[*]} ${libs[*]} -lm -o ${proj_name}
+build_cmd="gcc -O0 ${inc[*]} ${src[*]} ${flags[*]} ${libs[*]} -lm -o ${proj_name}"
+
+echo "Building..."
+echo $build_cmd
+$build_cmd
 
 cd ..
 
