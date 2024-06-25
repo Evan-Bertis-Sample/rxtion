@@ -55,7 +55,7 @@ opts.Add(
 )
 
 opts.Add(
-    PathVariable("include_path",  "Where your includes are", "../../third_party/include")
+    PathVariable("include_path",  "Where your includes are", "../../vendor/include")
 )
 
 opts.Add(

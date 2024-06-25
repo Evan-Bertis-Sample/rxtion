@@ -344,8 +344,8 @@
 	],
 	"file_history":
 	[
-		"/Users/127885/Documents/gs_projects/physics_api_test/third_party/include/gs/util/gs_idraw.h",
-		"/Users/127885/Documents/gs_projects/physics_api_test/third_party/include/gs/util/gs_physics.h",
+		"/Users/127885/Documents/gs_projects/physics_api_test/vendor/include/gs/util/gs_idraw.h",
+		"/Users/127885/Documents/gs_projects/physics_api_test/vendor/include/gs/util/gs_physics.h",
 		"/Users/127885/Documents/Work/WatchFaces/fossil-engine/UDroid/app/src/main/cpp/core/fs_complication.h",
 		"/Users/127885/Documents/Work/WatchFaces/fossil-engine/UDroid/app/src/main/cpp/gs_wear_os_platform.h",
 		"/Users/127885/Documents/Work/WatchFaces/fossil-engine/UDroid/app/src/main/cpp/fs_watchface.c",
@@ -353,28 +353,28 @@
 		"/Users/127885/Documents/Work/WatchFaces/fossil-engine/UDroid/app/src/main/cpp/fs_complication.h",
 		"/Users/127885/Documents/Work/WatchFaces/fossil-engine/UDroid/app/src/main/cpp/fs_complication.c",
 		"/Users/127885/Documents/Work/WatchFaces/fossil-engine/UDroid/app/src/main/cpp/fs_entity.h",
-		"/Users/127885/Downloads/gs_project_template-main/third_party/include/tinyobj/tinyobj.h",
+		"/Users/127885/Downloads/gs_project_template-main/vendor/include/tinyobj/tinyobj.h",
 		"/Users/127885/Downloads/gs_project_template-main/assets/ribbon.gltf",
 		"/Users/127885/Downloads/gs_project_template-main/assets/ribbon.glb",
-		"/Users/127885/Documents/gs_projects/gs_examples/third_party/include/gs/util/gs_gfxt.h",
-		"/Users/127885/Documents/gs_projects/gs_examples/third_party/include/gs/util/gs_idraw.h",
+		"/Users/127885/Documents/gs_projects/gs_examples/vendor/include/gs/util/gs_gfxt.h",
+		"/Users/127885/Documents/gs_projects/gs_examples/vendor/include/gs/util/gs_idraw.h",
 		"/Users/127885/Documents/gs_projects/gs_examples/24_test/source/main.c",
 		"/Users/127885/Documents/gs_projects/EP01_SandSim/source/main.c",
 		"/Users/127885/Documents/gs_projects/gs_examples/24_udroid/source/main.c",
 		"/Users/127885/Documents/gs_projects/gs_examples/24_udroid/external/nanovgXC/src/nanovg.c",
 		"/Users/127885/Documents/gs_projects/gs_examples/24_udroid/external/nanovgXC/src/nanovg.h",
 		"/Users/127885/Documents/gs_projects/gs_examples/24_udroid/external/nanovgXC/src/nanovg_sw.h",
-		"/Users/127885/Documents/gs_projects/gs_examples/third_party/include/gs/impl/gs_platform_impl.h",
-		"/Users/127885/Documents/gs_projects/gs_examples/third_party/include/gs/external/cgltf/cgltf.h",
+		"/Users/127885/Documents/gs_projects/gs_examples/vendor/include/gs/impl/gs_platform_impl.h",
+		"/Users/127885/Documents/gs_projects/gs_examples/vendor/include/gs/external/cgltf/cgltf.h",
 		"/Users/127885/Documents/gs_projects/gs_examples/24_udroid/external/nanovgXC/src/fontstash.h",
 		"/Users/127885/Documents/gs_projects/gs_examples/24_udroid/proc/osx/gcc.sh",
-		"/Users/127885/Documents/gs_projects/gs_examples/third_party/include/gs/gs.h",
-		"/Users/127885/Documents/gs_projects/gs_examples/third_party/include/gs/impl/gs_graphics_impl.h",
+		"/Users/127885/Documents/gs_projects/gs_examples/vendor/include/gs/gs.h",
+		"/Users/127885/Documents/gs_projects/gs_examples/vendor/include/gs/impl/gs_graphics_impl.h",
 		"/Users/127885/Documents/gs_projects/test_example/source/main.c",
 		"/Users/127885/Documents/gs_projects/gs_examples/14_immediate_draw/source/main.c",
 		"/Users/127885/Documents/gs_projects/analog_hand_example/proc/osx/gcc.sh",
 		"/Users/127885/Documents/gs_projects/analog_hand_example/proc/html5/emcc.sh",
-		"/Users/127885/Documents/gs_projects/analog_hand_example/third_party/include/gs/gs.h",
+		"/Users/127885/Documents/gs_projects/analog_hand_example/vendor/include/gs/gs.h",
 		"/Users/127885/Documents/gs_projects/analog_hand_example/test.bin",
 		"/Users/127885/Documents/gs_projects/gs_examples/23_marching_cubes/source/tinycthread/source/tinycthread.h",
 		"/Users/127885/Documents/gs_projects/gs_examples/13_imgui/src/gs_imgui.h",
@@ -408,7 +408,7 @@
 		"/Users/127885/Documents/gs_projects/gs_examples/22_emscripten/proc/osx/emcc.sh",
 		"/Users/127885/Documents/gs_projects/gs_examples/21_stencil_test/source/main.c",
 		"/Users/127885/Documents/gs_projects/gs_examples/04_simple_texture/source/main.c",
-		"/Users/127885/Documents/gs_projects/gs_raycast/third_party/include/gs/util/gs_idraw.h",
+		"/Users/127885/Documents/gs_projects/gs_raycast/vendor/include/gs/util/gs_idraw.h",
 		"/Users/127885/Documents/gs_projects/gs_examples/06_non_interleaved_data/source/main.c",
 		"/Users/127885/Documents/gs_projects/gs_examples/03_uniforms/source/main.c",
 		"/Users/127885/Documents/gs_projects/gs_examples/02_simple_triangle/source/main.c",
@@ -435,31 +435,31 @@
 		"/Users/127885/Documents/gs_projects/gs_examples/nuklear_gui/source/main.c",
 		"/Users/127885/Documents/gs_projects/gs_examples/imgui/src/main.cpp",
 		"/Users/127885/Documents/gs_projects/gs_examples/hello_gs/source/main.c",
-		"/Users/127885/Documents/gs_projects/gs_examples/third_party/include/gs/external/glfw/win32_joystick.c",
+		"/Users/127885/Documents/gs_projects/gs_examples/vendor/include/gs/external/glfw/win32_joystick.c",
 		"/Users/127885/Documents/gs_projects/gs_examples/hello_gs/proc/osx/gcc.sh",
 		"/Users/127885/Documents/gs_projects/gs_examples/immediate_draw/source/main.c",
 		"/Users/127885/Documents/gs_projects/gs_examples/gs_cpp/src/main.cpp",
 		"/Users/127885/Documents/gs_projects/gs_examples/nuklear_gui/source/gs_nuklear.h",
 		"/Users/127885/Documents/gs_projects/gs_examples/imgui/proc/osx/gpp.sh",
 		"/Users/127885/Documents/gs_projects/gs_examples/gs_cpp/proc/osx/gpp.sh",
-		"/Users/127885/Documents/gs_projects/gs_examples/third_party/include/gs/external/glfw/cocoa_init.m",
-		"/Users/127885/Documents/gs_projects/gs_examples/third_party/include/gs/external/glfw/cocoa_joystick.m",
-		"/Users/127885/Documents/gs_projects/gs_examples/third_party/include/gs/external/glfw/cocoa_monitor.m",
-		"/Users/127885/Documents/gs_projects/gs_examples/third_party/include/gs/external/glfw/cocoa_window.m",
-		"/Users/127885/Documents/gs_projects/gs_examples/third_party/include/gs/external/glfw/nsgl_context.m",
+		"/Users/127885/Documents/gs_projects/gs_examples/vendor/include/gs/external/glfw/cocoa_init.m",
+		"/Users/127885/Documents/gs_projects/gs_examples/vendor/include/gs/external/glfw/cocoa_joystick.m",
+		"/Users/127885/Documents/gs_projects/gs_examples/vendor/include/gs/external/glfw/cocoa_monitor.m",
+		"/Users/127885/Documents/gs_projects/gs_examples/vendor/include/gs/external/glfw/cocoa_window.m",
+		"/Users/127885/Documents/gs_projects/gs_examples/vendor/include/gs/external/glfw/nsgl_context.m",
 		"/Users/127885/Documents/gs_projects/gs_examples/gs_cpp/output.txt",
 		"/Users/127885/Documents/gs_projects/gs_examples/nuklear_gui/external/Nuklear/src/nuklear.h",
 		"/Users/127885/Documents/gs_projects/gs_examples/nuklear_gui/external/Nuklear/nuklear.h",
 		"/Users/127885/Documents/gs_projects/gs_examples/nuklear_gui/source/impl.c",
 		"/Users/127885/Documents/gs_projects/gs_examples/nuklear_gui/external/Nuklear/src/nuklear_edit.c",
 		"/Users/127885/Documents/gs_projects/gs_examples/nuklear_gui/proc/osx/gcc.sh",
-		"/Users/127885/Documents/gs_projects/gs_examples/third_party/include/gs/util/gs_meta.h",
+		"/Users/127885/Documents/gs_projects/gs_examples/vendor/include/gs/util/gs_meta.h",
 		"/Users/127885/Documents/gs_projects/rewind/assets/anims/idle/idle_meta.json",
-		"/Users/127885/Documents/gs_projects/rewind/third_party/gs/gs.h",
-		"/Users/127885/Documents/gs_projects/rewind/third_party/gs/util/gs_asset.h",
+		"/Users/127885/Documents/gs_projects/rewind/vendor/gs/gs.h",
+		"/Users/127885/Documents/gs_projects/rewind/vendor/gs/util/gs_asset.h",
 		"/Users/127885/Documents/gs_projects/rewind/proc/linux/gcc.sh",
 		"/Users/127885/Documents/gs_projects/rewind/proc/osx/gcc.sh",
-		"/Users/127885/Documents/Random/gunslinger/third_party/include/stb/stb_vorbis.c",
+		"/Users/127885/Documents/Random/gunslinger/vendor/include/stb/stb_vorbis.c",
 		"/Users/127885/Documents/Random/gunslinger/source/graphics/gs_graphics.c",
 		"/Users/127885/Documents/Random/gunslinger/source/graphics/opengl/gs_graphics_opengl.c",
 		"/Users/127885/Documents/Random/gunslinger/include/gs.h",
@@ -565,11 +565,11 @@
 		[
 			[
 				"gs.h",
-				"third_party/include/gs/gs.h"
+				"vendor/include/gs/gs.h"
 			],
 			[
 				"physics.h",
-				"third_party/include/gs/util/gs_physics.h"
+				"vendor/include/gs/util/gs_physics.h"
 			],
 			[
 				"main.c",
@@ -577,7 +577,7 @@
 			],
 			[
 				"phy",
-				"third_party/include/gs/util/gs_physics.h"
+				"vendor/include/gs/util/gs_physics.h"
 			],
 			[
 				"smmian.c",
@@ -593,19 +593,19 @@
 			],
 			[
 				"gsidraw.h",
-				"app/src/main/cpp/third_party/gs/util/gs_idraw.h"
+				"app/src/main/cpp/vendor/gs/util/gs_idraw.h"
 			],
 			[
 				"gsplatformimpl",
-				"app/src/main/cpp/third_party/gs/impl/gs_platform_impl.h"
+				"app/src/main/cpp/vendor/gs/impl/gs_platform_impl.h"
 			],
 			[
 				"platformipml",
-				"app/src/main/cpp/third_party/gs/impl/gs_platform_impl.h"
+				"app/src/main/cpp/vendor/gs/impl/gs_platform_impl.h"
 			],
 			[
 				"platformimpl",
-				"app/src/main/cpp/third_party/gs/impl/gs_platform_impl.h"
+				"app/src/main/cpp/vendor/gs/impl/gs_platform_impl.h"
 			],
 			[
 				"gs_gfxt",
@@ -613,23 +613,23 @@
 			],
 			[
 				"gltf",
-				"gs_project_template-main/third_party/include/gs/external/cgltf/cgltf.h"
+				"gs_project_template-main/vendor/include/gs/external/cgltf/cgltf.h"
 			],
 			[
 				"tinyobj",
-				"third_party/include/tinyobj/tinyobj.h"
+				"vendor/include/tinyobj/tinyobj.h"
 			],
 			[
 				"gf",
-				"third_party/include/gs/util/gs_gfxt.h"
+				"vendor/include/gs/util/gs_gfxt.h"
 			],
 			[
 				"cgltf",
-				"third_party/include/gs/external/cgltf/cgltf.h"
+				"vendor/include/gs/external/cgltf/cgltf.h"
 			],
 			[
 				"platformipl",
-				"third_party/include/gs/impl/gs_platform_impl.h"
+				"vendor/include/gs/impl/gs_platform_impl.h"
 			],
 			[
 				"nanovg",
@@ -641,7 +641,7 @@
 			],
 			[
 				"gsi",
-				"third_party/include/gs/util/gs_idraw.h"
+				"vendor/include/gs/util/gs_idraw.h"
 			],
 			[
 				"nvg.h",
@@ -665,47 +665,47 @@
 			],
 			[
 				"idraw.h",
-				"third_party/include/gs/util/gs_idraw.h"
+				"vendor/include/gs/util/gs_idraw.h"
 			],
 			[
 				"graphicsimpl",
-				"third_party/include/gs/impl/gs_graphics_impl.h"
+				"vendor/include/gs/impl/gs_graphics_impl.h"
 			],
 			[
 				"platformim",
-				"third_party/include/gs/impl/gs_platform_impl.h"
+				"vendor/include/gs/impl/gs_platform_impl.h"
 			],
 			[
 				"gsidraw",
-				"third_party/include/gs/util/gs_idraw.h"
+				"vendor/include/gs/util/gs_idraw.h"
 			],
 			[
 				"audioimpl",
-				"third_party/include/gs/impl/gs_audio_impl.h"
+				"vendor/include/gs/impl/gs_audio_impl.h"
 			],
 			[
 				"gs",
-				"third_party/include/gs/util/gs_idraw.h"
+				"vendor/include/gs/util/gs_idraw.h"
 			],
 			[
 				"graphicsi",
-				"third_party/include/gs/impl/gs_graphics_impl.h"
+				"vendor/include/gs/impl/gs_graphics_impl.h"
 			],
 			[
 				"gsidarw",
-				"third_party/include/gs/util/gs_idraw.h"
+				"vendor/include/gs/util/gs_idraw.h"
 			],
 			[
 				"asset.h",
-				"third_party/include/gs/util/gs_asset.h"
+				"vendor/include/gs/util/gs_asset.h"
 			],
 			[
 				"gas",
-				"third_party/include/gs/util/gs_asset.h"
+				"vendor/include/gs/util/gs_asset.h"
 			],
 			[
 				"gsasset.h",
-				"third_party/include/gs/util/gs_asset.h"
+				"vendor/include/gs/util/gs_asset.h"
 			],
 			[
 				"tiny",
@@ -713,7 +713,7 @@
 			],
 			[
 				"graphicsimp",
-				"third_party/include/gs/impl/gs_graphics_impl.h"
+				"vendor/include/gs/impl/gs_graphics_impl.h"
 			],
 			[
 				"simpletexture.c",
@@ -737,7 +737,7 @@
 			],
 			[
 				"graphics.h",
-				"third_party/include/gs/impl/gs_graphics_impl.h"
+				"vendor/include/gs/impl/gs_graphics_impl.h"
 			],
 			[
 				"uniform.c",
@@ -745,11 +745,11 @@
 			],
 			[
 				"idraw",
-				"third_party/include/gs/util/gs_idraw.h"
+				"vendor/include/gs/util/gs_idraw.h"
 			],
 			[
 				"grpahicsimp",
-				"third_party/include/gs/impl/gs_graphics_impl.h"
+				"vendor/include/gs/impl/gs_graphics_impl.h"
 			],
 			[
 				"impl",
@@ -793,7 +793,7 @@
 			],
 			[
 				"gsgrpahicsimp",
-				"third_party/include/gs/impl/gs_graphics_impl.h"
+				"vendor/include/gs/impl/gs_graphics_impl.h"
 			],
 			[
 				"flecs.c",
@@ -813,7 +813,7 @@
 			],
 			[
 				"gs.",
-				"third_party/include/gs/gs.h"
+				"vendor/include/gs/gs.h"
 			],
 			[
 				"conatiners.c",
@@ -833,7 +833,7 @@
 			],
 			[
 				"win32jo",
-				"third_party/include/gs/external/glfw/win32_joystick.c"
+				"vendor/include/gs/external/glfw/win32_joystick.c"
 			],
 			[
 				"immediatedraw.c",
@@ -841,19 +841,19 @@
 			],
 			[
 				"nsglcon.m",
-				"third_party/include/gs/external/glfw/nsgl_context.m"
+				"vendor/include/gs/external/glfw/nsgl_context.m"
 			],
 			[
 				"cocawin",
-				"third_party/include/gs/external/glfw/cocoa_window.m"
+				"vendor/include/gs/external/glfw/cocoa_window.m"
 			],
 			[
 				"mo",
-				"third_party/include/gs/external/glfw/cocoa_monitor.m"
+				"vendor/include/gs/external/glfw/cocoa_monitor.m"
 			],
 			[
 				"cocoa_jo.m",
-				"third_party/include/gs/external/glfw/cocoa_joystick.m"
+				"vendor/include/gs/external/glfw/cocoa_joystick.m"
 			],
 			[
 				"out",
@@ -861,7 +861,7 @@
 			],
 			[
 				"cocai",
-				"third_party/include/gs/external/glfw/cocoa_init.m"
+				"vendor/include/gs/external/glfw/cocoa_init.m"
 			],
 			[
 				"nuklear.h",
@@ -893,19 +893,19 @@
 			],
 			[
 				"gsmeta.h",
-				"third_party/include/gs/util/gs_meta.h"
+				"vendor/include/gs/util/gs_meta.h"
 			],
 			[
 				"meta.h",
-				"third_party/include/gs/util/gs_meta.h"
+				"vendor/include/gs/util/gs_meta.h"
 			],
 			[
 				"meta",
-				"third_party/include/gs/util/gs_meta.h"
+				"vendor/include/gs/util/gs_meta.h"
 			],
 			[
 				"gsa",
-				"third_party/gs/util/gs_asset.h"
+				"vendor/gs/util/gs_asset.h"
 			],
 			[
 				"gcc",
@@ -973,11 +973,11 @@
 			],
 			[
 				"vorbis.c",
-				"third_party/include/stb/stb_vorbis.c"
+				"vendor/include/stb/stb_vorbis.c"
 			],
 			[
 				"vor",
-				"third_party/include/stb/stb_vorbis.c"
+				"vendor/include/stb/stb_vorbis.c"
 			],
 			[
 				"containers.h",

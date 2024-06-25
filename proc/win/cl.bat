@@ -7,7 +7,7 @@ rem Name
 set name=App
 
 rem Include directories 
-set inc=/I ..\third_party\include\
+set inc=/I ..\vendor\include\
 
 rem Source files
 set src_main=..\source\*.c
