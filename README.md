@@ -1,13 +1,12 @@
-# Gunslinger Project Template
+# rxtion
 
-This is a minimum and premade configuration that you need in order to get started with gunslinger. It provides all the necessary dependencies and the bash/batch scripts for compiling it on Windows, Mac and Linux.
+A custom game-engine & game, written in C99, inspired by Noita. It uses Gunslinger, an outsanding single-header library that abstracts away platform-specific code.
+
+I'm using this project to get better with C (not C++!), particularly programming lower-level game engines.
 
 You can also check the main **Gunslinger** repository here, where you'll find documentation on how to get started:
 [Gunlinger repository](https://github.com/MrFrenik/gunslinger)
  
-And you can also find a complete list of examples for you to learn from and test on your machine here: 
-[Gunslinger examples](https://github.com/MrFrenik/gs_examples)
-
 ## Cloning instructions: 
 - Use the following command to clone the repo and init the gunslinger submodule
 ```bash
