@@ -13,7 +13,7 @@ flags=(
 
 # Include directories
 inc=(
-	-I ../vendor/include/
+	-I ../vendor/
 )
 
 # Source files

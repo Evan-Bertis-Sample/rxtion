@@ -16,7 +16,7 @@ flags=(
 
 # Include directories
 inc=(
-    -I ../vendor/include/      # Gunslinger includes
+    -I ../vendor/      # Gunslinger includes
 )
 
 # Source files
