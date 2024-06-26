@@ -4,7 +4,7 @@
 
 // SHADER DESC
 
-rxcore_shader_desc_t _rxcore_shader_desc_create(const char *shader_name, const char *shader_path, const char **shader_dependencies, uint16_t shader_dependency_count)
+rxcore_shader_desc_t rxcore_shader_desc_create(const char *shader_name, const char *shader_path, const char **shader_dependencies, uint16_t shader_dependency_count)
 {
     rxcore_shader_desc_t desc = {0};
     desc.shader_name = shader_name;
@@ -30,8 +30,13 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
     strcpy(shader_name_buf, desc.shader_name);
     shader.shader_name = shader_name_buf;
 
+    gs_println("Creating shader: %s", shader.shader_name);
+    gs_println("Shader path: %s", desc.shader_path);
+
     // get the shader source from the file
     const char *this_shader_src = gs_read_file_contents_into_string_null_term(desc.shader_path, 'r', SRC_MAX_LENGTH);
+
+    gs_println("Shader source: %s", this_shader_src);
 
     if (desc.shader_dependency_count > 0)
     {
@@ -70,20 +75,20 @@ void _rxcore_shader_destroy(rxcore_shader_t *shader)
 
 // SHADER REGISTRY
 
-rxcore_shader_registry_t *rx_shader_registry_create()
+rxcore_shader_registry_t *rxcore_shader_registry_create()
 {
     rxcore_shader_registry_t *reg = malloc(sizeof(rxcore_shader_registry_t));
     return reg;
 }
 
-void rx_shader_registry_add_dependency(rxcore_shader_registry_t *reg, const char *dep_name, const char *dep_path)
+void rxcore_shader_registry_add_dependency(rxcore_shader_registry_t *reg, const char *dep_name, const char *dep_path)
 {
-    rxcore_shader_desc_t desc = _rxcore_shader_desc_create(dep_name, dep_path, NULL, 0);
+    rxcore_shader_desc_t desc = rxcore_shader_desc_create(dep_name, dep_path, NULL, 0);
     rxcore_shader_t *dep = _rxcore_shader_create(reg, desc);
     gs_dyn_array_push(reg->dependencies, *dep);
 }
 
-uint32_t rx_shader_registry_add_shader(rxcore_shader_registry_t *reg, rxcore_shader_desc_t desc)
+uint32_t rxcore_shader_registry_add_shader(rxcore_shader_registry_t *reg, rxcore_shader_desc_t desc)
 {
     rxcore_shader_t *shader = _rxcore_shader_create(reg, desc);
     gs_dyn_array_push(reg->shaders, *shader);
@@ -91,7 +96,7 @@ uint32_t rx_shader_registry_add_shader(rxcore_shader_registry_t *reg, rxcore_sha
     return id;
 }
 
-rxcore_shader_set_t rx_shader_registry_get_shader_set(rxcore_shader_registry_t *reg, const char *vertex_shader_name, const char *fragment_shader_name)
+rxcore_shader_set_t rxcore_shader_registry_get_shader_set(rxcore_shader_registry_t *reg, const char *vertex_shader_name, const char *fragment_shader_name)
 {
     rxcore_shader_set_t set = {0};
 
@@ -111,7 +116,7 @@ rxcore_shader_set_t rx_shader_registry_get_shader_set(rxcore_shader_registry_t *
     return set;
 }
 
-void rx_shader_registry_destroy(rxcore_shader_registry_t *reg)
+void rxcore_shader_registry_destroy(rxcore_shader_registry_t *reg)
 {
     for (uint32_t i = 0; i < gs_dyn_array_size(reg->shaders); i++)
     {

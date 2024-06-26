@@ -41,19 +41,14 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
 void _rxcore_shader_destroy(rxcore_shader_t *shader);
 
 // RXCORE_SHADER_REGISTRY public methods
-rxcore_shader_registry_t *rx_shader_registry_create();
-void rx_shader_regsitry_add_dependency(rxcore_shader_registry_t *reg, const char* dep_name, const char *dep_path);
-uint32_t rx_shader_registry_add_shader(rxcore_shader_registry_t *reg, rxcore_shader_desc_t desc);
-rxcore_shader_set_t rx_shader_registry_get_shader_set(rxcore_shader_registry_t *reg, const char *vertex_shader_name, const char *fragment_shader_name);
-void rx_shader_registry_destroy(rxcore_shader_registry_t *reg);
+rxcore_shader_registry_t *rxcore_shader_registry_create();
+void rxcore_shader_registry_add_dependency(rxcore_shader_registry_t *reg, const char* dep_name, const char *dep_path);
+uint32_t rxcore_shader_registry_add_shader(rxcore_shader_registry_t *reg, rxcore_shader_desc_t desc);
+rxcore_shader_set_t rxcore_shader_registry_get_shader_set(rxcore_shader_registry_t *reg, const char *vertex_shader_name, const char *fragment_shader_name);
+void rxcore_shader_registry_destroy(rxcore_shader_registry_t *reg);
 
 // RXCORE_SHADER_REGISTRY private methods
 uint16_t _rxcore_shader_registry_find_dependency(rxcore_shader_registry_t *reg, const char *shader_name);
 rxcore_shader_t *_rxcore_shader_registry_find_shader(rxcore_shader_registry_t *reg, const char *shader_name);
-
-
-
-
-
 
 #endif // __SHADER_H__
