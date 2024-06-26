@@ -1,4 +1,4 @@
-#!bin/sh
+#!bin/bash
 
 rm -rf bin
 mkdir bin
@@ -17,10 +17,8 @@ inc=(
 	-I ../rxtion/						# Rxtion includes
 )
 
-# Source files
-src=(
-	../source/main.c
-)
+# Automatically find C source files in specified directories
+src=($(find ${proj_root_dir}/src ${proj_root_dir}/rx_core ${proj_root_dir}/rx_app -type f -name '*.c'))
 
 libs=(
 	-lopengl32
