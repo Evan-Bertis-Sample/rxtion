@@ -2,6 +2,7 @@
 #define __APP_H__
 
 #include <gs/gs.h>
+#include <rx_core/rendering/shader.h>
 
 typedef struct rx_app_t
 {
@@ -10,7 +11,7 @@ typedef struct rx_app_t
 
 void rx_app_init()
 {
-
+    rxcore_shader_desc_t shader_desc = RXCORE_SHADER_DESC_WITH_INCLUDE("basic", "shaders/basic.glsl", "shaders/basic_util.glsl", "shaders/basic_lighting.glsl");
 }
 
 void rx_app_update()
