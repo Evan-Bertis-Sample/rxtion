@@ -13,17 +13,25 @@ void rxcore_rendering_init()
     rxcore_shader_registry_add_dependency(reg, "lighting", CORE_ASSET("core_shaders/lighting.glsl"));
     rxcore_shader_registry_add_dependency(reg, "pbr", CORE_ASSET("core_shaders/pbr.glsl"));
 
-    // print all dependencies
-    for (uint32_t i = 0; i < gs_dyn_array_size(reg->dependencies); i++)
+    // print out the dependencies
+    for (
+        gs_hash_table_iter it = gs_hash_table_iter_new(reg->dependencies);
+        gs_hash_table_iter_valid(reg->dependencies, it);
+        gs_hash_table_iter_advance(reg->dependencies, it)
+    )
     {
-        rxcore_shader_t *dep = &reg->dependencies[i];
-        gs_println("Dependency: %s", dep->shader_name);
+        const char *key = gs_hash_table_iter_getk(reg->dependencies, it);
+        rxcore_shader_t *value = gs_hash_table_iter_get(reg->dependencies, it);
+
+        gs_println("Dependency: %s", key);
+        gs_println("Dependency Source: %s", value->shader_src);
     }
 
     // create an example shader
     rxcore_shader_desc_t shader_desc = RXCORE_SHADER_DESC_WITH_INCLUDE(
         "test_shader",
         APP_ASSET("shaders/test.glsl"),
+        RXCORE_SHADER_STAGE_FRAGMENT,
         "lighting", "pbr");
 
     uint32_t shader_id = rxcore_shader_registry_add_shader(reg, shader_desc);
@@ -32,6 +40,7 @@ void rxcore_rendering_init()
     rxcore_shader_desc_t invalid_shader_desc = RXCORE_SHADER_DESC_WITH_INCLUDE(
         "invalid_shader",
         APP_ASSET("shaders/invalid.glsl"),
+        RXCORE_SHADER_STAGE_FRAGMENT,
         "lighting", "pbr");
 
     uint32_t invalid_shader_id = rxcore_shader_registry_add_shader(reg, invalid_shader_desc);
@@ -40,23 +49,23 @@ void rxcore_rendering_init()
     rxcore_shader_desc_t missing_shader_desc = RXCORE_SHADER_DESC_WITH_INCLUDE(
         "missing_shader",
         APP_ASSET("shaders/missing.glsl"),
+        RXCORE_SHADER_STAGE_FRAGMENT,
         "lighting", "pbr", "missing");
 
     uint32_t missing_shader_id = rxcore_shader_registry_add_shader(reg, missing_shader_desc);
 
-    // print all shaders
-    for (uint32_t i = 0; i < gs_dyn_array_size(reg->shaders); i++)
+    // print out the shaders
+    for (
+        gs_hash_table_iter it = gs_hash_table_iter_new(reg->shaders);
+        gs_hash_table_iter_valid(reg->shaders, it);
+        gs_hash_table_iter_advance(reg->shaders, it)
+    )
     {
-        rxcore_shader_t *shader = &reg->shaders[i];
+        const char *key = gs_hash_table_iter_getk(reg->shaders, it);
+        rxcore_shader_t *value = gs_hash_table_iter_get(reg->shaders, it);
 
-        if (shader == NULL)
-        {
-            gs_println("Shader is NULL");
-            continue;
-        }
-
-        gs_println("Shader: %s", shader->shader_name);
-        gs_println("Shader Source: %s", shader->shader_src);
+        gs_println("Shader: %s", key);
+        gs_println("Shader Source: %s", value->shader_src);
     }
 
     gs_println("Finished init");

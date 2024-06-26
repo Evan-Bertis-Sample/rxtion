@@ -4,9 +4,10 @@
 
 // SHADER DESC
 
-rxcore_shader_desc_t rxcore_shader_desc_create(const char *shader_name, const char *shader_path, const char **shader_dependencies, uint16_t shader_dependency_count)
+rxcore_shader_desc_t rxcore_shader_desc_create(const char *shader_name, const char *shader_path, rxcore_shader_stage_t stage, const char **shader_dependencies, uint16_t shader_dependency_count)
 {
     rxcore_shader_desc_t desc = {0};
+    desc.stage = stage;
     desc.shader_name = shader_name;
     desc.shader_path = shader_path;
     desc.shader_dependencies = shader_dependencies;
@@ -29,10 +30,10 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
     strcpy(shader_name_buf, desc.shader_name);
     shader->shader_name = shader_name_buf;
 
+    shader->stage = desc.stage;
 
     RXCORE_SHADER_DEBUG_PRINT("Creating shader: %s", shader->shader_name);
     RXCORE_SHADER_DEBUG_PRINT("Shader path: %s", desc.shader_path);
-
     // get the shader source from the file
     size_t this_src_len = 0;
     // the buffer is created on the heap, so it must be freed later!
@@ -46,14 +47,13 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
         for (int i = 0; i < desc.shader_dependency_count; i++)
         {
             const char *dep_name = desc.shader_dependencies[i];
-            int16_t dep_id = _rxcore_shader_registry_find_dependency(reg, dep_name);
-            if (dep_id == -1)
+            rxcore_shader_t *dep = _rxcore_shader_registry_find_dependency(reg, dep_name);
+            if (!dep)
             {
                 RXCORE_SHADER_DEBUG_PRINT("Dependency not found: %s", dep_name);
                 continue;
             }
 
-            rxcore_shader_t *dep = &reg->dependencies[dep_id];
             full_shader_len += strlen(dep->shader_src);
         }
 
@@ -64,14 +64,13 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
         for (int i = 0; i < desc.shader_dependency_count; i++)
         {
             const char *dep_name = desc.shader_dependencies[i];
-            int16_t dep_id = _rxcore_shader_registry_find_dependency(reg, dep_name);
-            if (dep_id == -1)
+            rxcore_shader_t *dep = _rxcore_shader_registry_find_dependency(reg, dep_name);
+            if (!dep)
             {
                 RXCORE_SHADER_DEBUG_PRINT("Dependency not found: %s", dep_name);
                 continue;
             }
 
-            rxcore_shader_t *dep = &reg->dependencies[dep_id];
             strcat(full_shader_src, dep->shader_src);
             strcat(full_shader_src, "\n");
         }
@@ -100,34 +99,34 @@ void _rxcore_shader_destroy(rxcore_shader_t *shader)
 rxcore_shader_registry_t *rxcore_shader_registry_create()
 {
     rxcore_shader_registry_t *reg = malloc(sizeof(rxcore_shader_registry_t));
-    reg->shaders = gs_dyn_array_new(rxcore_shader_t);
-    reg->dependencies = gs_dyn_array_new(rxcore_shader_t);
+    reg->shaders = gs_hash_table_new(const char *, rxcore_shader_t*);
+    reg->dependencies = gs_hash_table_new(const char *, rxcore_shader_t*);
     return reg;
 }
 
 void rxcore_shader_registry_add_dependency(rxcore_shader_registry_t *reg, const char *dep_name, const char *dep_path)
 {
-    rxcore_shader_desc_t desc = rxcore_shader_desc_create(dep_name, dep_path, NULL, 0);
+    rxcore_shader_desc_t desc = rxcore_shader_desc_create(dep_name, dep_path, RXCORE_SHADER_STAGE_DEPENDENCY, NULL, 0);
     rxcore_shader_t *dep = _rxcore_shader_create(reg, desc);
     if (!dep)
     {
         RXCORE_SHADER_DEBUG_PRINT("Failed to create dependency: %s", dep_name);
         return;
     }
-    gs_dyn_array_push(reg->dependencies, *dep);
+    gs_hash_table_insert(reg->dependencies, dep_name, dep);
 }
 
-uint32_t rxcore_shader_registry_add_shader(rxcore_shader_registry_t *reg, rxcore_shader_desc_t desc)
+rxcore_shader_t *rxcore_shader_registry_add_shader(rxcore_shader_registry_t *reg, rxcore_shader_desc_t desc)
 {
     rxcore_shader_t *shader = _rxcore_shader_create(reg, desc);
     if (!shader)
     {
         RXCORE_SHADER_DEBUG_PRINT("Failed to create shader: %s", desc.shader_name);
-        return -1;
+        return NULL;
     }
-    gs_dyn_array_push(reg->shaders, *shader);
-    uint32_t id = gs_array_size(reg->shaders) - 1;
-    return id;
+    
+    gs_hash_table_insert(reg->shaders, desc.shader_name, shader);
+    return shader;
 }
 
 rxcore_shader_set_t rxcore_shader_registry_get_shader_set(rxcore_shader_registry_t *reg, const char *vertex_shader_name, const char *fragment_shader_name)
@@ -167,18 +166,16 @@ void rxcore_shader_registry_destroy(rxcore_shader_registry_t *reg)
     free(reg);
 }
 
-int16_t _rxcore_shader_registry_find_dependency(rxcore_shader_registry_t *reg, const char *shader_name)
+rxcore_shader_t *_rxcore_shader_registry_find_dependency(rxcore_shader_registry_t *reg, const char *shader_name)
 {
-    for (uint32_t i = 0; i < gs_dyn_array_size(reg->dependencies); i++)
+    rxcore_shader_t *dep = gs_hash_table_get(reg->dependencies, shader_name);
+    if (!dep)
     {
-        rxcore_shader_t *dep = &reg->dependencies[i];
-        if (strcmp(dep->shader_name, shader_name) == 0)
-        {
-            return i;
-        }
+        RXCORE_SHADER_DEBUG_PRINT("Dependency not found: %s", shader_name);
+        return NULL;
     }
 
-    return -1;
+    return dep;
 }
 
 rxcore_shader_t *_rxcore_shader_registry_find_shader(rxcore_shader_registry_t *reg, const char *shader_name)
@@ -192,5 +189,6 @@ rxcore_shader_t *_rxcore_shader_registry_find_shader(rxcore_shader_registry_t *r
         }
     }
 
+    RXCORE_SHADER_DEBUG_PRINT("Shader not found: %s", shader_name);
     return NULL;
 }
