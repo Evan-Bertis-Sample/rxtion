@@ -14,7 +14,7 @@ gs_app_desc_t gs_main(int32_t argc, char** argv)
         .window = {
             .width = 800,
             .height = 600, 
-            .frame_rate = 60
+            .frame_rate = 60,
         }
 	};
 }
