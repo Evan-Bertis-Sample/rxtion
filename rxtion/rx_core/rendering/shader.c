@@ -21,7 +21,7 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
     // check that the shader path exists
     if (!gs_platform_file_exists(desc.shader_path))
     {
-        gs_println("Shader path does not exist: %s", desc.shader_path);
+        RXCORE_SHADER_DEBUG_PRINT("Shader path does not exist: %s", desc.shader_path);
         return NULL;
     }
 
@@ -31,15 +31,15 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
     shader->shader_name = shader_name_buf;
 
 
-    gs_println("Creating shader: %s", shader->shader_name);
-    gs_println("Shader path: %s", desc.shader_path);
+    RXCORE_SHADER_DEBUG_PRINT("Creating shader: %s", shader->shader_name);
+    RXCORE_SHADER_DEBUG_PRINT("Shader path: %s", desc.shader_path);
 
     // get the shader source from the file
     size_t this_src_len = 0;
     // the buffer is created on the heap, so it must be freed later!
     char *this_shader_src = gs_platform_read_file_contents(desc.shader_path, "r", &this_src_len);
-    gs_println("Shader source length: %d", this_src_len);
-    gs_println("Shader source: %s", this_shader_src);
+    RXCORE_SHADER_DEBUG_PRINT("Shader source length: %d", this_src_len);
+    RXCORE_SHADER_DEBUG_PRINT("Shader source: %s", this_shader_src);
 
     if (desc.shader_dependency_count > 0)
     {
@@ -50,7 +50,7 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
             int16_t dep_id = _rxcore_shader_registry_find_dependency(reg, dep_name);
             if (dep_id == -1)
             {
-                gs_println("Dependency not found: %s", dep_name);
+                RXCORE_SHADER_DEBUG_PRINT("Dependency not found: %s", dep_name);
                 continue;
             }
 
@@ -58,7 +58,7 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
             full_shader_len += strlen(dep->shader_src);
         }
 
-        gs_println("Full shader length: %d", full_shader_len);
+        RXCORE_SHADER_DEBUG_PRINT("Full shader length: %d", full_shader_len);
 
         char *full_shader_src = malloc(full_shader_len + this_src_len + 1 + desc.shader_dependency_count);
         full_shader_src[0] = '\0';
@@ -68,7 +68,7 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
             int16_t dep_id = _rxcore_shader_registry_find_dependency(reg, dep_name);
             if (dep_id == -1)
             {
-                gs_println("Dependency not found: %s", dep_name);
+                RXCORE_SHADER_DEBUG_PRINT("Dependency not found: %s", dep_name);
                 continue;
             }
 
@@ -79,13 +79,13 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
 
         strcat(full_shader_src, this_shader_src);
 
-        gs_println("Full shader source: %s", full_shader_src);
+        RXCORE_SHADER_DEBUG_PRINT("Full shader source: %s", full_shader_src);
         // free this_shader_src, as it is no longer needed
         shader->shader_src = full_shader_src;
     }
     else
     {
-        gs_println("No dependencies for shader: %s", shader->shader_name);
+        RXCORE_SHADER_DEBUG_PRINT("No dependencies for shader: %s", shader->shader_name);
         shader->shader_src = this_shader_src;
     }
 
@@ -112,7 +112,7 @@ void rxcore_shader_registry_add_dependency(rxcore_shader_registry_t *reg, const 
     rxcore_shader_t *dep = _rxcore_shader_create(reg, desc);
     if (!dep)
     {
-        gs_println("Failed to create dependency: %s", dep_name);
+        RXCORE_SHADER_DEBUG_PRINT("Failed to create dependency: %s", dep_name);
         return;
     }
     gs_dyn_array_push(reg->dependencies, *dep);
@@ -123,7 +123,7 @@ uint32_t rxcore_shader_registry_add_shader(rxcore_shader_registry_t *reg, rxcore
     rxcore_shader_t *shader = _rxcore_shader_create(reg, desc);
     if (!shader)
     {
-        gs_println("Failed to create shader: %s", desc.shader_name);
+        RXCORE_SHADER_DEBUG_PRINT("Failed to create shader: %s", desc.shader_name);
         return -1;
     }
     gs_dyn_array_push(reg->shaders, *shader);
