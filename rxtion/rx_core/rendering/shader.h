@@ -48,7 +48,7 @@ rxcore_shader_set_t rxcore_shader_registry_get_shader_set(rxcore_shader_registry
 void rxcore_shader_registry_destroy(rxcore_shader_registry_t *reg);
 
 // RXCORE_SHADER_REGISTRY private methods
-uint16_t _rxcore_shader_registry_find_dependency(rxcore_shader_registry_t *reg, const char *shader_name);
+int16_t _rxcore_shader_registry_find_dependency(rxcore_shader_registry_t *reg, const char *shader_name);
 rxcore_shader_t *_rxcore_shader_registry_find_shader(rxcore_shader_registry_t *reg, const char *shader_name);
 
 #endif // __SHADER_H__

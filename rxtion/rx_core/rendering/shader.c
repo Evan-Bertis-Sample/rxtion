@@ -25,46 +25,69 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
         return NULL;
     }
 
-    rxcore_shader_t shader = {0};
+    rxcore_shader_t *shader = malloc(sizeof(rxcore_shader_t));
     const char* shader_name_buf = malloc(strlen(desc.shader_name) + 1);
     strcpy(shader_name_buf, desc.shader_name);
-    shader.shader_name = shader_name_buf;
+    shader->shader_name = shader_name_buf;
 
-    gs_println("Creating shader: %s", shader.shader_name);
+
+    gs_println("Creating shader: %s", shader->shader_name);
     gs_println("Shader path: %s", desc.shader_path);
 
     // get the shader source from the file
-    const char *this_shader_src = gs_read_file_contents_into_string_null_term(desc.shader_path, 'r', SRC_MAX_LENGTH);
-
+    size_t this_src_len = 0;
+    // the buffer is created on the heap, so it must be freed later!
+    char *this_shader_src = gs_platform_read_file_contents(desc.shader_path, "r", &this_src_len);
+    gs_println("Shader source length: %d", this_src_len);
     gs_println("Shader source: %s", this_shader_src);
 
     if (desc.shader_dependency_count > 0)
     {
-        // get all the depdencies of the shader, and concatenate them into a single string
-        const char *shader_src = malloc(SRC_MAX_LENGTH * desc.shader_dependency_count + 1);
-
-        int offset;
-        for (uint32_t i = 0; i < desc.shader_dependency_count; i++)
+        size_t full_shader_len = 0;
+        for (int i = 0; i < desc.shader_dependency_count; i++)
         {
-            rxcore_shader_t *dep = _rxcore_shader_registry_find_dependency(reg, desc.shader_dependencies[i]);
-            strcpy(shader_src + offset, dep->shader_src);
-            offset += strlen(dep->shader_src);
+            const char *dep_name = desc.shader_dependencies[i];
+            int16_t dep_id = _rxcore_shader_registry_find_dependency(reg, dep_name);
+            if (dep_id == -1)
+            {
+                gs_println("Dependency not found: %s", dep_name);
+                continue;
+            }
+
+            rxcore_shader_t *dep = &reg->dependencies[dep_id];
+            full_shader_len += strlen(dep->shader_src);
         }
 
-        // now append the source of the shader itself
-        strcpy(shader_src + offset, this_shader_src);
-        int full_length = strlen(shader_src) + 1;
-        shader_src = realloc(shader_src, full_length);
+        gs_println("Full shader length: %d", full_shader_len);
 
-        shader.shader_src = shader_src;
+        char *full_shader_src = malloc(full_shader_len + this_src_len + 1);
+        for (int i = 0; i < desc.shader_dependency_count; i++)
+        {
+            const char *dep_name = desc.shader_dependencies[i];
+            int16_t dep_id = _rxcore_shader_registry_find_dependency(reg, dep_name);
+            if (dep_id == -1)
+            {
+                gs_println("Dependency not found: %s", dep_name);
+                continue;
+            }
+
+            rxcore_shader_t *dep = &reg->dependencies[dep_id];
+            strcat(full_shader_src, dep->shader_src);
+        }
+
+        strcat(full_shader_src, this_shader_src);
+
+        gs_println("Full shader source: %s", full_shader_src);
+        // free this_shader_src, as it is no longer needed
+        shader->shader_src = full_shader_src;
     }
     else
     {
-        // malloc the size of the shader source, and copy the source into the shader
-        const char *shader_src = malloc(strlen(this_shader_src) + 1);
-        strcpy(shader_src, this_shader_src);
-        shader.shader_src = shader_src;
+        gs_println("No dependencies for shader: %s", shader->shader_name);
+        shader->shader_src = this_shader_src;
     }
+
+    return shader;
 }
 
 void _rxcore_shader_destroy(rxcore_shader_t *shader)
@@ -73,11 +96,11 @@ void _rxcore_shader_destroy(rxcore_shader_t *shader)
     free(shader->shader_src);
 }
 
-// SHADER REGISTRY
-
 rxcore_shader_registry_t *rxcore_shader_registry_create()
 {
     rxcore_shader_registry_t *reg = malloc(sizeof(rxcore_shader_registry_t));
+    reg->shaders = gs_dyn_array_new(rxcore_shader_t);
+    reg->dependencies = gs_dyn_array_new(rxcore_shader_t);
     return reg;
 }
 
@@ -85,12 +108,22 @@ void rxcore_shader_registry_add_dependency(rxcore_shader_registry_t *reg, const 
 {
     rxcore_shader_desc_t desc = rxcore_shader_desc_create(dep_name, dep_path, NULL, 0);
     rxcore_shader_t *dep = _rxcore_shader_create(reg, desc);
+    if (!dep)
+    {
+        gs_println("Failed to create dependency: %s", dep_name);
+        return;
+    }
     gs_dyn_array_push(reg->dependencies, *dep);
 }
 
 uint32_t rxcore_shader_registry_add_shader(rxcore_shader_registry_t *reg, rxcore_shader_desc_t desc)
 {
     rxcore_shader_t *shader = _rxcore_shader_create(reg, desc);
+    if (!shader)
+    {
+        gs_println("Failed to create shader: %s", desc.shader_name);
+        return -1;
+    }
     gs_dyn_array_push(reg->shaders, *shader);
     uint32_t id = gs_array_size(reg->shaders) - 1;
     return id;
@@ -133,7 +166,7 @@ void rxcore_shader_registry_destroy(rxcore_shader_registry_t *reg)
     free(reg);
 }
 
-uint16_t _rxcore_shader_registry_find_dependency(rxcore_shader_registry_t *reg, const char *shader_name)
+int16_t _rxcore_shader_registry_find_dependency(rxcore_shader_registry_t *reg, const char *shader_name)
 {
     for (uint32_t i = 0; i < gs_dyn_array_size(reg->dependencies); i++)
     {
