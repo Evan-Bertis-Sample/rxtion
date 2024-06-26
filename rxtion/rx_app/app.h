@@ -2,7 +2,9 @@
 #define __APP_H__
 
 #include <gs/gs.h>
+#include <rx_core/system.h>
 #include <rx_core/rendering/shader.h>
+#include <rx_core/rendering.h>
 
 #define CORE_ASSET(ASSET_NAME) "rxtion/rx_core/" ASSET_NAME
 #define APP_ASSET(ASSET_NAME) "rxtion/rx_app/assets/" ASSET_NAME
@@ -11,6 +13,10 @@ typedef struct rx_app_t
 {
     gs_command_buffer_t cb;
 } rx_app_t;
+
+gs_global g_core_systems = RXCORE_SYSTEMS(
+    rxcore_rendering_system
+);
 
 void rx_app_init()
 {
@@ -33,6 +39,26 @@ void rx_app_init()
     );
 
     uint32_t shader_id = rxcore_shader_registry_add_shader(reg, shader_desc);
+
+    // create an invalid shader
+    rxcore_shader_desc_t invalid_shader_desc = RXCORE_SHADER_DESC_WITH_INCLUDE(
+        "invalid_shader",
+        APP_ASSET("shaders/invalid.glsl"),
+        "lighting", "pbr"
+    );
+
+    uint32_t invalid_shader_id = rxcore_shader_registry_add_shader(reg, invalid_shader_desc);
+
+    // create a shader with missing dependencies
+    rxcore_shader_desc_t missing_shader_desc = RXCORE_SHADER_DESC_WITH_INCLUDE(
+        "missing_shader",
+        APP_ASSET("shaders/missing.glsl"),
+        "lighting", "pbr", "missing"
+    );
+
+    uint32_t missing_shader_id = rxcore_shader_registry_add_shader(reg, missing_shader_desc);
+
+
 
     // print all shaders
     for (uint32_t i = 0; i < gs_dyn_array_size(reg->shaders); i++)

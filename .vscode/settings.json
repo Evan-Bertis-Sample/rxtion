@@ -3,6 +3,7 @@
         "*.compute": "hlsl",
         "app.h": "c",
         "gs.h": "c",
-        "shader.h": "c"
+        "shader.h": "c",
+        "ios": "cpp"
     }
 }
