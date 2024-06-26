@@ -60,7 +60,8 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
 
         gs_println("Full shader length: %d", full_shader_len);
 
-        char *full_shader_src = malloc(full_shader_len + this_src_len + 1);
+        char *full_shader_src = malloc(full_shader_len + this_src_len + 1 + desc.shader_dependency_count);
+        full_shader_src[0] = '\0';
         for (int i = 0; i < desc.shader_dependency_count; i++)
         {
             const char *dep_name = desc.shader_dependencies[i];
@@ -73,6 +74,7 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
 
             rxcore_shader_t *dep = &reg->dependencies[dep_id];
             strcat(full_shader_src, dep->shader_src);
+            strcat(full_shader_src, "\n");
         }
 
         strcat(full_shader_src, this_shader_src);
