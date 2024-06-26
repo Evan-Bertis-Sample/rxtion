@@ -8,7 +8,7 @@ proj_name=rxtion
 proj_root_dir=$(pwd)/../
 
 flags=(
-	-std=gnu99 -w
+	-std=gnu99 -w -ggdb
 )
 
 # Include directories

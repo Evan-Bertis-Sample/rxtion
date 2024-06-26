@@ -5,7 +5,7 @@
 #include <rx_core/rendering/shader.h>
 
 #define CORE_ASSET(ASSET_NAME) "rxtion/rx_core/" ASSET_NAME
-#define APP_ASSET(ASSET_NAME) "rxtion/rx_app/" ASSET_NAME
+#define APP_ASSET(ASSET_NAME) "rxtion/rx_app/assets/" ASSET_NAME
 
 typedef struct rx_app_t
 {
@@ -28,7 +28,7 @@ void rx_app_init()
     // create an example shader
     rxcore_shader_desc_t shader_desc = RXCORE_SHADER_DESC_WITH_INCLUDE(
         "test_shader",
-        APP_ASSET("shaders/test_shader.glsl"),
+        APP_ASSET("shaders/test.glsl"),
         "lighting", "pbr"
     );
 
