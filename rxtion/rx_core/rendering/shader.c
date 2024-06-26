@@ -15,7 +15,6 @@ rxcore_shader_desc_t rxcore_shader_desc_create(const char *shader_name, const ch
 }
 
 // SHADER
-
 rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_shader_desc_t desc)
 {
     // check that the shader path exists

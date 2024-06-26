@@ -7,7 +7,7 @@
 #define RXCORE_SHADER_DEBUG
 
 #ifdef RXCORE_SHADER_DEBUG
-#define RXCORE_SHADER_DEBUG_PRINT(...) gs_println(__VA_ARGS__)
+#define RXCORE_SHADER_DEBUG_PRINT(str, ...) gs_println("RXCORE::rendering::shader::" str,__VA_ARGS__)
 #else
 #define RXCORE_SHADER_DEBUG_PRINT(...) ((void)0)
 #endif
