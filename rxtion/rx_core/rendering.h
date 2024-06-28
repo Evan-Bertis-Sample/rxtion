@@ -2,6 +2,9 @@
 #define __RENDERING_H__
 
 #include <rx_core/system.h>
+#include <gs/gs.h>
+#include <rx_core/rendering/shader.h>
+#include <rx_core/rendering/material.h>
 
 #define CORE_ASSET(ASSET_NAME) "rxtion/rx_core/" ASSET_NAME
 #define APP_ASSET(ASSET_NAME) "rxtion/rx_app/assets/" ASSET_NAME
@@ -69,6 +72,16 @@ void rxcore_rendering_init()
     }
 
     gs_println("Finished init");
+
+
+    gs_println("creating materials");
+    rxcore_shader_set_t set = rxcore_shader_registry_get_shader_set(reg, "test_shader", "test_shader");
+    gs_graphics_uniform_desc_t uni_test = rxcore_uniform_desc("u_test", RXCORE_SHADER_STAGE_FRAGMENT, GS_UNIFORM_FLOAT4);
+
+    rxcore_material_prototype_t prototype = rxcore_material_prototype_create(
+        set, 
+        rxcore_uniform_desc("u_color", GS_UNIFORM_FLOAT4, 0),
+    );
 }
 
 void rxcore_rendering_update()
