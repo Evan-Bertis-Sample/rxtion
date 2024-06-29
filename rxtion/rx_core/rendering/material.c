@@ -12,62 +12,39 @@ rxcore_material_prototype_t rxcore_material_prototype_create_impl(rxcore_shader_
     return proto;
 }
 
-rxcore_material_uniforms_t rxcore_material_uniforms_create(rxcore_shader_stage_t stage, gs_handle(gs_graphics_uniform_t) *uniform_handles, gs_graphics_bind_uniform_desc_t *uniform_bindings, uint32_t num_uniforms)
-{
-    rxcore_material_uniforms_t uniforms = {0};
-    uniforms.stage = stage;
-    uniforms.uniform_handles = uniform_handles;
-    uniforms.uniform_bindings = uniform_bindings;
-    uniforms.num_uniforms = num_uniforms;
-    return uniforms;
-}
 
-rxcore_material_t *rxcore_material_create(const rxcore_material_prototype_t *prototype, gs_graphics_uniform_desc_t *uniform_descs, uint32_t num_uniforms)
+rxcore_material_t *rxcore_material_create(rxcore_shader_set_t set, gs_graphics_uniform_desc_t *uniform_descs, uint32_t num_uniforms)
 {
     rxcore_material_t *material = malloc(sizeof(rxcore_material_t));
-    material->shader_set = prototype->shader_set;
-    material->vertex_uniforms = malloc(sizeof(rxcore_material_uniforms_t));
-    material->fragment_uniforms = malloc(sizeof(rxcore_material_uniforms_t));
+    material->shader_set = set;
+    material->num_uniforms = num_uniforms;
 
-    for (uint32_t i = 0; i < prototype->num_uniforms; i++)
+    // create the uniform handles
+    material->uniform_handles = malloc(sizeof(gs_handle(gs_graphics_uniform_t)) * num_uniforms);
+    for (uint32_t i = 0; i < num_uniforms; i++)
     {
-        gs_graphics_uniform_desc_t desc = prototype->uniform_descs[i];
-        if (desc.stage == RXCORE_SHADER_STAGE_VERTEX)
-        {
-            material->vertex_uniforms->num_uniforms++;
-        }
-        else if (desc.stage == RXCORE_SHADER_STAGE_FRAGMENT)
-        {
-            material->fragment_uniforms->num_uniforms++;
-        }
+        gs_handle(gs_graphics_uniform_t) uniform = gs_graphics_uniform_create(&uniform_descs[i]);
+        material->uniform_handles[i] = uniform;
     }
 
-    material->vertex_uniforms->uniform_handles = malloc(sizeof(gs_handle(gs_graphics_uniform_t)) * material->vertex_uniforms->num_uniforms);
-    material->vertex_uniforms->uniform_bindings = malloc(sizeof(gs_graphics_bind_uniform_desc_t) * material->vertex_uniforms->num_uniforms);
-
-    material->fragment_uniforms->uniform_handles = malloc(sizeof(gs_handle(gs_graphics_uniform_t)) * material->fragment_uniforms->num_uniforms);
-    material->fragment_uniforms->uniform_bindings = malloc(sizeof(gs_graphics_bind_uniform_desc_t) * material->fragment_uniforms->num_uniforms);
-
-    for (uint32_t i = 0; i < prototype->num_uniforms; i++)
+    // create the uniform bindings
+    material->uniform_bindings = malloc(sizeof(gs_graphics_bind_uniform_desc_t) * num_uniforms);
+    for (uint32_t i = 0; i < num_uniforms; i++)
     {
-        gs_graphics_uniform_desc_t desc = prototype->uniform_descs[i];
-        if (desc.stage == RXCORE_SHADER_STAGE_VERTEX)
-        {
-            material->vertex_uniforms->uniform_handles[material->vertex_uniforms->num_uniforms] = gs_graphics_uniform_create(desc.layout);
-            material->vertex_uniforms->uniform_bindings[material->vertex_uniforms->num_uniforms] = (gs_graphics_bind_uniform_desc_t){
-                .uniform = material->vertex_uniforms->uniform_handles[material->vertex_uniforms->num_uniforms],
-                .data = NULL,
-            };
-        }
-        else if (desc.stage == RXCORE_SHADER_STAGE_FRAGMENT)
-        {
-            material->fragment_uniforms->uniform_handles[material->fragment_uniforms->num_uniforms] = gs_graphics_uniform_create(desc.layout);
-            material->fragment_uniforms->uniform_bindings[material->fragment_uniforms->num_uniforms] = (gs_graphics_bind_uniform_desc_t){
-                .uniform = material->fragment_uniforms->uniform_handles[material->fragment_uniforms->num_uniforms],
-                .data = NULL,
-            };
-        }
+        gs_graphics_bind_uniform_desc_t binding = {
+            .uniform = gs_graphics_uniform_get_desc(material->uniform_handles[i]),
+            .data = NULL,
+        };
+        material->uniform_bindings[i] = binding;
     }
+
+    // create the uniform name to index map
+    material->uniform_name_to_index = gs_hash_table_new(const char *, uint32_t);
+    for (uint32_t i = 0; i < num_uniforms; i++)
+    {
+        gs_hash_table_insert(material->uniform_name_to_index, uniform_descs[i].name, i);
+    }
+
 }
 
 rxcore_material_t *rxcore_material_create(const rxcore_material_prototype_t *prototype, gs_graphics_uniform_desc_t *override_uniform_descs, uint32_t num_overrides)
@@ -128,7 +105,7 @@ rxcore_material_t *rxcore_material_create(const rxcore_material_prototype_t *pro
     }
 
     // create the material
-    rxcore_material_t *material = rxcore_material_create(prototype, uniforms, num_uniforms);
+    rxcore_material_t *material = rxcore_material_create(prototype->shader_set, uniforms, num_uniforms);
     return material;
 }
 
@@ -140,19 +117,14 @@ void rxcore_material_add_binding(rxcore_material_t *material, rxcore_shader_stag
         return;
     }
 
-    rxcore_material_uniforms_t *uniforms = stage == RXCORE_SHADER_STAGE_VERTEX ? material->vertex_uniforms : material->fragment_uniforms;
-    uint32_t num_uniforms = stage == RXCORE_SHADER_STAGE_VERTEX ? material->vertex_uniforms->num_uniforms : material->fragment_uniforms->num_uniforms;
-
-    for (uint32_t i = 0; i < num_uniforms; i++)
+    // find the uniform
+    uint32_t *index = gs_hash_table_get(material->uniform_name_to_index, uniform_name);
+    if (index)
     {
-        gs_graphics_bind_uniform_desc_t *binding = &(uniforms->uniform_bindings[i]);
-        char *name = binding->uniform->desc.name;
-        if (strcmp(name, uniform_name) == 0)
-        {
-            binding->data = data;
-            binding->size = size;
-            return;
-        }
+        uint32_t i = *index;
+        material->uniform_bindings[i].data = data;
+        return;
+        return;
     }
 
     gs_println("Uniform not found: %s, cannot add binding.", uniform_name);
@@ -160,15 +132,19 @@ void rxcore_material_add_binding(rxcore_material_t *material, rxcore_shader_stag
 
 void rxcore_material_bind(rxcore_material_t *material, gs_command_buffer_t *cb)
 {
-    for (uint32_t i = 0; i < material->vertex_uniforms->num_uniforms; i++)
+    gs_graphics_apply_bindings(cb, material->uniform_bindings);
+}
+
+void rxcore_material_destroy(rxcore_material_t *material)
+{
+    for (uint32_t i = 0; i < material->num_uniforms; i++)
     {
-        gs_graphics_bind_uniform_desc_t binding = material->vertex_uniforms->uniform_bindings[i];
-        gs_command_bind_uniform(cb, &binding);
+        gs_graphics_uniform_destroy(material->uniform_handles[i]);
     }
 
-    for (uint32_t i = 0; i < material->fragment_uniforms->num_uniforms; i++)
-    {
-        gs_graphics_bind_uniform_desc_t binding = material->fragment_uniforms->uniform_bindings[i];
-        gs_command_bind_uniform(cb, &binding);
-    }
+    free(material->uniform_handles);
+    free(material->uniform_bindings);
+    gs_hash_table_free(material->uniform_name_to_index);
+    free(material);
 }
+

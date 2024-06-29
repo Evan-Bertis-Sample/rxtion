@@ -12,30 +12,21 @@ typedef struct rxcore_material_prototype_t
     uint32_t num_uniforms;
 } rxcore_material_prototype_t;
 
-typedef struct rxcore_material_uniforms_t
-{
-    rxcore_shader_stage_t stage;
-    gs_handle(gs_graphics_uniform_t) *uniform_handles;
-    gs_graphics_bind_uniform_desc_t *uniform_bindings;
-    uint32_t num_uniforms;
-} rxcore_material_uniforms_t;
-
 typedef struct rxcore_material_t
 {
     rxcore_shader_set_t shader_set;
-    rxcore_material_uniforms_t *vertex_uniforms;
-    rxcore_material_uniforms_t *fragment_uniforms;
+    gs_handle(gs_graphics_uniform_t) *uniform_handles;
+    gs_graphics_bind_uniform_desc_t *uniform_bindings;
+    gs_hash_table(const char *, uint32_t) uniform_name_to_index;
+    uint32_t num_uniforms;
 } rxcore_material_t;
 
 // RXCORE_MATERIAL_PROTOTYPE methods
 rxcore_material_prototype_t rxcore_material_prototype_create_impl(rxcore_shader_set_t set, gs_graphics_uniform_desc_t *uniform_descs, uint32_t num_uniforms);
 #define rxcore_material_prototype_create(set, ...) rxcore_material_prototype_create_impl(set, (gs_graphics_uniform_desc_t[]){__VA_ARGS__}, sizeof((gs_graphics_uniform_desc_t[]){__VA_ARGS__}) / sizeof(gs_graphics_uniform_desc_t))
 
-// RXCORE_MATERIAL_UNIFORMS methods
-rxcore_material_uniforms_t rxcore_material_uniforms_create(rxcore_shader_stage_t stage, gs_handle(gs_graphics_uniform_t) *uniform_handles, gs_graphics_bind_uniform_desc_t *uniform_bindings, uint32_t num_uniforms);
-
 // RXCORE_MATERIAL methods
-rxcore_material_t *rxcore_material_create(gs_graphics_uniform_desc_t *uniform_descs, uint32_t num_uniforms);
+rxcore_material_t *rxcore_material_create(rxcore_shader_set_t set,gs_graphics_uniform_desc_t *uniform_descs, uint32_t num_uniforms);
 rxcore_material_t *rxcore_material_create(const rxcore_material_prototype_t *prototype, gs_graphics_uniform_desc_t *override_uniform_descs, uint32_t num_overrides);
 void rxcore_material_add_binding(rxcore_material_t *material, rxcore_shader_stage_t stage, const char *uniform_name, void *data, uint32_t size);
 void rxcore_material_bind(rxcore_material_t *material, gs_command_buffer_t *cb);
