@@ -192,17 +192,14 @@ rxcore_shader_t *_rxcore_shader_registry_find_dependency(rxcore_shader_registry_
 
 rxcore_shader_t *_rxcore_shader_registry_find_shader(rxcore_shader_registry_t *reg, const char *shader_name)
 {
-    for (uint32_t i = 0; i < gs_dyn_array_size(reg->shaders); i++)
+    rxcore_shader_t *shader = gs_hash_table_get(reg->shaders, shader_name);
+    if (!shader)
     {
-        rxcore_shader_t *shader = &reg->shaders[i];
-        if (strcmp(shader->shader_name, shader_name) == 0)
-        {
-            return shader;
-        }
+        RXCORE_SHADER_DEBUG_PRINTF("Shader not found: %s", shader_name);
+        return NULL;
     }
 
-    RXCORE_SHADER_DEBUG_PRINTF("Shader not found: %s", shader_name);
-    return NULL;
+    return shader;
 }
 
 rxcore_shader_program_t *rxcore_shader_program_set(rxcore_shader_set_t set)

@@ -3,7 +3,7 @@
 #include <rx_core/rendering/material.h>
 #include <gs/gs.h>
 
-rxcore_material_prototype_t rxcore_material_prototype_create_impl(rxcore_shader_set_t set, gs_graphics_uniform_desc_t *uniform_descs, uint32_t num_uniforms)
+rxcore_material_prototype_t rxcore_material_prototype_create(rxcore_shader_set_t set, gs_graphics_uniform_desc_t *uniform_descs, uint32_t num_uniforms)
 {
     rxcore_material_prototype_t proto = {0};
     proto.shader_set = set;
@@ -12,7 +12,7 @@ rxcore_material_prototype_t rxcore_material_prototype_create_impl(rxcore_shader_
     return proto;
 }
 
-rxcore_material_t *rxcore_material_create(rxcore_shader_set_t set, gs_graphics_uniform_desc_t *uniform_descs, uint32_t num_uniforms)
+rxcore_material_t *rxcore_material_create_base(rxcore_shader_set_t set, gs_graphics_uniform_desc_t *uniform_descs, uint32_t num_uniforms)
 {
     rxcore_material_t *material = malloc(sizeof(rxcore_material_t));
     material->shader_set = set;
@@ -31,7 +31,7 @@ rxcore_material_t *rxcore_material_create(rxcore_shader_set_t set, gs_graphics_u
     for (uint32_t i = 0; i < num_uniforms; i++)
     {
         gs_graphics_bind_uniform_desc_t binding = {
-            .uniform = gs_graphics_uniform_get_desc(material->uniform_handles[i]),
+            .uniform = material->uniform_handles[i],
             .data = NULL,
         };
         material->uniform_bindings[i] = binding;
@@ -45,7 +45,7 @@ rxcore_material_t *rxcore_material_create(rxcore_shader_set_t set, gs_graphics_u
     }
 }
 
-rxcore_material_t *rxcore_material_create(const rxcore_material_prototype_t *prototype, gs_graphics_uniform_desc_t *override_uniform_descs, uint32_t num_overrides)
+rxcore_material_t *rxcore_material_create_from_prototype(const rxcore_material_prototype_t *prototype, gs_graphics_uniform_desc_t *override_uniform_descs, uint32_t num_overrides)
 {
     // copy all the uniforms from the prototype, but override any that are in the override list
     // determine how large the new uniform list will be
@@ -103,7 +103,7 @@ rxcore_material_t *rxcore_material_create(const rxcore_material_prototype_t *pro
     }
 
     // create the material
-    rxcore_material_t *material = rxcore_material_create(prototype->shader_set, uniforms, num_uniforms);
+    rxcore_material_t *material = rxcore_material_create_base(prototype->shader_set, uniforms, num_uniforms);
     return material;
 }
 
