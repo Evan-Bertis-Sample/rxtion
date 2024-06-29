@@ -12,7 +12,6 @@ rxcore_material_prototype_t rxcore_material_prototype_create_impl(rxcore_shader_
     return proto;
 }
 
-
 rxcore_material_t *rxcore_material_create(rxcore_shader_set_t set, gs_graphics_uniform_desc_t *uniform_descs, uint32_t num_uniforms)
 {
     rxcore_material_t *material = malloc(sizeof(rxcore_material_t));
@@ -44,7 +43,6 @@ rxcore_material_t *rxcore_material_create(rxcore_shader_set_t set, gs_graphics_u
     {
         gs_hash_table_insert(material->uniform_name_to_index, uniform_descs[i].name, i);
     }
-
 }
 
 rxcore_material_t *rxcore_material_create(const rxcore_material_prototype_t *prototype, gs_graphics_uniform_desc_t *override_uniform_descs, uint32_t num_overrides)
@@ -109,14 +107,8 @@ rxcore_material_t *rxcore_material_create(const rxcore_material_prototype_t *pro
     return material;
 }
 
-void rxcore_material_add_binding(rxcore_material_t *material, rxcore_shader_stage_t stage, const char *uniform_name, void *data, uint32_t size)
+void rxcore_material_add_binding(rxcore_material_t *material, const char *uniform_name, void *data, uint32_t size)
 {
-    if (stage != RXCORE_SHADER_STAGE_VERTEX && stage != RXCORE_SHADER_STAGE_FRAGMENT)
-    {
-        gs_println("Invalid shader stage: %d", stage);
-        return;
-    }
-
     // find the uniform
     uint32_t *index = gs_hash_table_get(material->uniform_name_to_index, uniform_name);
     if (index)
@@ -135,6 +127,26 @@ void rxcore_material_bind(rxcore_material_t *material, gs_command_buffer_t *cb)
     gs_graphics_apply_bindings(cb, material->uniform_bindings);
 }
 
+void rxcore_material_print(rxcore_material_t *material)
+{
+    gs_println("Material:");
+    gs_println("  Vertex Shader: %s", material->shader_set.vertex_shader->shader_name);
+    gs_println("  Fragment Shader: %s", material->shader_set.fragment_shader->shader_name);
+    gs_println("  Uniforms:");
+    for (
+        gs_hash_table_iter it = gs_hash_table_iter_new(material->uniform_name_to_index);
+        gs_hash_table_iter_valid(material->uniform_name_to_index, it);
+        gs_hash_table_iter_advance(material->uniform_name_to_index, it)
+    )
+    {
+        const char *key = gs_hash_table_iter_getk(material->uniform_name_to_index, it);
+        uint32_t *value = gs_hash_table_iter_get(material->uniform_name_to_index, it);
+        gs_println("    %s: %d", key, *value);
+    }
+
+    gs_println("End Material");
+}
+
 void rxcore_material_destroy(rxcore_material_t *material)
 {
     for (uint32_t i = 0; i < material->num_uniforms; i++)
@@ -147,4 +159,3 @@ void rxcore_material_destroy(rxcore_material_t *material)
     gs_hash_table_free(material->uniform_name_to_index);
     free(material);
 }
-

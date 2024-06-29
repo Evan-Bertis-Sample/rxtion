@@ -76,16 +76,21 @@ void rxcore_rendering_init()
 
     gs_println("creating materials");
     rxcore_shader_set_t set = rxcore_shader_registry_get_shader_set(reg, "test_shader", "test_shader");
-    gs_graphics_uniform_desc_t uni_test = rxcore_uniform_desc("u_test", RXCORE_SHADER_STAGE_FRAGMENT, GS_GRAPHICS_UNIFORM_INT);
+    gs_graphics_uniform_desc_t uni_test = RXCORE_UNIFORM_DESC("u_test", RXCORE_SHADER_STAGE_FRAGMENT, GS_GRAPHICS_UNIFORM_INT);
 
-    rxcore_material_prototype_t prototype = rxcore_material_prototype_create(
+    rxcore_material_prototype_t prototype = RXCORE_MATERIAL_PROTOTYPE_CREATE(
         set, 
-        rxcore_uniform_desc("u_test_vertex", RXCORE_SHADER_STAGE_VERTEX, GS_GRAPHICS_UNIFORM_INT),
-        rxcore_uniform_desc("u_test_fragment", RXCORE_SHADER_STAGE_FRAGMENT, GS_GRAPHICS_UNIFORM_INT),
+        RXCORE_UNIFORM_DESC("u_test_float", RXCORE_SHADER_STAGE_VERTEX, GS_GRAPHICS_UNIFORM_FLOAT),
         uni_test
     );
 
-    rxcore_material_t *material = rx_material_create_from_prototype_override(&prototype, uni_test);
+    rxcore_material_t *material = RXCORE_MATERIAL_CREATE_FROM_PROTOTYPE_OVERIDE(&prototype, uni_test);
+    int binding = 5;
+    float float_binding = 5.0f;
+    rxcore_material_add_binding(material, "u_test", binding, sizeof(int));
+    rxcore_material_add_binding(material, "u_test_float", &float_binding, sizeof(float));
+
+    rxcore_material_print(material);
 }
 
 void rxcore_rendering_update()
