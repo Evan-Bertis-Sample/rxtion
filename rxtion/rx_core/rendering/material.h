@@ -32,12 +32,12 @@ rxcore_material_prototype_t rxcore_material_prototype_create_impl(rxcore_shader_
 #define rxcore_material_prototype_create(set, ...) rxcore_material_prototype_create_impl(set, (gs_graphics_uniform_desc_t[]){__VA_ARGS__}, sizeof((gs_graphics_uniform_desc_t[]){__VA_ARGS__}) / sizeof(gs_graphics_uniform_desc_t))
 
 // RXCORE_MATERIAL_UNIFORMS methods
-rxcore_material_uniforms_t rxcore_material_uniforms_create_impl(rxcore_shader_stage_t stage, gs_handle(gs_graphics_uniform_t) *uniform_handles, gs_graphics_bind_uniform_desc_t *uniform_bindings, uint32_t num_uniforms);
+rxcore_material_uniforms_t rxcore_material_uniforms_create(rxcore_shader_stage_t stage, gs_handle(gs_graphics_uniform_t) *uniform_handles, gs_graphics_bind_uniform_desc_t *uniform_bindings, uint32_t num_uniforms);
 
 // RXCORE_MATERIAL methods
-rxcore_material_t *rxcore_material_create(const rxcore_material_prototype_t *prototype, gs_graphics_uniform_desc_t *uniform_descs, uint32_t num_uniforms);
 rxcore_material_t *rxcore_material_create(gs_graphics_uniform_desc_t *uniform_descs, uint32_t num_uniforms);
-void rxcore_material_add_binding(rxcore_material_t *material, const char *uniform_name, void *data, uint32_t size);
+rxcore_material_t *rxcore_material_create(const rxcore_material_prototype_t *prototype, gs_graphics_uniform_desc_t *override_uniform_descs, uint32_t num_overrides);
+void rxcore_material_add_binding(rxcore_material_t *material, rxcore_shader_stage_t stage, const char *uniform_name, void *data, uint32_t size);
 void rxcore_material_bind(rxcore_material_t *material, gs_command_buffer_t *cb);
 void rxcore_material_destroy(rxcore_material_t *material);
 

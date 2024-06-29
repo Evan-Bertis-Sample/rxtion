@@ -85,7 +85,7 @@ void rxcore_rendering_init()
         uni_test
     );
 
-    rxcore_material_t *material = rx_material_create(&prototype, uni_test);
+    rxcore_material_t *material = rx_material_create_from_prototype_override(&prototype, uni_test);
 }
 
 void rxcore_rendering_update()
