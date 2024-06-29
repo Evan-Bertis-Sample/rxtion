@@ -244,7 +244,7 @@ rxcore_shader_program_t *rxcore_shader_program_set(rxcore_shader_set_t set)
     gs_graphics_shader_desc_t shader_desc =
         {
             .name = set.vertex_shader->shader_name,
-            .size = vert_src_size + frag_src_size,
+            .size = 2 * sizeof(gs_graphics_shader_source_desc_t),
             .sources = sources,
         };
 
