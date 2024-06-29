@@ -76,12 +76,16 @@ void rxcore_rendering_init()
 
     gs_println("creating materials");
     rxcore_shader_set_t set = rxcore_shader_registry_get_shader_set(reg, "test_shader", "test_shader");
-    gs_graphics_uniform_desc_t uni_test = rxcore_uniform_desc("u_test", RXCORE_SHADER_STAGE_FRAGMENT, GS_UNIFORM_FLOAT4);
+    gs_graphics_uniform_desc_t uni_test = rxcore_uniform_desc("u_test", RXCORE_SHADER_STAGE_FRAGMENT, GS_GRAPHICS_UNIFORM_INT);
 
     rxcore_material_prototype_t prototype = rxcore_material_prototype_create(
         set, 
-        rxcore_uniform_desc("u_color", GS_UNIFORM_FLOAT4, 0),
+        rxcore_uniform_desc("u_test_vertex", RXCORE_SHADER_STAGE_VERTEX, GS_GRAPHICS_UNIFORM_INT),
+        rxcore_uniform_desc("u_test_fragment", RXCORE_SHADER_STAGE_FRAGMENT, GS_GRAPHICS_UNIFORM_INT),
+        uni_test
     );
+
+    rxcore_material_t *material = rx_material_create(&prototype, uni_test);
 }
 
 void rxcore_rendering_update()
