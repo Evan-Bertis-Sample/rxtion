@@ -73,18 +73,27 @@ void rxcore_rendering_init()
 
     gs_println("Finished init");
 
-
     gs_println("creating materials");
     rxcore_shader_set_t set = rxcore_shader_registry_get_shader_set(reg, "test_shader", "test_shader");
-    gs_graphics_uniform_desc_t uni_test = RXCORE_UNIFORM_DESC("u_test", RXCORE_SHADER_STAGE_FRAGMENT, GS_GRAPHICS_UNIFORM_INT);
 
+    gs_println("Found vertex shader: %s", set.vertex_shader->shader_name);
+    gs_println("Found fragment shader: %s", set.fragment_shader->shader_name);
+
+    gs_println("Creating material prototype");
+    gs_graphics_uniform_desc_t uni_test = RXCORE_UNIFORM_DESC("u_test", RXCORE_SHADER_STAGE_FRAGMENT, GS_GRAPHICS_UNIFORM_INT);
+    
+
+    gs_println("Creating material from prototype");
     rxcore_material_prototype_t prototype = RXCORE_MATERIAL_PROTOTYPE_CREATE(
         set, 
         RXCORE_UNIFORM_DESC("u_test_float", RXCORE_SHADER_STAGE_VERTEX, GS_GRAPHICS_UNIFORM_FLOAT),
         uni_test
     );
 
+    gs_println("Creating material from prototype");
     rxcore_material_t *material = RXCORE_MATERIAL_CREATE_FROM_PROTOTYPE_OVERIDE(&prototype, uni_test);
+
+    gs_println("Adding bindings");
     int binding = 5;
     float float_binding = 5.0f;
     rxcore_material_add_binding(material, "u_test", binding, sizeof(int));
