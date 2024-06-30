@@ -3,16 +3,16 @@
 
 #include <gs/gs.h>
 
-typedef struct transform_t
+typedef struct rxcore_transform_t
 {
     gs_vec3 position;
     gs_vec3 scale;
     gs_quat rotation;
-} transform_t;
+} rxcore_transform_t;
 
 
-transform_t transform_create(gs_vec3 position, gs_vec3 scale, gs_quat rotation);
-gs_mat4 transform_to_mat4(transform_t *transform);
+rxcore_transform_t transform_create(gs_vec3 position, gs_vec3 scale, gs_quat rotation);
+gs_mat4 rxcore_transform_to_mat4(rxcore_transform_t *transform);
 
 // will probably add more functions here later...
 
