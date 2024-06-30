@@ -17,17 +17,10 @@ void rxcore_rendering_init()
     rxcore_shader_registry_add_dependency(reg, "pbr", CORE_ASSET("core_shaders/pbr.glsl"));
 
     // print out the dependencies
-    for (
-        gs_hash_table_iter it = gs_hash_table_iter_new(reg->dependencies);
-        gs_hash_table_iter_valid(reg->dependencies, it);
-        gs_hash_table_iter_advance(reg->dependencies, it)
-    )
+    for (uint32_t i = 0; i < gs_dyn_array_size(reg->dependencies); i++)
     {
-        const char *key = gs_hash_table_iter_getk(reg->dependencies, it);
-        rxcore_shader_t *value = gs_hash_table_iter_get(reg->dependencies, it);
-
-        gs_println("Dependency: %s", key);
-        gs_println("Dependency Source: %s", value->shader_src);
+        rxcore_shader_t *dep = reg->dependencies[i];
+        gs_println("Dependency: %s", dep->shader_name);
     }
 
     // create an example shader
@@ -58,17 +51,10 @@ void rxcore_rendering_init()
     uint32_t missing_shader_id = rxcore_shader_registry_add_shader(reg, missing_shader_desc);
 
     // print out the shaders
-    for (
-        gs_hash_table_iter it = gs_hash_table_iter_new(reg->shaders);
-        gs_hash_table_iter_valid(reg->shaders, it);
-        gs_hash_table_iter_advance(reg->shaders, it)
-    )
+    for (uint32_t i = 0; i < gs_dyn_array_size(reg->shaders); i++)
     {
-        const char *key = gs_hash_table_iter_getk(reg->shaders, it);
-        rxcore_shader_t *value = gs_hash_table_iter_get(reg->shaders, it);
-
-        gs_println("Shader: %s", key);
-        gs_println("Shader Source: %s", value->shader_src);
+        rxcore_shader_t *shader = reg->shaders[i];
+        gs_println("Shader: %s", shader->shader_name);
     }
 
     gs_println("Finished init");
