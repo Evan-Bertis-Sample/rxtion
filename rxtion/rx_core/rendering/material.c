@@ -14,6 +14,8 @@ rxcore_material_prototype_t rxcore_material_prototype_create(rxcore_shader_set_t
 
 rxcore_material_t *rxcore_material_create_base(rxcore_shader_set_t set, gs_graphics_uniform_desc_t *uniform_descs, uint32_t num_uniforms)
 {
+    RXCORE_SHADER_DEBUG_PRINTF("Creating material with %d uniforms", num_uniforms);
+
     rxcore_material_t *material = malloc(sizeof(rxcore_material_t));
     material->shader_set = set;
     material->num_uniforms = num_uniforms;
@@ -38,11 +40,16 @@ rxcore_material_t *rxcore_material_create_base(rxcore_shader_set_t set, gs_graph
     }
 
     // create the uniform name to index map
-    material->uniform_name_to_index = gs_hash_table_new(const char *, uint32_t);
+    material->uniform_name_to_index = malloc(num_uniforms * sizeof(const char *));
     for (uint32_t i = 0; i < num_uniforms; i++)
     {
-        gs_hash_table_insert(material->uniform_name_to_index, uniform_descs[i].name, i);
+        const char *name_cpy = malloc(strlen(uniform_descs[i].name) + 1);
+        strcpy(name_cpy, uniform_descs[i].name);
+        RXCORE_MATERIAL_DEBUG_PRINTF("Adding uniform %s to index %d", name_cpy, i);
+        material->uniform_name_to_index[i] = name_cpy;
     }
+
+    return material;
 }
 
 rxcore_material_t *rxcore_material_create_from_prototype(const rxcore_material_prototype_t *prototype, gs_graphics_uniform_desc_t *override_uniform_descs, uint32_t num_overrides)
@@ -109,17 +116,23 @@ rxcore_material_t *rxcore_material_create_from_prototype(const rxcore_material_p
 
 void rxcore_material_add_binding(rxcore_material_t *material, const char *uniform_name, void *data, uint32_t size)
 {
-    // find the uniform
-    uint32_t *index = gs_hash_table_get(material->uniform_name_to_index, uniform_name);
-    if (index)
+    if (material->uniform_name_to_index == NULL)
     {
-        uint32_t i = *index;
-        material->uniform_bindings[i].data = data;
-        return;
+        RXCORE_MATERIAL_DEBUG_PRINT("Material has no uniforms, cannot add binding.");
         return;
     }
 
-    gs_println("Uniform not found: %s, cannot add binding.", uniform_name);
+    uint32_t index = 0;
+    bool exists = rxcore_material_get_uniform_index(material, uniform_name, &index); 
+    if (!exists)
+    {
+        RXCORE_MATERIAL_DEBUG_PRINTF("Uniform not found: %s, cannot add binding.", uniform_name);
+        return;   
+    }
+
+    RXCORE_MATERIAL_DEBUG_PRINTF("Binding %s to index %d", uniform_name, index);
+    material->uniform_bindings[index].data = data;
+    material->uniform_bindings[index].binding = size;
 }
 
 void rxcore_material_bind(rxcore_material_t *material, gs_command_buffer_t *cb)
@@ -129,22 +142,41 @@ void rxcore_material_bind(rxcore_material_t *material, gs_command_buffer_t *cb)
 
 void rxcore_material_print(rxcore_material_t *material)
 {
-    gs_println("Material:");
-    gs_println("  Vertex Shader: %s", material->shader_set.vertex_shader->shader_name);
-    gs_println("  Fragment Shader: %s", material->shader_set.fragment_shader->shader_name);
-    gs_println("  Uniforms:");
-    for (
-        gs_hash_table_iter it = gs_hash_table_iter_new(material->uniform_name_to_index);
-        gs_hash_table_iter_valid(material->uniform_name_to_index, it);
-        gs_hash_table_iter_advance(material->uniform_name_to_index, it)
-    )
+    RXCORE_MATERIAL_DEBUG_PRINT("Material:");
+    RXCORE_MATERIAL_DEBUG_PRINTF("  Vertex Shader: %s", material->shader_set.vertex_shader->shader_name);
+    RXCORE_MATERIAL_DEBUG_PRINTF("  Fragment Shader: %s", material->shader_set.fragment_shader->shader_name);
+    RXCORE_MATERIAL_DEBUG_PRINT("  Uniforms:");
+    for (uint32_t i = 0; i < material->num_uniforms; i++)
     {
-        const char *key = gs_hash_table_iter_getk(material->uniform_name_to_index, it);
-        uint32_t *value = gs_hash_table_iter_get(material->uniform_name_to_index, it);
-        gs_println("    %s: %d", key, *value);
+        RXCORE_MATERIAL_DEBUG_PRINTF("    %s", material->uniform_name_to_index[i]);
     }
 
-    gs_println("End Material");
+    RXCORE_MATERIAL_DEBUG_PRINT("End Material");
+}
+
+bool rxcore_material_uniform_exists(rxcore_material_t *material, const char *uniform_name)
+{
+    for (uint32_t i = 0; i < material->num_uniforms; i++)
+    {
+        if (strcmp(material->uniform_name_to_index[i], uniform_name) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool rxcore_material_get_uniform_index(rxcore_material_t *material, const char *uniform_name, uint32_t *out_index)
+{
+    for (uint32_t i = 0; i < material->num_uniforms; i++)
+    {
+        if (strcmp(material->uniform_name_to_index[i], uniform_name) == 0)
+        {
+            *out_index = i;
+            return true;
+        }
+    }
+    return false;
 }
 
 void rxcore_material_destroy(rxcore_material_t *material)
@@ -156,6 +188,12 @@ void rxcore_material_destroy(rxcore_material_t *material)
 
     free(material->uniform_handles);
     free(material->uniform_bindings);
-    gs_hash_table_free(material->uniform_name_to_index);
+
+    for (uint32_t i = 0; i < material->num_uniforms; i++)
+    {
+        free(material->uniform_name_to_index[i]);
+    }
+
+    free(material->uniform_name_to_index);
     free(material);
 }
