@@ -100,8 +100,8 @@ void _rxcore_shader_destroy(rxcore_shader_t *shader)
 rxcore_shader_registry_t *rxcore_shader_registry_create()
 {
     rxcore_shader_registry_t *reg = malloc(sizeof(rxcore_shader_registry_t));
-    reg->shaders = gs_hash_table_new(const char *, rxcore_shader_t *);
-    reg->dependencies = gs_hash_table_new(const char *, rxcore_shader_t *);
+    reg->shaders = gs_dyn_array_new(rxcore_shader_t*);
+    reg->dependencies = gs_dyn_array_new(rxcore_shader_t*);
     return reg;
 }
 
@@ -114,7 +114,7 @@ void rxcore_shader_registry_add_dependency(rxcore_shader_registry_t *reg, const 
         RXCORE_SHADER_DEBUG_PRINTF("Failed to create dependency: %s", dep_name);
         return;
     }
-    gs_hash_table_insert(reg->dependencies, dep_name, dep);
+    gs_dyn_array_push(reg->dependencies, dep);
 }
 
 rxcore_shader_t *rxcore_shader_registry_add_shader(rxcore_shader_registry_t *reg, rxcore_shader_desc_t desc)
@@ -126,7 +126,7 @@ rxcore_shader_t *rxcore_shader_registry_add_shader(rxcore_shader_registry_t *reg
         return NULL;
     }
 
-    gs_hash_table_insert(reg->shaders, desc.shader_name, shader);
+    gs_dyn_array_push(reg->shaders, shader);
     return shader;
 }
 
@@ -163,51 +163,51 @@ rxcore_shader_set_t rxcore_shader_registry_get_shader_set(rxcore_shader_registry
 
 void rxcore_shader_registry_destroy(rxcore_shader_registry_t *reg)
 {
-    for (
-        gs_hash_table_iter it = gs_hash_table_iter_new(reg->shaders);
-        gs_hash_table_iter_valid(reg->shaders, it);
-        gs_hash_table_iter_advance(reg->shaders, it))
+    for (uint32_t i = 0; i < gs_dyn_array_size(reg->shaders); i++)
     {
-        rxcore_shader_t *shader = gs_hash_table_iter_get(reg->shaders, it);
+        rxcore_shader_t *shader = reg->shaders[i];
         _rxcore_shader_destroy(shader);
     }
 
-    for (
-        gs_hash_table_iter it = gs_hash_table_iter_new(reg->dependencies);
-        gs_hash_table_iter_valid(reg->dependencies, it);
-        gs_hash_table_iter_advance(reg->dependencies, it))
+    for (uint32_t i = 0; i < gs_dyn_array_size(reg->dependencies); i++)
     {
-        rxcore_shader_t *dep = gs_hash_table_iter_get(reg->dependencies, it);
+        rxcore_shader_t *dep = reg->dependencies[i];
         _rxcore_shader_destroy(dep);
     }
 
-    gs_hash_table_free(reg->shaders);
-    gs_hash_table_free(reg->dependencies);
+    gs_dyn_array_free(reg->shaders);
+    gs_dyn_array_free(reg->dependencies);
     free(reg);
 }
 
 rxcore_shader_t *_rxcore_shader_registry_find_dependency(rxcore_shader_registry_t *reg, const char *shader_name)
 {
-    rxcore_shader_t *dep = gs_hash_table_get(reg->dependencies, shader_name);
-    if (!dep)
+    for (uint32_t i = 0; i < gs_dyn_array_size(reg->dependencies); i++)
     {
-        RXCORE_SHADER_DEBUG_PRINTF("Dependency not found: %s", shader_name);
-        return NULL;
+        rxcore_shader_t *dep = reg->dependencies[i];
+        if (strcmp(dep->shader_name, shader_name) == 0)
+        {
+            return dep;
+        }
     }
 
-    return dep;
+    RXCORE_SHADER_DEBUG_PRINTF("Dependency not found: %s", shader_name);
+    return NULL;
 }
 
 rxcore_shader_t *_rxcore_shader_registry_find_shader(rxcore_shader_registry_t *reg, const char *shader_name)
 {
-    rxcore_shader_t *shader = gs_hash_table_get(reg->shaders, shader_name);
-    if (!shader)
+    for (uint32_t i = 0; i < gs_dyn_array_size(reg->shaders); i++)
     {
-        RXCORE_SHADER_DEBUG_PRINTF("Shader not found: %s", shader_name);
-        return NULL;
+        rxcore_shader_t *shader = reg->shaders[i];
+        if (strcmp(shader->shader_name, shader_name) == 0)
+        {
+            return shader;
+        }
     }
 
-    return shader;
+    RXCORE_SHADER_DEBUG_PRINTF("Shader not found: %s", shader_name);
+    return NULL;
 }
 
 rxcore_shader_program_t *rxcore_shader_program_set(rxcore_shader_set_t set)

@@ -41,8 +41,9 @@ typedef struct rxcore_shader_t
 
 typedef struct rxcore_shader_registry_t
 {
-    gs_hash_table(const char *, rxcore_shader_t *) shaders;
-    gs_hash_table(const char *, rxcore_shader_t *) dependencies;
+    gs_dyn_array(rxcore_shader_t *) shaders;
+    gs_dyn_array(rxcore_shader_t *) dependencies;
+
 } rxcore_shader_registry_t;
 
 typedef struct rxcore_shader_set_t
