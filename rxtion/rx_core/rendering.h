@@ -93,13 +93,15 @@ void rxcore_rendering_init()
     gs_println("Creating material from prototype");
     rxcore_material_t *material = RXCORE_MATERIAL_CREATE_FROM_PROTOTYPE_OVERIDE(&prototype, uni_test);
 
+    rxcore_material_print(material);
+    
+
     gs_println("Adding bindings");
     int binding = 5;
     float float_binding = 5.0f;
-    rxcore_material_add_binding(material, "u_test", binding, sizeof(int));
+    rxcore_material_add_binding(material, "u_test", &binding, sizeof(int));
     rxcore_material_add_binding(material, "u_test_float", &float_binding, sizeof(float));
 
-    rxcore_material_print(material);
 }
 
 void rxcore_rendering_update()

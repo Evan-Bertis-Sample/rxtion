@@ -163,18 +163,26 @@ rxcore_shader_set_t rxcore_shader_registry_get_shader_set(rxcore_shader_registry
 
 void rxcore_shader_registry_destroy(rxcore_shader_registry_t *reg)
 {
-    for (uint32_t i = 0; i < gs_dyn_array_size(reg->shaders); i++)
+    for (
+        gs_hash_table_iter it = gs_hash_table_iter_new(reg->shaders);
+        gs_hash_table_iter_valid(reg->shaders, it);
+        gs_hash_table_iter_advance(reg->shaders, it))
     {
-        _rxcore_shader_destroy(&reg->shaders[i]);
+        rxcore_shader_t *shader = gs_hash_table_iter_get(reg->shaders, it);
+        _rxcore_shader_destroy(shader);
     }
 
-    for (uint32_t i = 0; i < gs_dyn_array_size(reg->dependencies); i++)
+    for (
+        gs_hash_table_iter it = gs_hash_table_iter_new(reg->dependencies);
+        gs_hash_table_iter_valid(reg->dependencies, it);
+        gs_hash_table_iter_advance(reg->dependencies, it))
     {
-        _rxcore_shader_destroy(&reg->dependencies[i]);
+        rxcore_shader_t *dep = gs_hash_table_iter_get(reg->dependencies, it);
+        _rxcore_shader_destroy(dep);
     }
 
-    gs_dyn_array_free(reg->shaders);
-    gs_dyn_array_free(reg->dependencies);
+    gs_hash_table_free(reg->shaders);
+    gs_hash_table_free(reg->dependencies);
     free(reg);
 }
 
