@@ -44,7 +44,7 @@ rxcore_scene_graph_t *rxcore_scene_graph_create()
     return graph;
 }
 
-rxcore_scene_graph_add_child(rxcore_scene_graph_t *graph, rxcore_scene_node_t *node)
+void rxcore_scene_graph_add_child(rxcore_scene_graph_t *graph, rxcore_scene_node_t *node)
 {
     rxcore_scene_node_add_child(graph->root, node);
 }
