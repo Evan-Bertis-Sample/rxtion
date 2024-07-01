@@ -113,44 +113,15 @@ void rxcore_rendering_init()
     rxcore_mesh_buffer_get_index_buffer(mesh_reg->buffer);
 
     // get the mesh
-    rxcore_mesh_t mesh = rxcore_mesh_registry_get_mesh(mesh_reg, "quad");
-    // print out the mesh
-    rxcore_vertex_t *mesh_vertices = rxcore_mesh_get_vertices(&mesh);
-    uint32_t *mesh_indices = rxcore_mesh_get_indices(&mesh);
 
+    gs_println("Printing meshes");
     gs_println("Quad:");
-    for (uint32_t i = 0; i < mesh.index_count; i++)
-    {
-        gs_println("  Vertex: %f, %f, %f", mesh_vertices[i].position.x, mesh_vertices[i].position.y, mesh_vertices[i].position.z);
-    }
+    rxcore_mesh_t mesh = rxcore_mesh_registry_get_mesh(mesh_reg, "quad");
+    rxcore_mesh_print(&mesh, printf, true);
 
-    for (uint32_t i = 0; i < mesh.index_count; i++)
-    {
-        gs_println("  Index: %d", mesh_indices[i]);
-    }
-
-    // free both the vertices and indices
-    free(mesh_vertices);
-    free(mesh_indices);
-
-    gs_println("\nTriangle:");
-    // now do the same for the triangle
+    gs_println("Triangle:");
     mesh = rxcore_mesh_registry_get_mesh(mesh_reg, "triangle");
-    // print out the mesh
-    mesh_vertices = rxcore_mesh_get_vertices(&mesh);
-    mesh_indices = rxcore_mesh_get_indices(&mesh);
-
-    for (uint32_t i = 0; i < mesh.index_count; i++)
-    {
-        gs_println("  Vertex: %f, %f, %f", mesh_vertices[i].position.x, mesh_vertices[i].position.y, mesh_vertices[i].position.z);
-    }
-
-    for (uint32_t i = 0; i < mesh.index_count; i++)
-    {
-        gs_println("  Index: %d", mesh_indices[i]);
-    }
-
-    gs_println("Finished init");
+    rxcore_mesh_print(&mesh, printf, true);
 }
 
 void rxcore_rendering_update()

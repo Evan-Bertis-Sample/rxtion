@@ -147,6 +147,40 @@ bool rxcore_mesh_is_empty(rxcore_mesh_t *mesh)
     return mesh->index_count == 0;
 }
 
+void rxcore_mesh_print(rxcore_mesh_t *mesh, void (*print_func)(const char *, ...), bool add_newline)
+{
+    print_func("Mesh: %p ", mesh);
+    print_func("Starting index: %d ", mesh->starting_index);
+    print_func("Index count: %d ", mesh->index_count);
+    print_func("Buffer: %p ", mesh->buffer);
+    print_func("Vertices: %p\n");
+    rxcore_vertex_t *vertices = rxcore_mesh_get_vertices(mesh);
+    for (uint32_t i = 0; i < mesh->index_count; i++)
+    {
+        print_func("  Vertex: P %f, %f, %f, N %f, %f, %f, U %f, %f", 
+            vertices[i].position.x, vertices[i].position.y, vertices[i].position.z, 
+            vertices[i].normal.x, vertices[i].normal.y, vertices[i].normal.z, 
+            vertices[i].uv.x, vertices[i].uv.y
+        );
+
+        if (add_newline)
+        {
+            print_func("\n");
+        }
+    }
+
+    print_func("Indices: %p\n");
+    uint32_t *indices = rxcore_mesh_get_indices(mesh);
+    for (uint32_t i = 0; i < mesh->index_count; i++)
+    {
+        print_func("  Index: %d", indices[i]);
+        if (add_newline)
+        {
+            print_func("\n");
+        }
+    }
+}
+
 rxcore_mesh_registry_t *rxcore_mesh_registry_create()
 {
     rxcore_mesh_registry_t *reg = malloc(sizeof(rxcore_mesh_registry_t));

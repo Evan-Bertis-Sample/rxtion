@@ -59,6 +59,7 @@ uint32_t *rxcore_mesh_get_indices(rxcore_mesh_t *mesh);
 void rxcore_mesh_draw(rxcore_mesh_t *mesh, gs_command_buffer_t *cb);
 bool rxcore_mesh_load_from_file(const char *file_path, rxcore_vertex_t *vertex_out, uint32_t *vertex_count_out, uint32_t *indices_out, uint32_t *index_count_out);
 bool rxcore_mesh_is_empty(rxcore_mesh_t *mesh);
+void rxcore_mesh_print(rxcore_mesh_t *mesh, void (*print_func)(const char *, ...), bool add_newlines);
 
 rxcore_mesh_registry_t *rxcore_mesh_registry_create();
 rxcore_mesh_t *rxcore_mesh_registry_add_mesh(rxcore_mesh_registry_t *reg, const char *mesh_name, rxcore_vertex_t *vertices, uint32_t vertex_count, uint32_t *indices, uint32_t index_count);
