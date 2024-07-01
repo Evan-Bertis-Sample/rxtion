@@ -11,6 +11,7 @@
 #define RXCORE_SHADER_DEBUG_PRINTF(str, ...) gs_println("RXCORE::rendering::shader::" str, __VA_ARGS__)
 #else
 #define RXCORE_SHADER_DEBUG_PRINT(...) ((void)0)
+#define RXCORE_SHADER_DEBUG_PRINTF(...) ((void)0)
 #endif
 
 typedef enum rxcore_shader_stage_t

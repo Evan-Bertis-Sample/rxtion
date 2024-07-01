@@ -4,7 +4,8 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/rxtion"
+                "${workspaceFolder}/rxtion",
+                "${workspaceFolder}/vendor/gs",
             ],
             "defines": [
                 "_DEBUG",
