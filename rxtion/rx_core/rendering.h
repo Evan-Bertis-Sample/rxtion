@@ -81,7 +81,6 @@ void rxcore_rendering_init()
 
     rxcore_material_print(material);
     
-
     gs_println("Adding bindings");
     int binding = 5;
     float float_binding = 5.0f;

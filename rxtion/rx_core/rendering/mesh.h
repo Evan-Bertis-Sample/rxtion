@@ -2,7 +2,17 @@
 #define __MESH_H__
 
 #include <gs/gs.h>
-#include <stdlib.h> 
+#include <stdbool.h>
+
+#define RXCORE_MESH_DEBUG
+
+#ifdef RXCORE_MESH_DEBUG
+#define RXCORE_MESH_DEBUG_PRINT(str) gs_println("RXCORE::rendering::mesh::" str)
+#define RXCORE_MESH_DEBUG_PRINTF(str, ...) gs_println("RXCORE::rendering::mesh::" str, __VA_ARGS__)
+#else
+#define RXCORE_MESH_DEBUG_PRINT(...) ((void)0)
+#define RXCORE_MESH_DEBUG_PRINTF(...) ((void)0)
+#endif
 
 typedef struct rxcore_vertex_t
 {
@@ -17,7 +27,10 @@ typedef struct rxcore_mesh_buffer_t
     gs_dyn_array(uint32_t) indices;
     gs_handle(gs_graphics_vertex_buffer_t) vertex_buffer;
     gs_handle(gs_graphics_index_buffer_t) index_buffer;
-    bool is_dirty; // if true, the vertex and index buffers need to be updated
+    bool vertex_dirty;
+    bool index_dirty;
+    bool vertex_generated;
+    bool index_generated;
 } rxcore_mesh_buffer_t;
 
 typedef struct rxcore_mesh_t
@@ -29,7 +42,7 @@ typedef struct rxcore_mesh_t
 
 typedef struct rxcore_mesh_registry_t
 {
-    rxcore_mesh_buffer_t buffer;
+    rxcore_mesh_buffer_t *buffer;
     gs_dyn_array(rxcore_mesh_t) meshes;
     gs_dyn_array(const char *) mesh_names;
 } rxcore_mesh_registry_t;
@@ -44,6 +57,7 @@ void rxcore_mesh_buffer_destroy(rxcore_mesh_buffer_t *buffer);
 rxcore_vertex_t *rxcore_mesh_get_vertices(rxcore_mesh_t *mesh);
 uint32_t *rxcore_mesh_get_indices(rxcore_mesh_t *mesh);
 void rxcore_mesh_draw(rxcore_mesh_t *mesh, gs_command_buffer_t *cb);
+bool rxcore_mesh_load_from_file(const char *file_path, rxcore_vertex_t *vertex_out, uint32_t *vertex_count_out, uint32_t *indices_out, uint32_t *index_count_out);
 bool rxcore_mesh_is_empty(rxcore_mesh_t *mesh);
 
 rxcore_mesh_registry_t *rxcore_mesh_registry_create();
