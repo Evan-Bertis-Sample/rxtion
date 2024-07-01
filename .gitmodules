@@ -1,3 +1,6 @@
 [submodule "vendor/gs"]
 	path = vendor/gs
 	url = https://github.com/MrFrenik/gunslinger
+[submodule "vendor/cjson"]
+	path = vendor/cjson
+	url = https://github.com/DaveGamble/cJSON
