@@ -18,6 +18,7 @@
         "xlocale": "cpp",
         "algorithm": "c",
         "rendering.h": "c",
-        "system.h": "c"
+        "system.h": "c",
+        "initializer_list": "cpp"
     }
 }

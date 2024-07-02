@@ -5,6 +5,7 @@
 #include <rxcore/system.h>
 #include <rxcore/rendering/shader.h>
 #include <rxcore/rendering.h>
+#include <rxcore/profiler.h>
 
 
 typedef struct rxapp_t
@@ -18,6 +19,7 @@ void rxapp_init()
 {
     g_core_systems = RXCORE_SYSTEMS(
         rxcore_rendering_system,
+        rxcore_profiling_system
     );
     rxcore_init(g_core_systems);
 }
