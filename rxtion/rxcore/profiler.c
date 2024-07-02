@@ -7,8 +7,11 @@
 #include <time.h>
 #include <gs/gs.h>
 
-// Initialize the global profiler
-static rxcore_profiler_t g_profiler = {0};
+// undefine malloc and free redefined in rxcore_profiler.h
+// this is to use the system malloc and free functions
+#undef malloc
+#undef free
+
 
 void rxcore_profiling_system_init() {
     g_profiler = rxcore_profiler_create();
@@ -23,7 +26,7 @@ void rxcore_profiling_system_shutdown() {
 }
 
 rxcore_profiling_task_t *rxcore_profiling_task_create(const char *name) {
-    rxcore_profiling_task_t *task = (rxcore_profiling_task_t *)std_malloc(sizeof(rxcore_profiling_task_t));
+    rxcore_profiling_task_t *task = (rxcore_profiling_task_t *)malloc(sizeof(rxcore_profiling_task_t));
     task->name = strdup(name);
     task->start = (double)clock() / CLOCKS_PER_SEC;
     task->end = 0;
@@ -125,7 +128,7 @@ void rxcore_profiler_destroy(rxcore_profiler_t *profiler) {
 }
 
 void* rxcore_profiler_malloc(size_t size) {
-    void *ptr = std_malloc(size + sizeof(size_t));
+    void *ptr = malloc(size + sizeof(size_t));
     *((size_t *)ptr) = size;
     ptr = (void *)((size_t)ptr + 1);
 
@@ -141,5 +144,5 @@ void rxcore_profiler_free(void *ptr) {
         g_profiler.current_task->num_frees++;
         g_profiler.current_task->bytes_freed += *((size_t *)((size_t)ptr - 1));
     }
-    std_free(ptr);
+    free(ptr);
 }

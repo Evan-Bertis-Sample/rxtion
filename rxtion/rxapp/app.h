@@ -18,8 +18,8 @@ gs_global rxcore_systems_t *g_core_systems;
 void rxapp_init()
 {
     g_core_systems = RXCORE_SYSTEMS(
+        rxcore_profiling_system,
         rxcore_rendering_system,
-        rxcore_profiling_system
     );
     rxcore_init(g_core_systems);
 }

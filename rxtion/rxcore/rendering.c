@@ -9,12 +9,18 @@
 #include <rxcore/rendering/scene_graph.h>
 #include <rxcore/transform.h>
 
+#include <rxcore/profiler.h>
+
 void rxcore_rendering_init()
 {
+    RXCORE_PROFILER_BEGIN_TASK("rxcore_rendering_init");
     gs_println("rxcore_rendering_init()");
     g_rendering_context = rxcore_rendering_context_create();
     _rxcore_rendering_load_core_shader_dependencies(g_rendering_context.shader_registry);
     _rxcore_rendering_load_core_shaders(g_rendering_context.shader_registry);
+    RXCORE_PROFILER_END_TASK();
+
+    RXCORE_PROFILER_REPORT();
 }
 
 void rxcore_rendering_update()

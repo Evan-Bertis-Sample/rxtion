@@ -11,8 +11,8 @@
  * RXCORE_PROFILER_BEGIN_TASK("Task 1");
  * do some stuff...
  * RXCORE_PROFILER_BEGIN_TASK("Task 1 Subprocess");
- * RXCORE_PROFILER_END_TASK("Task 1 Subprocess");
- * RXCORE_PROFILER_END_TASK("Task 1");
+ * RXCORE_PROFILER_END_TASK();
+ * RXCORE_PROFILER_END_TASK();
  */
 
 typedef struct rxcore_profiling_task_t rxcore_profiling_task_t;
@@ -38,6 +38,7 @@ typedef struct rxcore_profiler_t
     rxcore_profiling_task_t *current_task;
 } rxcore_profiler_t;
 
+// global state
 static rxcore_profiler_t g_profiler;
 
 void rxcore_profiling_system_init();
@@ -60,13 +61,9 @@ void rxcore_profiler_destroy(rxcore_profiler_t *profiler);
 void* rxcore_profiler_malloc(size_t size);
 void rxcore_profiler_free(void *ptr);
 
-// For internal use
-#define std_malloc malloc
-#define std_free free
-
 #ifdef RXCORE_PROFILING_ENABLED
 #define RXCORE_PROFILER_BEGIN_TASK(name) rxcore_profiler_begin_task(&g_profiler, name)
-#define RXCORE_PROFILER_END_TASK(name) rxcore_profiler_end_task(&g_profiler)
+#define RXCORE_PROFILER_END_TASK() rxcore_profiler_end_task(&g_profiler)
 #define RXCORE_PROFILER_REPORT() rxcore_profiler_report(&g_profiler)
 
 // redefine malloc, free, realloc
