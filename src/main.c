@@ -2,15 +2,15 @@
 #include <gs/gs.h>
 
 #define RXCORE_IMPL
-#include <rx_app/app.h>
+#include <rxapp/app.h>
 
 gs_app_desc_t gs_main(int32_t argc, char** argv)
 {
 	return (gs_app_desc_t) {
-        .user_data = gs_malloc_init(rx_app_t),
-		.init = rx_app_init,
-		.update = rx_app_update,
-        .shutdown = rx_app_shutdown,
+        .user_data = gs_malloc_init(rxapp_t),
+		.init = rxapp_init,
+		.update = rxapp_update,
+        .shutdown = rxapp_shutdown,
         .window = {
             .width = 800,
             .height = 600, 

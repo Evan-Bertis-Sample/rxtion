@@ -9,7 +9,7 @@ rxcore_scene_node_t *rxcore_scene_node_create(rxcore_transform_t transform, rxco
     node->transform = transform;
     node->mesh = mesh;
     node->material = material;
-    node->children = gs_dyn_array_new(rxcore_scene_node_t);
+    node->children = gs_dyn_array_new(rxcore_scene_node_t *);
     node->parent = NULL;
     node->graph = NULL;
     return node;
@@ -17,6 +17,9 @@ rxcore_scene_node_t *rxcore_scene_node_create(rxcore_transform_t transform, rxco
 
 void rxcore_scene_node_add_child(rxcore_scene_node_t *node, rxcore_scene_node_t *child)
 {
+    assert(node != NULL);
+    assert(child != NULL);
+
     gs_dyn_array_push(node->children, child);
     child->parent = node;
     child->graph = node->graph;
@@ -28,10 +31,46 @@ void rxcore_scene_node_add_child(rxcore_scene_node_t *node, rxcore_scene_node_t 
     }
 }
 
+rxcore_scene_node_t *rxcore_scene_node_copy(rxcore_scene_node_t *node, bool deep_copy)
+{
+    assert(node != NULL);
+
+    rxcore_scene_node_t *copy = rxcore_scene_node_create(
+        node->transform,
+        node->mesh,
+        node->material
+    );
+
+    copy->parent = NULL;
+    copy->graph = NULL;
+
+    if (deep_copy)
+    {
+        for (uint32_t i = 0; i < gs_dyn_array_size(node->children); i++)
+        {
+            rxcore_scene_node_t *child = node->children[i];
+            rxcore_scene_node_t *child_copy = rxcore_scene_node_copy(child, deep_copy);
+            rxcore_scene_node_add_child(copy, child_copy);
+        }
+    }
+    return copy;
+}
+
 rxcore_scene_graph_t *rxcore_scene_graph_create()
 {
     rxcore_scene_graph_t *graph = malloc(sizeof(rxcore_scene_graph_t));
-    rxcore_transform_t t = transform_create(
+    graph->node_count = 1;
+    graph->is_dirty = false;
+
+    // malloc the stacks
+    uint32_t stack_size = 16;
+    graph->matrix_stack = malloc(sizeof(gs_mat4) * stack_size);
+    graph->node_stack = malloc(sizeof(rxcore_scene_node_t *) * stack_size);
+    graph->depth_stack = malloc(sizeof(uint32_t) * stack_size);
+    graph->stack_size = stack_size;
+
+    // create the root node
+    rxcore_transform_t t = rxcore_transform_create(
         gs_v3(0.0f, 0.0f, 0.0f),
         gs_v3(1.0f, 1.0f, 1.0f),
         gs_quat_default());
@@ -41,16 +80,23 @@ rxcore_scene_graph_t *rxcore_scene_graph_create()
         rxcore_mesh_empty(),
         NULL
     );
+
+    graph->root->graph = graph;
     return graph;
 }
 
 void rxcore_scene_graph_add_child(rxcore_scene_graph_t *graph, rxcore_scene_node_t *node)
 {
+    assert(node != NULL);
+    assert(node->parent == NULL);
+
     rxcore_scene_node_add_child(graph->root, node);
 }
 
-void rxcore_scene_graph_traverse(rxcore_scene_graph_t *graph, rxcore_scene_graph_traveral_fn fn)
+void rxcore_scene_graph_traverse(rxcore_scene_graph_t *graph, rxcore_scene_graph_traveral_fn fn, void* user_data)
 {
+    assert(fn != NULL);
+
     if (graph->is_dirty)
     {
         _rxcore_scene_graph_regen_stacks(graph);
@@ -60,35 +106,47 @@ void rxcore_scene_graph_traverse(rxcore_scene_graph_t *graph, rxcore_scene_graph
     gs_mat4 *matrix_stack = graph->matrix_stack;
     uint32_t model_stack_ptr = 0;
 
+    rxcore_scene_node_t *node = NULL;
     rxcore_scene_node_t **node_stack = graph->node_stack;
     uint32_t node_stack_ptr = 0;
+
+    uint32_t depth = 0;
+    uint32_t *depth_stack = graph->depth_stack;
+    uint32_t depth_stack_ptr = 0;
 
     // traverse the graph in a depth first manner
     node_stack[node_stack_ptr++] = graph->root;
     matrix_stack[model_stack_ptr++] = model_matrix;
+    depth_stack[depth_stack_ptr++] = depth;
 
     while (node_stack_ptr > 0)
     {
-        rxcore_scene_node_t *node = node_stack[--node_stack_ptr];
+        node = node_stack[--node_stack_ptr];
         model_matrix = matrix_stack[--model_stack_ptr];
-
+        depth = depth_stack[--depth_stack_ptr];
         // call the traversal function
-        fn(node, model_matrix);
+        fn(node, model_matrix, depth, user_data);
 
         // push children onto the stack
         for (uint32_t i = 0; i < gs_dyn_array_size(node->children); i++)
         {
             rxcore_scene_node_t *child = node->children[i];
-            gs_mat4 child_model_matrix = gs_mat4_mul(model_matrix, rxcore_transform_to_mat4(child->transform));
+            gs_mat4 child_model_matrix = gs_mat4_mul(model_matrix, rxcore_transform_to_mat4(&(child->transform)));
             node_stack[node_stack_ptr++] = child;
             matrix_stack[model_stack_ptr++] = child_model_matrix;
+            depth_stack[depth_stack_ptr++] = depth + 1;
         }
     }
 }
 
+void rxcore_scene_graph_print(rxcore_scene_graph_t *graph, void (*print_fn)(const char *str, ...))
+{
+    rxcore_scene_graph_traverse(graph, _rxcore_scene_graph_print_node, print_fn);
+}
+
 void rxcore_scene_graph_destroy(rxcore_scene_graph_t *graph)
 {
-    rxcore_scene_graph_traverse(graph, _rxcore_scene_graph_free_node);
+    rxcore_scene_graph_traverse(graph, _rxcore_scene_graph_free_node, NULL);
     free(graph->matrix_stack);
     free(graph->node_stack);
     free(graph);
@@ -109,14 +167,26 @@ void _rxcore_scene_graph_regen_stacks(rxcore_scene_graph_t *graph)
     // we will either double the stack size or use the node count, whichever is larger
     // the reason being that we want to avoid reallocating the stack too often
     uint32_t new_size = graph->node_count < graph->stack_size * 2 ? graph->stack_size * 2 : graph->node_count;
-    graph->matrix_stack = malloc(sizeof(gs_mat4) * graph->node_count);
-    graph->node_stack = malloc(sizeof(rxcore_scene_node_t *) * graph->node_count);
+    graph->matrix_stack = malloc(sizeof(gs_mat4) * new_size);
+    graph->node_stack = malloc(sizeof(rxcore_scene_node_t *) * new_size);
+    graph->depth_stack = malloc(sizeof(uint32_t) * new_size);
     graph->stack_size = new_size;
     graph->is_dirty = false;
 }
 
-void _rxcore_scene_graph_free_node(rxcore_scene_node_t *node, void *user_data)
+void _rxcore_scene_graph_free_node(rxcore_scene_node_t *node, gs_mat4 model_matrix, int depth, void *user_data)
 {
     free(node);
+}
+
+void _rxcore_scene_graph_print_node(rxcore_scene_node_t *node, gs_mat4 model_matrix, int depth, void *user_data)
+{
+    void (*print_fn)(const char *str, ...) = user_data;
+    for (int i = 0; i < depth; i++)
+    {
+        print_fn("  ");
+    }
+    print_fn("Node: %p, depth: %d, mesh: %d-%d, parent: %p\n", node, depth, node->mesh.starting_index, node->mesh.index_count + node->mesh.starting_index, node->parent);
+
 }
 

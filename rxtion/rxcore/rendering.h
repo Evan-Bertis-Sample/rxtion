@@ -7,9 +7,11 @@
 #include <rxcore/rendering/material.h>
 #include <rxcore/rendering/mesh.h>
 #include <rxcore/rendering/mesh_primatives.h>
+#include <rxcore/rendering/scene_graph.h>
+#include <rxcore/transform.h>
 
 #define CORE_ASSET(ASSET_NAME) "rxtion/rxcore/" ASSET_NAME
-#define APP_ASSET(ASSET_NAME) "rxtion/rx_app/assets/" ASSET_NAME
+#define APP_ASSET(ASSET_NAME) "rxtion/rxapp/assets/" ASSET_NAME
 
 void rxcore_rendering_init()
 {
@@ -122,6 +124,53 @@ void rxcore_rendering_init()
     gs_println("Triangle:");
     mesh = rxcore_mesh_registry_get_mesh(mesh_reg, "triangle");
     rxcore_mesh_print(&mesh, printf, true);
+
+    // scene graph tests
+    rxcore_scene_graph_t *graph = rxcore_scene_graph_create();
+    rxcore_scene_node_t *quad_child = rxcore_scene_node_create(
+        rxcore_transform_create(
+            gs_v3(0.0f, 0.0f, 0.0f),
+            gs_v3(1.0f, 1.0f, 1.0f),
+            gs_quat_default()),
+        rxcore_mesh_registry_get_mesh(mesh_reg, "quad"),
+        material
+    );
+
+    rxcore_scene_node_t *triangle_child = rxcore_scene_node_create(
+        rxcore_transform_create(
+            gs_v3(0.0f, 0.0f, 0.0f),
+            gs_v3(1.0f, 1.0f, 1.0f),
+            gs_quat_default()),
+        rxcore_mesh_registry_get_mesh(mesh_reg, "triangle"),
+        material
+    );
+
+    rxcore_scene_graph_add_child(graph, quad_child);
+    rxcore_scene_graph_add_child(graph, triangle_child);
+
+    // should be
+    // root
+    //   quad_child
+    //       quad_child_copy
+    //       quad_child_copy2
+    //   triangle_child
+    //       triangle_child_copy
+
+
+    // now add a copy of the quad child
+    rxcore_scene_node_t *quad_child_copy = rxcore_scene_node_copy(quad_child, true);
+    rxcore_scene_node_add_child(quad_child, quad_child_copy);
+
+    // now add a copy of the triangle child
+    rxcore_scene_node_t *triangle_child_copy = rxcore_scene_node_copy(triangle_child, true);
+    rxcore_scene_node_add_child(triangle_child, triangle_child_copy);
+
+    // now add another copy of the quad child
+    rxcore_scene_node_t *quad_child_copy2 = rxcore_scene_node_copy(quad_child, true);
+    rxcore_scene_node_add_child(quad_child, quad_child_copy2);
+
+    // print out the scene graph
+    rxcore_scene_graph_print(graph, printf);
 }
 
 void rxcore_rendering_update()

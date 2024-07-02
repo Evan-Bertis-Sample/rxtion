@@ -7,14 +7,14 @@
 #include <rxcore/rendering.h>
 
 
-typedef struct rx_app_t
+typedef struct rxapp_t
 {
     gs_command_buffer_t cb;
-} rx_app_t;
+} rxapp_t;
 
 gs_global rxcore_systems_t *g_core_systems;
 
-void rx_app_init()
+void rxapp_init()
 {
     g_core_systems = RXCORE_SYSTEMS(
         rxcore_rendering_system,
@@ -23,12 +23,12 @@ void rx_app_init()
     rxcore_init(g_core_systems);
 }
 
-void rx_app_update()
+void rxapp_update()
 {
     rxcore_update(g_core_systems);
 }
 
-void rx_app_shutdown()
+void rxapp_shutdown()
 {
     rxcore_shutdown(g_core_systems);
 }

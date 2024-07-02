@@ -10,12 +10,15 @@
 
 #define MAX_SCENE_DEPTH 16
 
-typedef void (*rxcore_scene_graph_traveral_fn)(rxcore_scene_node_t *node, gs_mat4 model_matrix);
+// forward declaration
+typedef struct rxcore_scene_node_t rxcore_scene_node_t;
+typedef struct rxcore_scene_graph_t rxcore_scene_graph_t;
+typedef void (*rxcore_scene_graph_traveral_fn)(rxcore_scene_node_t *node, gs_mat4 model_matrix, int depth, void *user_data);
 
 typedef struct rxcore_scene_node_t
 {
     rxcore_transform_t transform;
-    rxcore_mesh_t mesh; // it is okay to have the mesh as a value here, because the mesh type is just a fat pointer really
+    rxcore_mesh_t mesh;          // it is okay to have the mesh as a value here, because the mesh type is just a fat pointer really
     rxcore_material_t *material; // it is not okay to have a material as a value here, because the material is pretty big
     gs_dyn_array(rxcore_scene_node_t *) children;
     rxcore_scene_node_t *parent;
@@ -34,22 +37,23 @@ typedef struct rxcore_scene_graph_t
     // this is meant for internal use only -- this contains garbage data
     gs_mat4 *matrix_stack;
     rxcore_scene_node_t **node_stack;
+    uint32_t *depth_stack;
     uint32_t stack_size;
     bool is_dirty;
 } rxcore_scene_graph_t;
 
-
 rxcore_scene_node_t *rxcore_scene_node_create(rxcore_transform_t transform, rxcore_mesh_t mesh, rxcore_material_t *material);
+rxcore_scene_node_t *rxcore_scene_node_copy(rxcore_scene_node_t *node, bool deep_copy);
 void rxcore_scene_node_add_child(rxcore_scene_node_t *node, rxcore_scene_node_t *child);
 
 rxcore_scene_graph_t *rxcore_scene_graph_create();
 void rxcore_scene_graph_add_child(rxcore_scene_graph_t *graph, rxcore_scene_node_t *node);
-void rxcore_scene_graph_traverse(rxcore_scene_graph_t *graph, rxcore_scene_graph_traveral_fn fn);
+void rxcore_scene_graph_traverse(rxcore_scene_graph_t *graph, rxcore_scene_graph_traveral_fn fn, void *user_data);
+void rxcore_scene_graph_print(rxcore_scene_graph_t *graph, void (*print_fn)(const char *str, ...));
 void rxcore_scene_graph_destroy(rxcore_scene_graph_t *graph);
 
 void _rxcore_scene_graph_regen_stacks(rxcore_scene_graph_t *graph);
-void _rxcore_scene_graph_free_node(rxcore_scene_node_t *node, void *user_data);
-
-
+void _rxcore_scene_graph_free_node(rxcore_scene_node_t *node, gs_mat4 model_matrix, int depth,void *user_data);
+void _rxcore_scene_graph_print_node(rxcore_scene_node_t *node, gs_mat4 model_matrix, int depth, void *user_data);
 
 #endif // __SCENE_GRAPH_H__
