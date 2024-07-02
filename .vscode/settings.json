@@ -16,6 +16,8 @@
         "xutility": "cpp",
         "system_error": "cpp",
         "xlocale": "cpp",
-        "algorithm": "c"
+        "algorithm": "c",
+        "rendering.h": "c",
+        "system.h": "c"
     }
 }
