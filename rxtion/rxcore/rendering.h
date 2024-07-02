@@ -170,7 +170,17 @@ void rxcore_rendering_init()
     rxcore_scene_node_add_child(quad_child, quad_child_copy2);
 
     // print out the scene graph
+    gs_println("Printing scene graph before removing quad child");
     rxcore_scene_graph_print(graph, printf);
+
+    // now remove the quad child
+    rxcore_scene_graph_remove_child(graph, quad_child);
+    // print out the scene graph
+    gs_println("Printing scene graph after removing quad child");
+    rxcore_scene_graph_print(graph, printf);
+
+    // destroy the scene graph
+    rxcore_scene_graph_destroy(graph);
 }
 
 void rxcore_rendering_update()

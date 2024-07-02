@@ -38,8 +38,7 @@ rxcore_scene_node_t *rxcore_scene_node_copy(rxcore_scene_node_t *node, bool deep
     rxcore_scene_node_t *copy = rxcore_scene_node_create(
         node->transform,
         node->mesh,
-        node->material
-    );
+        node->material);
 
     copy->parent = NULL;
     copy->graph = NULL;
@@ -54,6 +53,57 @@ rxcore_scene_node_t *rxcore_scene_node_copy(rxcore_scene_node_t *node, bool deep
         }
     }
     return copy;
+}
+
+void rxcore_scene_node_remove_child(rxcore_scene_node_t *node, rxcore_scene_node_t *child)
+{
+    assert(node != NULL);
+    assert(child != NULL);
+
+    for (uint32_t i = 0; i < gs_dyn_array_size(node->children); i++)
+    {
+        if (node->children[i] == child)
+        {
+            // turn this into a scene_graph real quick lol
+            rxcore_scene_graph_t *graph = rxcore_scene_graph_create_from_node(child);
+            // free this graph to destroy all the children
+            rxcore_scene_graph_destroy(graph);
+            node->children[i] = NULL;
+            // update the graph's node count
+            if (node->graph)
+            {
+                node->graph->node_count--;
+            }
+
+            // create a new array, and copy all the children except the one we are removing
+            gs_dyn_array(rxcore_scene_node_t *) new_children = gs_dyn_array_new(rxcore_scene_node_t *);
+            for (uint32_t i = 0; i < gs_dyn_array_size(node->children); i++)
+            {
+                if (node->children[i] != NULL)
+                {
+                    gs_dyn_array_push(new_children, node->children[i]);
+                }
+            }
+
+            gs_dyn_array_free(node->children);
+            node->children = new_children;
+
+            return;
+        }
+    }
+}
+
+void rxcore_scene_node_destroy(rxcore_scene_node_t *node)
+{
+    assert(node != NULL);
+
+    for (uint32_t i = 0; i < gs_dyn_array_size(node->children); i++)
+    {
+        rxcore_scene_node_destroy(node->children[i]);
+    }
+
+    gs_dyn_array_free(node->children);
+    free(node);
 }
 
 rxcore_scene_graph_t *rxcore_scene_graph_create()
@@ -78,10 +128,17 @@ rxcore_scene_graph_t *rxcore_scene_graph_create()
     graph->root = rxcore_scene_node_create(
         t,
         rxcore_mesh_empty(),
-        NULL
-    );
+        NULL);
 
     graph->root->graph = graph;
+    return graph;
+}
+
+rxcore_scene_graph_t *rxcore_scene_graph_create_from_node(rxcore_scene_node_t *node)
+{
+    rxcore_scene_graph_t *graph = rxcore_scene_graph_create();
+    rxcore_scene_node_destroy(graph->root);
+    graph->root = node;
     return graph;
 }
 
@@ -93,7 +150,15 @@ void rxcore_scene_graph_add_child(rxcore_scene_graph_t *graph, rxcore_scene_node
     rxcore_scene_node_add_child(graph->root, node);
 }
 
-void rxcore_scene_graph_traverse(rxcore_scene_graph_t *graph, rxcore_scene_graph_traveral_fn fn, void* user_data)
+void rxcore_scene_graph_remove_child(rxcore_scene_graph_t *graph, rxcore_scene_node_t *node)
+{
+    assert(node != NULL);
+    assert(node->parent != NULL);
+
+    rxcore_scene_node_remove_child(graph->root, node);
+}
+
+void rxcore_scene_graph_traverse(rxcore_scene_graph_t *graph, rxcore_scene_graph_traveral_fn fn, void *user_data)
 {
     assert(fn != NULL);
 
@@ -176,7 +241,7 @@ void _rxcore_scene_graph_regen_stacks(rxcore_scene_graph_t *graph)
 
 void _rxcore_scene_graph_free_node(rxcore_scene_node_t *node, gs_mat4 model_matrix, int depth, void *user_data)
 {
-    free(node);
+    rxcore_scene_node_destroy(node);
 }
 
 void _rxcore_scene_graph_print_node(rxcore_scene_node_t *node, gs_mat4 model_matrix, int depth, void *user_data)
@@ -187,6 +252,4 @@ void _rxcore_scene_graph_print_node(rxcore_scene_node_t *node, gs_mat4 model_mat
         print_fn("  ");
     }
     print_fn("Node: %p, depth: %d, mesh: %d-%d, parent: %p\n", node, depth, node->mesh.starting_index, node->mesh.index_count + node->mesh.starting_index, node->parent);
-
 }
-

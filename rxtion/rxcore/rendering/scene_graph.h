@@ -45,9 +45,13 @@ typedef struct rxcore_scene_graph_t
 rxcore_scene_node_t *rxcore_scene_node_create(rxcore_transform_t transform, rxcore_mesh_t mesh, rxcore_material_t *material);
 rxcore_scene_node_t *rxcore_scene_node_copy(rxcore_scene_node_t *node, bool deep_copy);
 void rxcore_scene_node_add_child(rxcore_scene_node_t *node, rxcore_scene_node_t *child);
+void rxcore_scene_node_remove_child(rxcore_scene_node_t *node, rxcore_scene_node_t *child);
+void rxcore_scene_node_destroy(rxcore_scene_node_t *node);
 
 rxcore_scene_graph_t *rxcore_scene_graph_create();
+rxcore_scene_graph_t *rxcore_scene_graph_create_from_node(rxcore_scene_node_t *node);
 void rxcore_scene_graph_add_child(rxcore_scene_graph_t *graph, rxcore_scene_node_t *node);
+void rxcore_scene_graph_remove_child(rxcore_scene_graph_t *graph, rxcore_scene_node_t *node);
 void rxcore_scene_graph_traverse(rxcore_scene_graph_t *graph, rxcore_scene_graph_traveral_fn fn, void *user_data);
 void rxcore_scene_graph_print(rxcore_scene_graph_t *graph, void (*print_fn)(const char *str, ...));
 void rxcore_scene_graph_destroy(rxcore_scene_graph_t *graph);
