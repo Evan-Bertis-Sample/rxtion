@@ -58,12 +58,10 @@ void rxcore_profiler_destroy(rxcore_profiler_t *profiler);
 
 void* rxcore_profiler_malloc(size_t size);
 void rxcore_profiler_free(void *ptr);
-void* rxcore_profiler_realloc(void *ptr, size_t size);
 
 // For internal use
 #define std_malloc malloc
 #define std_free free
-#define std_realloc realloc
 
 #ifdef RXCORE_PROFILING_ENABLED
 #define RXCORE_PROFILER_BEGIN_TASK(name) rxcore_profiler_begin_task(&g_profiler, name)
@@ -73,7 +71,6 @@ void* rxcore_profiler_realloc(void *ptr, size_t size);
 // redefine malloc, free, realloc
 #define malloc(size) rxcore_profiler_malloc(size)
 #define free(ptr) rxcore_profiler_free(ptr)
-#define realloc(ptr, size) rxcore_profiler_realloc(ptr, size)
 
 #else
 #define RXCORE_PROFILER_BEGIN_TASK(name) ((void)0)
