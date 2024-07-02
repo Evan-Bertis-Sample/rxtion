@@ -33,7 +33,7 @@ typedef struct rxcore_rendering_context_t
     // probably will add more stuff here later...
 } rxcore_rendering_context_t;
 
-rxcore_rendering_context_t g_rendering_context;
+static rxcore_rendering_context_t g_rendering_context;
 
 void rxcore_rendering_init();
 void rxcore_rendering_update();
@@ -43,8 +43,8 @@ rxcore_rendering_context_t rxcore_rendering_context_create();
 void rxcore_rendering_context_destroy(rxcore_rendering_context_t *context);
 
 // private methods for rendering
-void _rxcore_rendering_load_core_shader_dependencies(rxcore_shader_registry_t *reg);
-void _rxcore_rendering_load_core_shaders(rxcore_shader_registry_t *reg);
+static void _rxcore_rendering_load_core_shader_dependencies(rxcore_shader_registry_t *reg);
+static void _rxcore_rendering_load_core_shaders(rxcore_shader_registry_t *reg);
 
 #define rxcore_rendering_system RXCORE_SYSTEM(rxcore_rendering_init, rxcore_rendering_update, rxcore_rendering_shutdown)
 
