@@ -197,3 +197,101 @@ void rxcore_material_destroy(rxcore_material_t *material)
     free(material->uniform_name_to_index);
     free(material);
 }
+
+rxcore_material_registry_t *rxcore_material_registry_create()
+{
+    rxcore_material_registry_t *reg = malloc(sizeof(rxcore_material_registry_t));
+    reg->prototypes = gs_dyn_array_new(rxcore_material_prototype_t *);
+    reg->prototype_names = gs_dyn_array_new(char *);
+    reg->materials = gs_dyn_array_new(rxcore_material_t *);
+    reg->material_names = gs_dyn_array_new(char *);
+    return reg;
+}
+
+rxcore_material_t *rxcore_material_registry_add_material(rxcore_material_registry_t *reg, const char *material_name, rxcore_material_t *material)
+{
+    gs_dyn_array_push(reg->materials, material);
+    gs_dyn_array_push(reg->material_names, material_name);
+    return &reg->materials[gs_dyn_array_size(reg->materials) - 1];
+}
+
+rxcore_material_t *rxcore_material_registry_get_material(rxcore_material_registry_t *reg, const char *material_name)
+{
+    uint32_t index = 0;
+    if (!rxcore_material_registry_get_material_index(reg, material_name, &index))
+    {
+        RXCORE_MATERIAL_DEBUG_PRINTF("Failed to find material: %s", material_name);
+        return NULL;
+    }
+
+    return reg->materials[index];
+}
+
+bool rxcore_material_registry_get_material_index(rxcore_material_registry_t *reg, const char *material_name, uint32_t *out_index)
+{
+    for (uint32_t i = 0; i < gs_dyn_array_size(reg->material_names); i++)
+    {
+        if (strcmp(reg->material_names[i], material_name) == 0)
+        {
+            *out_index = i;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+rxcore_material_prototype_t *rxcore_material_registry_add_prototype(rxcore_material_registry_t *reg, const char *prototype_name, rxcore_material_prototype_t *prototype)
+{
+    // make a copy of the prototype
+    rxcore_material_prototype_t *proto_copy = malloc(sizeof(rxcore_material_prototype_t));
+    *proto_copy = *prototype;
+
+    // add the prototype to the registry
+    gs_dyn_array_push(reg->prototypes, proto_copy);
+    gs_dyn_array_push(reg->prototype_names, prototype_name);
+    return proto_copy;
+}
+
+rxcore_material_prototype_t *rxcore_material_registry_get_prototype(rxcore_material_registry_t *reg, const char *prototype_name)
+{
+    uint32_t index = 0;
+    if (!rxcore_material_registry_get_prototype_index(reg, prototype_name, &index))
+    {
+        RXCORE_MATERIAL_DEBUG_PRINTF("Failed to find prototype: %s", prototype_name);
+        return NULL;
+    }
+
+    return reg->prototypes[index];
+}
+
+bool rxcore_material_registry_get_prototype_index(rxcore_material_registry_t *reg, const char *prototype_name, uint32_t *out_index)
+{
+    for (uint32_t i = 0; i < gs_dyn_array_size(reg->prototype_names); i++)
+    {
+        if (strcmp(reg->prototype_names[i], prototype_name) == 0)
+        {
+            *out_index = i;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+void rxcore_material_registry_destroy(rxcore_material_registry_t *reg)
+{
+    for (uint32_t i = 0; i < gs_dyn_array_size(reg->materials); i++)
+    {
+        rxcore_material_destroy(reg->materials[i]);
+    }
+
+    gs_dyn_array_free(reg->prototypes);
+    gs_dyn_array_free(reg->prototype_names);
+    gs_dyn_array_free(reg->materials);
+    gs_dyn_array_free(reg->material_names);
+    free(reg);
+}
+
+

@@ -19,7 +19,6 @@ void rxapp_init()
     g_core_systems = RXCORE_SYSTEMS(
         rxcore_rendering_system,
     );
-
     rxcore_init(g_core_systems);
 }
 

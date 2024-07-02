@@ -30,6 +30,14 @@ typedef struct rxcore_material_t
     uint32_t num_uniforms;
 } rxcore_material_t;
 
+typedef struct rxcore_material_registry_t
+{
+    gs_dyn_array(rxcore_material_prototype_t *) prototypes;
+    gs_dyn_array(char *) prototype_names;
+    gs_dyn_array(rxcore_material_t *) materials;
+    gs_dyn_array(char *) material_names;
+} rxcore_material_registry_t;
+
 // RXCORE_MATERIAL_PROTOTYPE methods
 rxcore_material_prototype_t rxcore_material_prototype_create(rxcore_shader_set_t set, gs_graphics_uniform_desc_t *uniform_descs, uint32_t num_uniforms);
 #define RXCORE_MATERIAL_PROTOTYPE_CREATE(set, ...) rxcore_material_prototype_create(set, (gs_graphics_uniform_desc_t[]){__VA_ARGS__}, sizeof((gs_graphics_uniform_desc_t[]){__VA_ARGS__}) / sizeof(gs_graphics_uniform_desc_t))
@@ -57,5 +65,15 @@ void rxcore_material_destroy(rxcore_material_t *material);
             .type = uniform_type                                       \
         }                                                              \
     }
+
+rxcore_material_registry_t *rxcore_material_registry_create();
+rxcore_material_t *rxcore_material_registry_add_material(rxcore_material_registry_t *reg, const char *material_name, rxcore_material_t *material);
+rxcore_material_t *rxcore_material_registry_get_material(rxcore_material_registry_t *reg, const char *material_name);
+bool rxcore_material_registry_get_material_index(rxcore_material_registry_t *reg, const char *material_name, uint32_t *out_index);
+rxcore_material_prototype_t *rxcore_material_registry_add_prototype(rxcore_material_registry_t *reg, const char *prototype_name, rxcore_material_prototype_t *prototype);
+rxcore_material_prototype_t *rxcore_material_registry_get_prototype(rxcore_material_registry_t *reg, const char *prototype_name);
+bool rxcore_material_registry_get_prototype_index(rxcore_material_registry_t *reg, const char *prototype_name, uint32_t *out_index);
+
+void rxcore_material_registry_destroy(rxcore_material_registry_t *reg);
 
 #endif // __MATERIAL_H__
