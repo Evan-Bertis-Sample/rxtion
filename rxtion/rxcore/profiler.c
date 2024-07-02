@@ -1,6 +1,6 @@
 // profiler.c
 
-#include "profiler.h"
+#include <rxcore/profiler.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -32,7 +32,7 @@ rxcore_profiling_task_t *rxcore_profiling_task_create(const char *name) {
     task->num_reallocs = 0;
     task->bytes_allocated = 0;
     task->bytes_freed = 0;
-    gs_dyn_array_init(task->children);
+    task->children = gs_dyn_array_new(rxcore_profiling_task_t *);
     return task;
 }
 
@@ -60,8 +60,8 @@ void rxcore_profiling_task_destroy(rxcore_profiling_task_t *task) {
 
 rxcore_profiler_t rxcore_profiler_create() {
     rxcore_profiler_t profiler = {0};
-    gs_dyn_array_new(profiler.tasks);
-    gs_dyn_array_new(profiler.stack);
+    profiler.tasks = gs_dyn_array_new(rxcore_profiling_task_t *);
+    profiler.stack = gs_dyn_array_new(rxcore_profiling_task_t *);
     profiler.stack_index = 0;
     profiler.current_task = NULL;
     return profiler;
@@ -142,12 +142,4 @@ void rxcore_profiler_free(void *ptr) {
         g_profiler.current_task->bytes_freed += *((size_t *)((size_t)ptr - 1));
     }
     std_free(ptr);
-}
-
-void* rxcore_profiler_realloc(void *ptr, size_t size) {
-    void *new_ptr = std_realloc(ptr, size);
-    if (g_profiler.current_task) {
-        g_profiler.current_task->num_reallocs++;
-    }
-    return new_ptr;
 }

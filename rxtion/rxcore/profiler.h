@@ -15,6 +15,7 @@
  * RXCORE_PROFILER_END_TASK("Task 1");
  */
 
+typedef struct rxcore_profiling_task_t rxcore_profiling_task_t;
 
 typedef struct rxcore_profiling_task_t
 {
