@@ -46,7 +46,7 @@ typedef struct rxcore_profiler_t
 } rxcore_profiler_t;
 
 // global state
-static rxcore_profiler_t g_profiler;
+extern rxcore_profiler_t g_profiler;
 
 void rxcore_profiling_system_init();
 void rxcore_profiling_system_update();

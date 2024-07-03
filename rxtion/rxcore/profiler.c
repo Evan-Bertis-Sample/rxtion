@@ -12,8 +12,11 @@
 #undef malloc
 #undef free
 
+rxcore_profiler_t g_profiler;
+
 void rxcore_profiling_system_init()
 {
+    gs_println("Initializing profiling system");
     g_profiler = rxcore_profiler_create();
 }
 
@@ -60,15 +63,21 @@ void rxcore_profiling_task_traverse(rxcore_profiling_task_t *task, rxcore_profil
 
 void rxcore_profiling_task_traversal_print(rxcore_profiling_task_t *task, uint32_t depth, void* user_data)
 {
+    depth = depth * 4;
     char *indent = malloc(depth + 1);
-    memset(indent, ' ', depth);
     indent[depth] = '\0';
+    memset(indent, '-', depth);
+    if (depth > 0)
+    {
+        indent[0] = '|';
+    }
 
     void (*print_fn)(const char *str, ...) = (void (*)(const char *str, ...))user_data;
 
-    print_fn("%s%s: Start: %.3f, End: %.3f, Duration: %.3f\n", indent, task->name, task->start, task->end, task->end - task->start);
-    print_fn("%s%s%s: Mallocs: %d, Frees: %d, Bytes Allocated: %d, Bytes Freed %d, Bytes Unfreed %d\n", indent, indent, task->name, task->bytes_allocated, task->bytes_freed, task->bytes_allocated - task->bytes_freed);
-    print_fn("\n");
+    int64_t bytes_unfreed = (int64_t)task->bytes_allocated - (int64_t)task->bytes_freed; 
+
+    print_fn("%s%s: Start: %.3f, End: %.3f, Duration: %.3f ", indent, task->name, task->start, task->end, task->end - task->start);
+    print_fn("Mallocs: %d, Frees: %d, Bytes Allocated: %d, Bytes Freed %d, Bytes Unfreed %d\n", task->bytes_allocated, task->bytes_freed, bytes_unfreed);
 
     free(indent);
 }
@@ -86,6 +95,7 @@ void rxcore_profiling_task_destroy(rxcore_profiling_task_t *task)
 
 rxcore_profiler_t rxcore_profiler_create()
 {
+    gs_println("Creating profiler");
     rxcore_profiler_t profiler = {0};
     profiler.completed_tasks = gs_dyn_array_new(rxcore_profiling_task_t *);
     profiler.stack = gs_dyn_array_new(rxcore_profiling_task_t *);
@@ -105,16 +115,19 @@ rxcore_profiling_task_t *rxcore_profiler_get_current_task(rxcore_profiler_t *pro
 
 void rxcore_profiler_begin_task(rxcore_profiler_t *profiler, const char *name)
 {
+    // gs_println("Beginning task: %s", name);
+    // gs_println("Stack index: %d", profiler->stack_index);
     rxcore_profiling_task_t *task = rxcore_profiling_task_create(name);
     if (rxcore_profiler_any_tasks(profiler))
     {
+        gs_println("Starting task: %s, child of %s", task->name, profiler->stack_index > 1 ? profiler->stack[profiler->stack_index - 2]->name : "root");
         rxcore_profiling_task_t *parent = profiler->stack[profiler->stack_index - 1];
-        gs_println("Adding task %s to parent task %s", name, parent->name);
         gs_dyn_array_push(parent->children, task);
     }
 
     gs_dyn_array_push(profiler->stack, task);
     profiler->stack_index++;
+    // gs_println("Stack index: %d", profiler->stack_index);
 }
 
 void rxcore_profiler_end_task(rxcore_profiler_t *profiler)
@@ -126,7 +139,7 @@ void rxcore_profiler_end_task(rxcore_profiler_t *profiler)
 
     rxcore_profiling_task_t *task = profiler->stack[profiler->stack_index - 1];
 
-    gs_println("Ending task: %s", task->name);
+    // gs_println("Ending task: %s, child of %s", task->name, profiler->stack_index > 1 ? profiler->stack[profiler->stack_index - 2]->name : "root");
 
     task->end = (double)clock() / CLOCKS_PER_SEC;
     profiler->stack_index--;
@@ -148,7 +161,7 @@ void rxcore_profiler_end_task(rxcore_profiler_t *profiler)
     if (profiler->stack_index == 0)
     {
         // it is complete, add it to the completed tasks
-        gs_println("Completeing task: %s", task->name);
+        // gs_println("Completeing task: %s", task->name);
         gs_dyn_array_push(profiler->completed_tasks, task);
     }
 }
@@ -160,6 +173,7 @@ bool rxcore_profiler_any_tasks(rxcore_profiler_t *profiler)
 
 void rxcore_profiler_report(rxcore_profiler_t *profiler)
 {
+    printf("\n*** Profiling Report ***\n");
     for (int i = 0; i < gs_dyn_array_size(profiler->completed_tasks); ++i)
     {
         rxcore_profiling_task_t *task = profiler->completed_tasks[i];

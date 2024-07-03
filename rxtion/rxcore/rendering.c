@@ -14,7 +14,7 @@
 void rxcore_rendering_init()
 {
     RXCORE_PROFILER_BEGIN_TASK("rxcore_rendering_init");
-    gs_println("rxcore_rendering_init()");
+    // gs_println("rxcore_rendering_init()");
     g_rendering_context = rxcore_rendering_context_create();
 
     RXCORE_PROFILER_BEGIN_TASK("load_shader_dependencies");
@@ -23,8 +23,6 @@ void rxcore_rendering_init()
     _rxcore_rendering_load_core_shaders(g_rendering_context.shader_registry);
 
     RXCORE_PROFILER_END_TASK();
-
-    RXCORE_PROFILER_REPORT();
 }
 
 void rxcore_rendering_update()
