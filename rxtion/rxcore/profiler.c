@@ -109,6 +109,7 @@ void rxcore_profiler_begin_task(rxcore_profiler_t *profiler, const char *name)
     if (rxcore_profiler_any_tasks(profiler))
     {
         rxcore_profiling_task_t *parent = profiler->stack[profiler->stack_index - 1];
+        gs_println("Adding task %s to parent task %s", name, parent->name);
         gs_dyn_array_push(parent->children, task);
     }
 
@@ -125,8 +126,11 @@ void rxcore_profiler_end_task(rxcore_profiler_t *profiler)
 
     rxcore_profiling_task_t *task = profiler->stack[profiler->stack_index - 1];
 
+    gs_println("Ending task: %s", task->name);
+
     task->end = (double)clock() / CLOCKS_PER_SEC;
     profiler->stack_index--;
+    gs_dyn_array_pop(profiler->stack);
 
     // now update all the data of the parents of the tasks
     for (int i = profiler->stack_index - 1; i >= 0; --i)
@@ -156,13 +160,10 @@ bool rxcore_profiler_any_tasks(rxcore_profiler_t *profiler)
 
 void rxcore_profiler_report(rxcore_profiler_t *profiler)
 {
-    printf("Profiling Report:\n");
     for (int i = 0; i < gs_dyn_array_size(profiler->completed_tasks); ++i)
     {
         rxcore_profiling_task_t *task = profiler->completed_tasks[i];
-        printf("Task %s: Start: %.3f, End: %.3f, Duration: %.3f\n", task->name, task->start, task->end, task->end - task->start);
-        printf("Mallocs: %u, Frees: %u, Reallocs: %u, Bytes Allocated: %u, Bytes Freed: %u\n",
-               task->num_mallocs, task->num_frees, task->num_reallocs, task->bytes_allocated, task->bytes_freed);
+        rxcore_profiling_task_traverse(task, rxcore_profiling_task_traversal_print, 0, printf);
     }
 }
 
@@ -178,7 +179,7 @@ void rxcore_profiler_destroy(rxcore_profiler_t *profiler)
 
 void *rxcore_profiler_malloc(size_t size)
 {
-    gs_println("custom malloc called");
+    // gs_println("custom malloc called");
     void *ptr = malloc(size + sizeof(size_t));
     *((size_t *)ptr) = size;
     ptr = (void *)((size_t)ptr + 1);
@@ -193,7 +194,7 @@ void *rxcore_profiler_malloc(size_t size)
 
 void rxcore_profiler_free(void *ptr)
 {
-    gs_println("custom free called");
+    // gs_println("custom free called");
     if (!ptr)
     {
         return;
