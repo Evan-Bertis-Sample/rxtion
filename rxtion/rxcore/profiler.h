@@ -23,7 +23,7 @@
  */
 
 typedef struct rxcore_profiling_task_t rxcore_profiling_task_t;
-typedef void (*rxcore_profiling_task_traversal_fn)(rxcore_profiling_task_t *, uint32_t, void*);
+typedef void (*rxcore_profiling_task_traversal_fn)(rxcore_profiling_task_t *, uint32_t, void *);
 
 typedef struct rxcore_profiling_task_t
 {
@@ -55,8 +55,8 @@ void rxcore_profiling_system_shutdown();
 rxcore_profiling_task_t *rxcore_profiling_task_create(const char *name);
 inline bool rxcore_profiling_task_is_done(rxcore_profiling_task_t *task);
 void rxcore_profiling_task_traverse(rxcore_profiling_task_t *task, rxcore_profiling_task_traversal_fn fn, uint32_t depth, void *user_data);
-void rxcore_profiling_task_traversal_print(rxcore_profiling_task_t *task, uint32_t depth, void* user_data);
-void rxcore_proffiling_task_traversal_destroy(rxcore_profiling_task_t *task, uint32_t depth, void* user_data);
+void rxcore_profiling_task_traversal_print(rxcore_profiling_task_t *task, uint32_t depth, void *user_data);
+void rxcore_proffiling_task_traversal_destroy(rxcore_profiling_task_t *task, uint32_t depth, void *user_data);
 void rxcore_profiling_task_destroy(rxcore_profiling_task_t *task);
 
 rxcore_profiler_t rxcore_profiler_create();
@@ -67,13 +67,19 @@ bool rxcore_profiler_any_tasks(rxcore_profiler_t *profiler);
 void rxcore_profiler_report(rxcore_profiler_t *profiler);
 void rxcore_profiler_destroy(rxcore_profiler_t *profiler);
 
-void* rxcore_profiler_malloc(size_t size);
+void *rxcore_profiler_malloc(size_t size);
 void rxcore_profiler_free(void *ptr);
 
 #ifdef RXCORE_PROFILING_ENABLED
 #define RXCORE_PROFILER_BEGIN_TASK(name) rxcore_profiler_begin_task(&g_profiler, name)
 #define RXCORE_PROFILER_END_TASK() rxcore_profiler_end_task(&g_profiler)
 #define RXCORE_PROFILER_REPORT() rxcore_profiler_report(&g_profiler)
+#define RXCORE_PROFILER_CLEAR()                \
+    do                                         \
+    {                                          \
+        rxcore_profiler_destroy(&g_profiler);  \
+        g_profiler = rxcore_profiler_create(); \
+    } while (0)
 
 #else
 #define RXCORE_PROFILER_BEGIN_TASK(name) ((void)0)

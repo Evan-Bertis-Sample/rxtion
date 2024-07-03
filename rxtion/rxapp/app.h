@@ -31,6 +31,7 @@ void rxapp_init()
     rxcore_init(g_core_systems);
     RXCORE_PROFILER_END_TASK();
     RXCORE_PROFILER_REPORT();
+    RXCORE_PROFILER_CLEAR();
 }
 
 void rxapp_update()

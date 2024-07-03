@@ -16,7 +16,7 @@ rxcore_profiler_t g_profiler;
 
 void rxcore_profiling_system_init()
 {
-    gs_println("Initializing profiling system");
+    // gs_println("Initializing profiling system");
     g_profiler = rxcore_profiler_create();
 }
 
@@ -95,7 +95,7 @@ void rxcore_profiling_task_destroy(rxcore_profiling_task_t *task)
 
 rxcore_profiler_t rxcore_profiler_create()
 {
-    gs_println("Creating profiler");
+    // gs_println("Creating profiler");
     rxcore_profiler_t profiler = {0};
     profiler.completed_tasks = gs_dyn_array_new(rxcore_profiling_task_t *);
     profiler.stack = gs_dyn_array_new(rxcore_profiling_task_t *);
