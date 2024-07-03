@@ -2,9 +2,10 @@
 #define __SHADER_H__
 
 #include <gs/gs.h>
+#include <rxcore/profiler.h>
 
 #define SRC_MAX_LENGTH 1024
-#define RXCORE_SHADER_DEBUG
+// #define RXCORE_SHADER_DEBUG
 
 #ifdef RXCORE_SHADER_DEBUG
 #define RXCORE_SHADER_DEBUG_PRINT(str) gs_println("RXCORE::rendering::shader::" str)

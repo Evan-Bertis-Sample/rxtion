@@ -2,6 +2,7 @@
 #define __MESH_PRIMATIVES_H__
 
 #include <rxcore/rendering/mesh.h>
+#include <rxcore/profiler.h>
 
 #define RXCORE_MESH_OUT_ARGS rxcore_vertex_t **vertex_out, uint32_t *vertex_count_out, uint32_t **indices_out, uint32_t *indices_count_out
 

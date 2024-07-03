@@ -3,8 +3,15 @@
 
 #include <stdint.h>
 #include <gs/gs.h>
+#include <stdbool.h>
 
 #define RXCORE_PROFILING_ENABLED
+
+#ifdef RXCORE_PROFILING_ENABLED
+// redefine malloc and free
+#define malloc(size) rxcore_profiler_malloc(size)
+#define free(ptr) rxcore_profiler_free(ptr)
+#endif
 
 /**
  * Example Usage
@@ -16,6 +23,7 @@
  */
 
 typedef struct rxcore_profiling_task_t rxcore_profiling_task_t;
+typedef void (*rxcore_profiling_task_traversal_fn)(rxcore_profiling_task_t *, uint32_t, void*);
 
 typedef struct rxcore_profiling_task_t
 {
@@ -32,10 +40,9 @@ typedef struct rxcore_profiling_task_t
 
 typedef struct rxcore_profiler_t
 {
-    gs_dyn_array(rxcore_profiling_task_t *) tasks;
+    gs_dyn_array(rxcore_profiling_task_t *) completed_tasks;
     gs_dyn_array(rxcore_profiling_task_t *) stack;
     uint32_t stack_index;
-    rxcore_profiling_task_t *current_task;
 } rxcore_profiler_t;
 
 // global state
@@ -46,15 +53,17 @@ void rxcore_profiling_system_update();
 void rxcore_profiling_system_shutdown();
 
 rxcore_profiling_task_t *rxcore_profiling_task_create(const char *name);
-rxcore_profiling_task_t *rxcore_profiling_task_get_child(rxcore_profiling_task_t *task, const char *name);
 inline bool rxcore_profiling_task_is_done(rxcore_profiling_task_t *task);
+void rxcore_profiling_task_traverse(rxcore_profiling_task_t *task, rxcore_profiling_task_traversal_fn fn, uint32_t depth, void *user_data);
+void rxcore_profiling_task_traversal_print(rxcore_profiling_task_t *task, uint32_t depth, void* user_data);
+void rxcore_proffiling_task_traversal_destroy(rxcore_profiling_task_t *task, uint32_t depth, void* user_data);
 void rxcore_profiling_task_destroy(rxcore_profiling_task_t *task);
 
 rxcore_profiler_t rxcore_profiler_create();
-void rxcore_profiler_get_task(rxcore_profiler_t *profiler, const char *name);
-void rxcore_profiler_get_current_task(rxcore_profiler_t *profiler);
+rxcore_profiling_task_t *rxcore_profiler_get_current_task(rxcore_profiler_t *profiler);
 void rxcore_profiler_begin_task(rxcore_profiler_t *profiler, const char *name);
 void rxcore_profiler_end_task(rxcore_profiler_t *profiler);
+bool rxcore_profiler_any_tasks(rxcore_profiler_t *profiler);
 void rxcore_profiler_report(rxcore_profiler_t *profiler);
 void rxcore_profiler_destroy(rxcore_profiler_t *profiler);
 
@@ -65,10 +74,6 @@ void rxcore_profiler_free(void *ptr);
 #define RXCORE_PROFILER_BEGIN_TASK(name) rxcore_profiler_begin_task(&g_profiler, name)
 #define RXCORE_PROFILER_END_TASK() rxcore_profiler_end_task(&g_profiler)
 #define RXCORE_PROFILER_REPORT() rxcore_profiler_report(&g_profiler)
-
-// redefine malloc, free, realloc
-#define malloc(size) rxcore_profiler_malloc(size)
-#define free(ptr) rxcore_profiler_free(ptr)
 
 #else
 #define RXCORE_PROFILER_BEGIN_TASK(name) ((void)0)

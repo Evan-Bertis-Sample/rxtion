@@ -3,6 +3,7 @@
 
 #include <gs/gs.h>
 #include <stdbool.h>
+#include <rxcore/profiler.h>
 
 #define RXCORE_MESH_DEBUG
 

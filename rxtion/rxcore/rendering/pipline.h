@@ -2,6 +2,7 @@
 #define __PIPLINE_H__
 
 #include <gs/gs.h>
+#include <rxcore/profiler.h>
 #include <rxcore/rendering/shader.h>
 
 

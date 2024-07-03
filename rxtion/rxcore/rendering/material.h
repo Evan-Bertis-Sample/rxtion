@@ -3,15 +3,17 @@
 
 #include <stdint.h>
 #include <rxcore/rendering/shader.h>
+#include <rxcore/profiler.h>
 #include <gs/gs.h>
 
 #define RXCORE_MATERIAL_DEBUG
 
-#ifdef RXCORE_SHADER_DEBUG
+#ifdef RXCORE_MATERIAL_DEBUG
 #define RXCORE_MATERIAL_DEBUG_PRINT(str) gs_println("RXCORE::rendering::material::" str)
 #define RXCORE_MATERIAL_DEBUG_PRINTF(str, ...) gs_println("RXCORE::rendering::material::" str, __VA_ARGS__)
 #else
 #define RXCORE_MATERIAL_DEBUG_PRINT(...) ((void)0)
+#define RXCORE_MATERIAL_DEBUG_PRINTF(...) ((void)0)
 #endif
 
 typedef struct rxcore_material_prototype_t

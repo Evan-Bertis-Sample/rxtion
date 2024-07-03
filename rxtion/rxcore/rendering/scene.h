@@ -2,6 +2,7 @@
 #define __SCENE_H__
 
 #include <gs/gs.h>
+#include <rxcore/profiler.h>
 #include <rxcore/rendering/material.h>
 #include <rxcore/rendering/mesh.h>
 #include <rxcore/rendering/scene_graph.h>

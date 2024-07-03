@@ -20,6 +20,8 @@
         "rendering.h": "c",
         "system.h": "c",
         "initializer_list": "cpp",
-        "material.h": "c"
+        "material.h": "c",
+        "stdint.h": "c",
+        "profiler.h": "c"
     }
 }

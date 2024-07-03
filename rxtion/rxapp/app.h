@@ -5,7 +5,6 @@
 #include <rxcore/system.h>
 #include <rxcore/rendering/shader.h>
 #include <rxcore/rendering.h>
-#include <rxcore/profiler.h>
 
 
 typedef struct rxapp_t

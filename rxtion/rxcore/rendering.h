@@ -2,6 +2,7 @@
 #define __RENDERING_H__
 
 #include <rxcore/system.h>
+#include <rxcore/profiler.h>
 #include <rxcore/rendering/shader.h>
 #include <rxcore/rendering/material.h>
 #include <rxcore/rendering/mesh.h>
