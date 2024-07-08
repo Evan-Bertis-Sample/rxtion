@@ -54,7 +54,7 @@ inline bool rxcore_profiling_task_is_done(rxcore_profiling_task_t *task)
 void rxcore_profiling_task_traverse(rxcore_profiling_task_t *task, rxcore_profiling_task_traversal_fn fn, uint32_t depth, void *user_data)
 {
     // dfs of task tree
-    fn(task, depth, user_data);
+    fn(task, depth, user_data);       
     for (int i = 0; i < gs_dyn_array_size(task->children); ++i)
     {
         rxcore_profiling_task_traverse(task->children[i], fn, depth + 1, user_data);

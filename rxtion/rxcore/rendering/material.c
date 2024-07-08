@@ -24,6 +24,7 @@ rxcore_material_t *rxcore_material_create_base(rxcore_shader_set_t set, gs_graph
     material->uniform_handles = malloc(sizeof(gs_handle(gs_graphics_uniform_t)) * num_uniforms);
     for (uint32_t i = 0; i < num_uniforms; i++)
     {
+        gs_println("Creating uniform %d: %s", i, uniform_descs[i].name);
         gs_handle(gs_graphics_uniform_t) uniform = gs_graphics_uniform_create(&uniform_descs[i]);
         material->uniform_handles[i] = uniform;
     }
@@ -245,7 +246,18 @@ rxcore_material_prototype_t *rxcore_material_registry_add_prototype(rxcore_mater
 {
     // make a copy of the prototype
     rxcore_material_prototype_t *proto_copy = malloc(sizeof(rxcore_material_prototype_t));
-    *proto_copy = *prototype;
+    proto_copy->num_uniforms = prototype->num_uniforms;
+    proto_copy->shader_set = prototype->shader_set;
+    proto_copy->uniform_descs = malloc(sizeof(gs_graphics_uniform_desc_t) * proto_copy->num_uniforms);
+
+    for (int i = 0; i < proto_copy->num_uniforms; i++)
+    {
+        // copy over the uniforms
+        gs_graphics_uniform_desc_t uniform_src = prototype->uniform_descs[i];
+        gs_graphics_uniform_desc_t uniform_copy = uniform_src;
+        strcpy(uniform_copy.name, uniform_src.name);
+        proto_copy->uniform_descs[i] = uniform_copy;
+    }
 
     // add the prototype to the registry
     gs_dyn_array_push(reg->prototypes, proto_copy);
@@ -286,7 +298,6 @@ void rxcore_material_registry_destroy(rxcore_material_registry_t *reg)
     {
         rxcore_material_destroy(reg->materials[i]);
     }
-
     gs_dyn_array_free(reg->prototypes);
     gs_dyn_array_free(reg->prototype_names);
     gs_dyn_array_free(reg->materials);

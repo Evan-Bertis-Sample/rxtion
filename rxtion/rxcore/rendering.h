@@ -13,6 +13,7 @@
 
 // default dependency names
 #define RXCORE_SHADER_VERT_UTIL_HANDLE "rxcore_shader_vert_util"
+#define RXCORE_SHADER_FRAG_UTIL_HANDLE "rxcore_shader_frag_util"
 #define RXCORE_SHADER_FRAG_LIT_HANDLE "rxcore_shader_frag_lit"
 #define RXCORE_SHADER_FRAG_UNLIT_HANDLE "rxcore_shader_frag_unlit"
 
@@ -46,6 +47,8 @@ void rxcore_rendering_context_destroy(rxcore_rendering_context_t *context);
 // private methods for rendering
 static void _rxcore_rendering_load_core_shader_dependencies(rxcore_shader_registry_t *reg);
 static void _rxcore_rendering_load_core_shaders(rxcore_shader_registry_t *reg);
+static void _rxcore_rendering_load_core_material_prototypes(rxcore_material_registry_t *reg, rxcore_shader_registry_t *shader_reg);
+static void _rxcore_rendering_load_core_materials(rxcore_material_registry_t *reg);
 
 #define rxcore_rendering_system RXCORE_SYSTEM(rxcore_rendering_init, rxcore_rendering_update, rxcore_rendering_shutdown)
 

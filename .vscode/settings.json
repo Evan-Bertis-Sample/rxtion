@@ -22,6 +22,7 @@
         "initializer_list": "cpp",
         "material.h": "c",
         "stdint.h": "c",
-        "profiler.h": "c"
+        "profiler.h": "c",
+        "scene_graph.h": "c"
     }
 }
