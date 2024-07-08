@@ -1,4 +1,6 @@
-// fragment_lit_default.glsl
+// lit_frag.glsl
+
+#include "rxcore_shader_frag_lit"
 
 void main()
 {

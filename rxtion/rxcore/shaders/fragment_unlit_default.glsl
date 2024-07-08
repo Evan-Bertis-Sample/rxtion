@@ -1,1 +1,0 @@
-// fragment_lit_default.glsl

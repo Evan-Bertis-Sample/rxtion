@@ -1,8 +1,6 @@
 // vertex_default.glsl
-// requires:
-// vertex_util.glsl
 
-#include "vertex_util.glsl"
+#include "rxcore_shader_vert_util"
 
 void main()
 {

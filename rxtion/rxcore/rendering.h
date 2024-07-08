@@ -14,17 +14,17 @@
 // default dependency names
 #define RXCORE_SHADER_VERT_UTIL_HANDLE "rxcore_shader_vert_util"
 #define RXCORE_SHADER_FRAG_UTIL_HANDLE "rxcore_shader_frag_util"
-#define RXCORE_SHADER_FRAG_LIT_HANDLE "rxcore_shader_frag_lit"
-#define RXCORE_SHADER_FRAG_UNLIT_HANDLE "rxcore_shader_frag_unlit"
+#define RXCORE_SHADER_FRAG_LIT_UTIL_HANDLE "rxcore_shader_frag_lit_util"
+#define RXCORE_SHADER_FRAG_UNLIT_UTIL_HANDLE "rxcore_shader_frag_unlit_util"
 
 // default shader names
-#define RXCORE_SHADER_VERTEX_DEFAULT "rxcore_shader_vertex_default"
-#define RXCORE_SHADER_FRAGMENT_UNLIT_DEFAULT "rxcore_shader_fragment_unlit"
-#define RXCORE_SHADER_FRAGMENT_LIT_DEFAULT "rxcore_shader_fragment_lit"
+#define RXCORE_SHADER_VERTEX "rxcore_shader_vertex_default"
+#define RXCORE_SHADER_FRAG_UNLIT "rxcore_shader_fragment_unlit"
+#define RXCORE_SHADER_FRAG_LIT "rxcore_shader_fragment_lit"
 
 // used to pass into to get default shader sets
-#define RXCORE_SHADER_SET_UNLIT_DEFAULT RXCORE_SHADER_VERTEX_DEFAULT, RXCORE_SHADER_FRAGMENT_UNLIT_DEFAULT
-#define RXCORE_SHADER_SET_LIT_DEFAULT RXCORE_SHADER_VERTEX_DEFAULT, RXCORE_SHADER_FRAGMENT_LIT_DEFAULT
+#define RXCORE_SHADER_SET_UNLIT_DEFAULT RXCORE_SHADER_VERTEX, RXCORE_SHADER_FRAG_UNLIT
+#define RXCORE_SHADER_SET_LIT_DEFAULT RXCORE_SHADER_VERTEX, RXCORE_SHADER_FRAG_LIT
 
 typedef struct rxcore_rendering_context_t
 {

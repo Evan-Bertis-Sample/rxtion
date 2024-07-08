@@ -30,7 +30,6 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
     const char *shader_name_buf = malloc(strlen(desc.shader_name) + 1);
     strcpy(shader_name_buf, desc.shader_name);
     shader->shader_name = shader_name_buf;
-
     shader->stage = desc.stage;
 
     RXCORE_SHADER_DEBUG_PRINTF("Creating shader: %s", shader->shader_name);
@@ -39,8 +38,8 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
     size_t this_src_len = 0;
     // the buffer is created on the heap, so it must be freed later!
     char *this_shader_src = gs_platform_read_file_contents(desc.shader_path, "r", &this_src_len);
-    RXCORE_SHADER_DEBUG_PRINTF("Shader source length: %d", this_src_len);
-    RXCORE_SHADER_DEBUG_PRINTF("Shader source: %s", this_shader_src);
+    // RXCORE_SHADER_DEBUG_PRINTF("Shader source length: %d", this_src_len);
+    // RXCORE_SHADER_DEBUG_PRINTF("Shader source: %s", this_shader_src);
 
     if (desc.shader_dependency_count > 0)
     {
@@ -57,8 +56,6 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
 
             full_shader_len += strlen(dep->shader_src);
         }
-
-        RXCORE_SHADER_DEBUG_PRINTF("Full shader length: %d", full_shader_len);
 
         char *full_shader_src = malloc(full_shader_len + this_src_len + 1 + desc.shader_dependency_count);
         full_shader_src[0] = '\0';
@@ -77,16 +74,74 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
         }
 
         strcat(full_shader_src, this_shader_src);
-
-        RXCORE_SHADER_DEBUG_PRINTF("Full shader source: %s", full_shader_src);
         // free this_shader_src, as it is no longer needed
         shader->shader_src = full_shader_src;
     }
     else
     {
-        RXCORE_SHADER_DEBUG_PRINTF("No dependencies for shader: %s", shader->shader_name);
         shader->shader_src = this_shader_src;
     }
+
+    // now fully expand the #include statements, if any
+    // this is done by finding the #include statements, and then replacing them with the contents of the file
+    // that they reference
+    // we skip over the #includes that are in the shader description, as they have already been expanded
+    // in those cases, we just delete them
+    // in the case we can't find the file, we just delete the #include statement, and print a warning
+    // we do this until we can't find any more #include statements
+    gs_dyn_array(char*) include_files = gs_dyn_array_new(char*);
+    gs_dyn_array(int) include_indices = gs_dyn_array_new(int);
+    for (int i =0 ; i < strlen(shader->shader_src); i++)
+    {
+        // find all the lines that start with #include (can be prefixed with whitespace)
+        if (strncmp(shader->shader_src + i, "#include", 8) == 0)
+        {
+            RXCORE_SHADER_DEBUG_PRINTF("Found #include statement at index %d", i);
+            // find the start of the file name
+            int file_name_start = i + 8;
+            while (shader->shader_src[file_name_start] == ' ' || shader->shader_src[file_name_start] == '\t')
+            {
+                file_name_start++;
+            }
+
+            // find the end of the file name
+            int file_name_end = file_name_start;
+            while (shader->shader_src[file_name_end] != '\n' && shader->shader_src[file_name_end] != '\r')
+            {
+                file_name_end++;
+            }
+
+            // copy the file name
+            char *file_name = malloc(file_name_end - file_name_start + 1);
+            strncpy(file_name, shader->shader_src + file_name_start, file_name_end - file_name_start);
+            file_name[file_name_end - file_name_start] = '\0';
+
+            // check if the file exists
+            if (!gs_platform_file_exists(file_name))
+            {
+                RXCORE_SHADER_DEBUG_PRINTF("Failed to find include file: %s", file_name);
+                // delete the #include statement
+                memmove(shader->shader_src + i, shader->shader_src + file_name_end, strlen(shader->shader_src + file_name_end) + 1);
+                continue;
+            }
+
+            // read the file
+            size_t file_len = 0;
+            char *file_contents = gs_platform_read_file_contents(file_name, "r", &file_len);
+            RXCORE_SHADER_DEBUG_PRINTF("Found include file: %s", file_name);
+            RXCORE_SHADER_DEBUG_PRINTF("Include file contents: %s", file_contents);
+
+            // add the file to the list of files to include
+            gs_dyn_array_push(include_files, file_contents);
+            gs_dyn_array_push(include_indices, i);
+
+            // delete the #include statement
+            memmove(shader->shader_src + i, shader->shader_src + file_name_end, strlen(shader->shader_src + file_name_end) + 1);
+        }
+    }
+
+    
+    RXCORE_SHADER_DEBUG_PRINTF("Full shader source:\n%s\n", shader->shader_src);
 
     return shader;
 }
@@ -107,6 +162,7 @@ rxcore_shader_registry_t *rxcore_shader_registry_create()
 
 void rxcore_shader_registry_add_dependency(rxcore_shader_registry_t *reg, const char *dep_name, const char *dep_path)
 {
+    RXCORE_SHADER_DEBUG_PRINTF("Adding dependency %s", dep_name);
     rxcore_shader_desc_t desc = rxcore_shader_desc_create(dep_name, dep_path, RXCORE_SHADER_STAGE_DEPENDENCY, NULL, 0);
     rxcore_shader_t *dep = _rxcore_shader_create(reg, desc);
     if (!dep)
@@ -119,6 +175,7 @@ void rxcore_shader_registry_add_dependency(rxcore_shader_registry_t *reg, const 
 
 rxcore_shader_t *rxcore_shader_registry_add_shader(rxcore_shader_registry_t *reg, rxcore_shader_desc_t desc)
 {
+    RXCORE_SHADER_DEBUG_PRINTF("Adding shader %s", desc.shader_name);
     rxcore_shader_t *shader = _rxcore_shader_create(reg, desc);
     if (!shader)
     {

@@ -5,7 +5,7 @@
 #include <rxcore/profiler.h>
 
 #define SRC_MAX_LENGTH 1024
-// #define RXCORE_SHADER_DEBUG
+#define RXCORE_SHADER_DEBUG
 
 #ifdef RXCORE_SHADER_DEBUG
 #define RXCORE_SHADER_DEBUG_PRINT(str) gs_println("RXCORE::rendering::shader::" str)
@@ -75,6 +75,7 @@ typedef struct rxcore_shader_program_t
 rxcore_shader_desc_t rxcore_shader_desc_create(const char *shader_name, const char *shader_path, rxcore_shader_stage_t stage, const char **shader_dependencies, uint16_t shader_dependency_count);
 #define RXCORE_SHADER_DEPENDENCIES(...) (const char *[]){__VA_ARGS__}, sizeof((const char *[]){__VA_ARGS__}) / sizeof(const char *)
 #define RXCORE_SHADER_DESC_WITH_INCLUDE(shader_name, shader_path, stage, ...) rxcore_shader_desc_create(shader_name, shader_path, stage, RXCORE_SHADER_DEPENDENCIES(__VA_ARGS__))
+#define RXCORE_SHADER_DESC(shader_name, shader_path, stage) rxcore_shader_desc_create(shader_name, shader_path, stage, NULL, 0)
 
 // RXCORE_SHADER private methods
 

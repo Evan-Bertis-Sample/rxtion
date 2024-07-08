@@ -1,5 +1,7 @@
 // fragment_lit_util.glsl
 
+#include "rxcore_shader_frag_util"
+
 // Lighting Setup
 struct Light {
     vec3 position;

@@ -22,10 +22,10 @@ void rxcore_rendering_init()
     _rxcore_rendering_load_core_shaders(g_rendering_context.shader_registry);
     RXCORE_PROFILER_END_TASK();
 
-    RXCORE_PROFILER_BEGIN_TASK("material_loading");
-    _rxcore_rendering_load_core_material_prorotypes(g_rendering_context.material_registry, g_rendering_context.shader_registry);
-    _rxcore_rendering_load_core_materials(g_rendering_context.material_registry);
-    RXCORE_PROFILER_END_TASK();
+    // RXCORE_PROFILER_BEGIN_TASK("material_loading");
+    // _rxcore_rendering_load_core_material_prorotypes(g_rendering_context.material_registry, g_rendering_context.shader_registry);
+    // _rxcore_rendering_load_core_materials(g_rendering_context.material_registry);
+    // RXCORE_PROFILER_END_TASK();
 
 
     RXCORE_PROFILER_END_TASK();
@@ -64,47 +64,44 @@ void _rxcore_rendering_load_core_shader_dependencies(rxcore_shader_registry_t *r
 {
     rxcore_shader_registry_add_dependency(reg, 
         RXCORE_SHADER_VERT_UTIL_HANDLE,
-        CORE_ASSET("shaders/vertex_util.glsl")
+        CORE_ASSET("shaders/util/vertex_util.glsl")
     );
-    rxcore_shader_registry_add_dependency(reg,
-        RXCORE_SHADER_FRAG_UTIL_HANDLE,
-        CORE_ASSET("shaders/fragment_util.glsl")
-    );
-    rxcore_shader_registry_add_dependency(reg, 
-        RXCORE_SHADER_FRAG_LIT_HANDLE,
-        CORE_ASSET("shaders/fragment_lit_util.glsl")
-    );
-    rxcore_shader_registry_add_dependency(reg, 
-        RXCORE_SHADER_FRAG_UNLIT_HANDLE,
-        CORE_ASSET("shaders/fragment_unlit_util.glsl")
-    );
+    // rxcore_shader_registry_add_dependency(reg,
+    //     RXCORE_SHADER_FRAG_UTIL_HANDLE,
+    //     CORE_ASSET("shaders/util/fragment_util.glsl")
+    // );
+    // rxcore_shader_registry_add_dependency(reg, 
+    //     RXCORE_SHADER_FRAG_LIT_UTIL_HANDLE,
+    //     CORE_ASSET("shaders/util/fragment_lit_util.glsl")
+    // );
+    // rxcore_shader_registry_add_dependency(reg, 
+    //     RXCORE_SHADER_FRAG_UNLIT_UTIL_HANDLE,
+    //     CORE_ASSET("shaders/util/fragment_unlit_util.glsl")
+    // );
 }
 
 void _rxcore_rendering_load_core_shaders(rxcore_shader_registry_t *reg)
 {
-    rxcore_shader_desc_t default_vert_desc = RXCORE_SHADER_DESC_WITH_INCLUDE(
-        RXCORE_SHADER_VERTEX_DEFAULT,
+    rxcore_shader_desc_t default_vert_desc = RXCORE_SHADER_DESC(
+        RXCORE_SHADER_VERTEX,
         CORE_ASSET("shaders/vertex_default.glsl"),
-        RXCORE_SHADER_STAGE_VERTEX,
-        RXCORE_SHADER_VERT_UTIL_HANDLE
+        RXCORE_SHADER_STAGE_VERTEX
     );
     rxcore_shader_registry_add_shader(reg, default_vert_desc);
 
-    rxcore_shader_desc_t default_frag_lit_desc = RXCORE_SHADER_DESC_WITH_INCLUDE(
-        RXCORE_SHADER_FRAGMENT_LIT_DEFAULT,
-        CORE_ASSET("shaders/fragment_lit_default.glsl"),
-        RXCORE_SHADER_STAGE_FRAGMENT,
-        RXCORE_SHADER_FRAG_LIT_HANDLE
-    );
-    rxcore_shader_registry_add_shader(reg, default_frag_lit_desc);
+    // rxcore_shader_desc_t default_frag_lit_desc = RXCORE_SHADER_DESC(
+    //     RXCORE_SHADER_FRAG_LIT,
+    //     CORE_ASSET("shaders/lit_frag.glsl"),
+    //     RXCORE_SHADER_STAGE_FRAGMENT
+    // );
+    // rxcore_shader_registry_add_shader(reg, default_frag_lit_desc);
 
-    rxcore_shader_desc_t default_frag_unlit_desc = RXCORE_SHADER_DESC_WITH_INCLUDE(
-        RXCORE_SHADER_FRAGMENT_UNLIT_DEFAULT,
-        CORE_ASSET("shaders/fragment_unlit_default.glsl"),
-        RXCORE_SHADER_STAGE_FRAGMENT,
-        RXCORE_SHADER_FRAG_UNLIT_HANDLE
-    );
-    rxcore_shader_registry_add_shader(reg, default_frag_unlit_desc);
+    // rxcore_shader_desc_t default_frag_unlit_desc = RXCORE_SHADER_DESC(
+    //     RXCORE_SHADER_FRAG_UNLIT,
+    //     CORE_ASSET("shaders/unlit_frag.glsl"),
+    //     RXCORE_SHADER_STAGE_FRAGMENT
+    // );
+    // rxcore_shader_registry_add_shader(reg, default_frag_unlit_desc);
 }
 
 
