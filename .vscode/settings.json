@@ -23,6 +23,7 @@
         "material.h": "c",
         "stdint.h": "c",
         "profiler.h": "c",
-        "scene_graph.h": "c"
+        "scene_graph.h": "c",
+        "transform.h": "c"
     }
 }

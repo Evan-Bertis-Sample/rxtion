@@ -19,7 +19,7 @@ void rxcore_rendering_init()
 
     RXCORE_PROFILER_BEGIN_TASK("shader_loading");
     _rxcore_rendering_load_core_shader_dependencies(g_rendering_context.shader_registry);
-    _rxcore_rendering_load_core_shaders(g_rendering_context.shader_registry);
+    // _rxcore_rendering_load_core_shaders(g_rendering_context.shader_registry);
     rxcore_shader_registry_write_compiled_shaders_to_file(g_rendering_context.shader_registry, "bin/compiled_shaders");
     RXCORE_PROFILER_END_TASK();
 

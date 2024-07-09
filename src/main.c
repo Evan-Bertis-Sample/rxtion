@@ -1,7 +1,6 @@
 #define GS_IMPL
 #include <gs/gs.h>
 
-#define RXCORE_PROFILING_ENABLED
 #include <rxcore/profiler.h>
 
 #define RXCORE_IMPL

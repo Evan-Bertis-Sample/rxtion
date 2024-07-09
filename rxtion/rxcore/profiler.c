@@ -193,7 +193,7 @@ void rxcore_profiler_destroy(rxcore_profiler_t *profiler)
 
 void *rxcore_profiler_malloc(size_t size)
 {
-    // gs_println("custom malloc called");
+    gs_println("custom malloc called");
     void *ptr = malloc(size + sizeof(size_t));
     *((size_t *)ptr) = size;
     ptr = (void *)((size_t)ptr + 1);
@@ -208,7 +208,7 @@ void *rxcore_profiler_malloc(size_t size)
 
 void rxcore_profiler_free(void *ptr)
 {
-    // gs_println("custom free called");
+    gs_println("custom free called");
     if (!ptr)
     {
         return;

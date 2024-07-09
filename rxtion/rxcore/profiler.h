@@ -5,7 +5,7 @@
 #include <gs/gs.h>
 #include <stdbool.h>
 
-#define RXCORE_PROFILING_ENABLED
+// #define RXCORE_PROFILING_ENABLED
 
 #ifdef RXCORE_PROFILING_ENABLED
 // redefine malloc and free
@@ -85,6 +85,7 @@ void rxcore_profiler_free(void *ptr);
 #define RXCORE_PROFILER_BEGIN_TASK(name) ((void)0)
 #define RXCORE_PROFILER_END_TASK(name) ((void)0)
 #define RXCORE_PROFILER_REPORT() ((void)0)
+#define RXCORE_PROFILER_CLEAR() ((void)0)
 #endif
 
 #define rxcore_profiling_system RXCORE_SYSTEM(rxcore_profiling_system_init, rxcore_profiling_system_update, rxcore_profiling_system_shutdown)

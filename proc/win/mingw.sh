@@ -8,7 +8,7 @@ proj_name=rxtion
 proj_root_dir=$(pwd)/../
 
 flags=(
-	-std=gnu99 -w -ggdb -D RXCORE_PROFILING_ENABLED
+	-std=gnu99 -w -ggdb
 )
 
 # Include directories
