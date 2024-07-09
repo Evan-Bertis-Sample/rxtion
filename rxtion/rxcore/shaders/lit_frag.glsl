@@ -1,6 +1,6 @@
 // lit_frag.glsl
 
-#include "rxcore_shader_frag_lit"
+#include "rxcore_shader_frag_lit_util"
 
 void main()
 {

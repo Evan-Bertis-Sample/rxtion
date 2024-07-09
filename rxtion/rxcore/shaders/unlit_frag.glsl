@@ -1,6 +1,6 @@
 // unlit_frag.glsl
 
-#include "rxcore_shader_frag_unlit"
+#include "rxcore_shader_frag_unlit_util"
 
 void main()
 {

@@ -85,6 +85,7 @@ rxcore_shader_desc_t rxcore_shader_desc_create(const char *shader_name, const ch
 /// @return A pointer to the created shader, allocated on the heap
 rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_shader_desc_t desc);
 void _rxcore_shader_destroy(rxcore_shader_t *shader);
+char *_rxcore_shader_resolve_includes(rxcore_shader_registry_t *reg, const char *src);
 
 // RXCORE_SHADER_REGISTRY public methods
 
@@ -110,6 +111,11 @@ rxcore_shader_t *rxcore_shader_registry_add_shader(rxcore_shader_registry_t *reg
 /// @param fragment_shader_name The name of the fragment shader
 /// @return The shader set, which contains the vertex and fragment shaders
 rxcore_shader_set_t rxcore_shader_registry_get_shader_set(rxcore_shader_registry_t *reg, const char *vertex_shader_name, const char *fragment_shader_name);
+
+/// @brief Writes the compiled shaders to a file
+/// @param reg The shader registry to write the compiled shaders from
+/// @param path The path to the file to write the compiled shaders to
+void rxcore_shader_registry_write_compiled_shaders_to_file(rxcore_shader_registry_t *reg, const char *path);
 
 /// @brief Frees all memory associated with the shader registry, will break shader sets, and shader ptrs created from the registry
 /// @param reg The shader registry to destroy

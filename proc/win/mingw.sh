@@ -19,6 +19,7 @@ inc=(
 
 # Automatically find C source files in specified directories
 src=($(find ../src ../rxtion -type f -name '*.c'))
+src+=("../vendor/sds/sds.c")
 
 libs=(
 	-lopengl32
