@@ -40,7 +40,7 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
     // the buffer is created on the heap, so it must be freed later!
     char *this_shader_src = gs_platform_read_file_contents(desc.shader_path, "r", &this_src_len);
     // RXCORE_SHADER_DEBUG_PRINTF("Shader source length: %d", this_src_len);
-    RXCORE_SHADER_DEBUG_PRINTF("Shader source: %s", this_shader_src);
+    // RXCORE_SHADER_DEBUG_PRINTF("Shader source: %s", this_shader_src);
 
     if (desc.shader_dependency_count > 0)
     {
@@ -86,7 +86,7 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
 
     shader->shader_src = _rxcore_shader_resolve_includes(reg, shader->shader_src);
 
-    RXCORE_SHADER_DEBUG_PRINTF("Shader source:%s\n%s", shader->shader_name, shader->shader_src);
+    // RXCORE_SHADER_DEBUG_PRINTF("Shader source:%s\n%s", shader->shader_name, shader->shader_src);
 
     return shader;
 }
@@ -108,15 +108,19 @@ char *_rxcore_shader_resolve_includes(rxcore_shader_registry_t *reg, const char 
     for (uint32_t i = 0; i < line_count; i++)
     {
         sds line = lines[i];
+        int skip = 0;
         // RXCORE_SHADER_DEBUG_PRINTF("Line: %s", line);
-        // skip all the whitespace
-        while (isspace(*line))
+
+        while (isspace(line[skip]))
         {
-            line++;
+            skip++;
+            if (line[skip] == '\0') break;
         }
 
-        if (strstr(line, "#include") != NULL)
+
+        if (strstr(&(line[skip]), "#include") != NULL)
         {
+            line = &(line[skip]);
             RXCORE_SHADER_DEBUG_PRINTF("Found include directive: %s", line);
             // skip the #include, and find the "
             char *include_start = strstr(line, "\"");
