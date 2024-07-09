@@ -43,6 +43,17 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
         return NULL;
     }
 
+    // this is kind of a bruh moment, but we need to check that there are no invalid characters in the shader source
+    // if so, replace them with spaces
+    for (size_t i = 0; i < this_src_len; i++)
+    {
+        char c = this_shader_src[i];
+        if (isprint(c) || isspace(c))
+            continue;
+            
+        this_shader_src[i] = ' ';
+    }
+
     if (desc.shader_dependency_count > 0)
     {
         RXCORE_SHADER_DEBUG_PRINTF("Shader has dependencies: %s", shader->shader_name);
@@ -60,7 +71,9 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
             full_shader_len += strlen(dep->shader_src);
         }
 
-        char *full_shader_src = malloc(full_shader_len + this_src_len + 1 + desc.shader_dependency_count);
+        full_shader_len += this_src_len + desc.shader_dependency_count;
+        char *full_shader_src = malloc(full_shader_len + 1);
+        full_shader_src[0] = '\0'; // to allow strcat to work
 
         for (int i = 0; i < desc.shader_dependency_count; i++)
         {
@@ -76,6 +89,8 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
             strcat(full_shader_src, "\n");
         }
 
+        full_shader_src[full_shader_len] = '\0';
+
         strcat(full_shader_src, this_shader_src);
         // free this_shader_src, as it is no longer needed
         free(this_shader_src);
@@ -86,10 +101,8 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
         shader->shader_src = this_shader_src;
     }
 
-    shader->shader_src = _rxcore_shader_resolve_includes(reg, shader->shader_src);
-
     // RXCORE_SHADER_DEBUG_PRINTF("Shader source:%s\n%s", shader->shader_name, shader->shader_src);
-
+    shader->shader_src = _rxcore_shader_resolve_includes(reg, shader->shader_src);
     return shader;
 }
 
@@ -136,16 +149,16 @@ int is_include_directive(const char *line, char **filename)
 
 char *_rxcore_shader_resolve_includes(rxcore_shader_registry_t *reg, const char *src)
 {
-    gs_println("Resolving includes for shader:\n%s", src);
+    RXCORE_SHADER_DEBUG_PRINTF("Resolving includes for shader: %s", src);
     sds resolved_src = sdsempty();
     // tokenize the source by newlines using sds
-    size_t line_count;
-    sds *lines = sdssplitlen(src, strlen(src), "\n", 1, &line_count);
+    int line_count = 0;
+    sds src_copy = sdsnew(src);
+    sds *lines = sdssplitlen(src_copy, sdslen(src_copy), "\n", 1, &line_count);
 
-    for (size_t i = 0; i < line_count; i++)
+    for (int i = 0; i < line_count; i++)
     {
         char *line = lines[i];
-        gs_println("Line: %s", line);
         char *filename = NULL;
         int is_include = is_include_directive(line, &filename);
         if (is_include == 1)
@@ -153,7 +166,7 @@ char *_rxcore_shader_resolve_includes(rxcore_shader_registry_t *reg, const char 
             rxcore_shader_t *dep = _rxcore_shader_registry_find_dependency(reg, filename);
             if (!dep)
             {
-                fprintf(stderr, "Error: Failed to resolve include: %s\n", filename);
+                RXCORE_SHADER_DEBUG_PRINTF("Error: Failed to resolve include: %s\n", filename);
                 continue;
             }
 
@@ -162,7 +175,7 @@ char *_rxcore_shader_resolve_includes(rxcore_shader_registry_t *reg, const char 
         }
         else if (is_include == -1)
         {
-            fprintf(stderr, "Error: Failed to resolve include directive\n");
+            RXCORE_SHADER_DEBUG_PRINT("Error: Failed to resolve include directive\n");
             continue;
         }
         else

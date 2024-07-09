@@ -5,7 +5,7 @@
 #include <gs/gs.h>
 #include <stdbool.h>
 
-// #define RXCORE_PROFILING_ENABLED
+#define RXCORE_PROFILING_ENABLED
 
 #ifdef RXCORE_PROFILING_ENABLED
 // redefine malloc and free
