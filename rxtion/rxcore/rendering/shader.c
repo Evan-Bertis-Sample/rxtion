@@ -35,28 +35,21 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
 
     RXCORE_SHADER_DEBUG_PRINTF("Creating shader: %s", shader->shader_name);
     RXCORE_SHADER_DEBUG_PRINTF("Shader path: %s", desc.shader_path);
+
     size_t this_src_len = 0;
-    char *this_shader_src = gs_platform_read_file_contents(desc.shader_path, "r", &this_src_len);
+    char *this_shader_src = gs_platform_read_file_contents(desc.shader_path, "rb", &this_src_len);
+    RXCORE_SHADER_DEBUG_PRINTF("Size of file: %d", this_src_len);
     if (!this_shader_src)
     {
         RXCORE_SHADER_DEBUG_PRINTF("Failed to read shader source: %s", desc.shader_path);
         return NULL;
     }
 
-    // this is kind of a bruh moment, but we need to check that there are no invalid characters in the shader source
-    // if so, replace them with spaces
-    for (size_t i = 0; i < this_src_len; i++)
-    {
-        char c = this_shader_src[i];
-        if (isprint(c) || isspace(c))
-            continue;
-            
-        this_shader_src[i] = ' ';
-    }
-
+    // if the description entails that we should prepend some dependencies to the shader, do so
     if (desc.shader_dependency_count > 0)
     {
         RXCORE_SHADER_DEBUG_PRINTF("Shader has dependencies: %s", shader->shader_name);
+        // calculate the length of the new shader_src string, to malloc latger
         size_t full_shader_len = 0;
         for (int i = 0; i < desc.shader_dependency_count; i++)
         {
@@ -71,10 +64,13 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
             full_shader_len += strlen(dep->shader_src);
         }
 
+        // add the original length to the new length, as well as room to add \n between each dependencies
         full_shader_len += this_src_len + desc.shader_dependency_count;
         char *full_shader_src = malloc(full_shader_len + 1);
-        full_shader_src[0] = '\0'; // to allow strcat to work
+        // make the string empty for strcat to work
+        full_shader_src[0] = '\0';
 
+        // find each dependency, and append it to the new source
         for (int i = 0; i < desc.shader_dependency_count; i++)
         {
             const char *dep_name = desc.shader_dependencies[i];
@@ -89,8 +85,6 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
             strcat(full_shader_src, "\n");
         }
 
-        full_shader_src[full_shader_len] = '\0';
-
         strcat(full_shader_src, this_shader_src);
         // free this_shader_src, as it is no longer needed
         free(this_shader_src);
@@ -98,18 +92,14 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
     }
     else
     {
+        // there was no dependencies in the description
         shader->shader_src = this_shader_src;
     }
 
     // RXCORE_SHADER_DEBUG_PRINTF("Shader source:%s\n%s", shader->shader_name, shader->shader_src);
+    // now manually expand the #include statements
     shader->shader_src = _rxcore_shader_resolve_includes(reg, shader->shader_src);
     return shader;
-}
-
-void _rxcore_shader_destroy(rxcore_shader_t *shader)
-{
-    free(shader->shader_name);
-    free(shader->shader_src);
 }
 
 // Utility method to check if a line is an include directive and extract the filename
@@ -176,17 +166,22 @@ char *_rxcore_shader_resolve_includes(rxcore_shader_registry_t *reg, const char 
         else if (is_include == -1)
         {
             RXCORE_SHADER_DEBUG_PRINT("Error: Failed to resolve include directive\n");
-            continue;
         }
         else
         {
             resolved_src = sdscat(resolved_src, line);
-            resolved_src = sdscat(resolved_src, "\n");
         }
-    }
 
+        free(filename);
+    }
     sdsfreesplitres(lines, line_count);
     return resolved_src;
+}
+
+void _rxcore_shader_destroy(rxcore_shader_t *shader)
+{
+    free(shader->shader_name);
+    free(shader->shader_src);
 }
 
 rxcore_shader_registry_t *rxcore_shader_registry_create()
@@ -283,11 +278,20 @@ void rxcore_shader_registry_write_compiled_shaders_to_file(rxcore_shader_registr
         free(output_path);
     }
 
+    const char *dep_output_dir = malloc(strlen(output_dir) + 5);
+    strcpy(dep_output_dir, output_dir);
+    strcat(dep_output_dir, "/dep");
+
+    if (!gs_platform_dir_exists(dep_output_dir))
+    {
+        gs_platform_mkdir(dep_output_dir, 0);
+    }
+
     for (uint32_t i = 0; i < gs_dyn_array_size(reg->dependencies); i++)
     {
         rxcore_shader_t *dep = reg->dependencies[i];
-        char *output_path = malloc(strlen(output_dir) + strlen(dep->shader_name) + 5);
-        strcpy(output_path, output_dir);
+        char *output_path = malloc(strlen(dep_output_dir) + strlen(dep->shader_name) + 5);
+        strcpy(output_path, dep_output_dir);
         strcat(output_path, "/");
         strcat(output_path, dep->shader_name);
         strcat(output_path, ".glsl");
