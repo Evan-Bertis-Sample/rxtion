@@ -8,8 +8,6 @@
 #include <rxcore/rendering/shader.h>
 #include <rxcore/rendering/mesh.h>
 
-#define MAX_SCENE_DEPTH 16
-
 // forward declaration
 typedef struct rxcore_scene_node_t rxcore_scene_node_t;
 typedef struct rxcore_scene_graph_t rxcore_scene_graph_t;

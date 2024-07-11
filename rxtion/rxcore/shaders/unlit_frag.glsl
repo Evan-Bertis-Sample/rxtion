@@ -4,5 +4,6 @@
 
 void main()
 {
-    gl_FragColor = u_color;
+    vec2 uv = v_uv;
+    gl_FragColor = float4(uv.x, uv.y, 0.0, 1.0);
 }
