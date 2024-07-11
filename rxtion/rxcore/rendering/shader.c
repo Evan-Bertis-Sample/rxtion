@@ -374,6 +374,9 @@ rxcore_shader_program_t *rxcore_shader_program_set(rxcore_shader_set_t set)
         return 0;
     }
 
+    gs_println("Vertex shader: %s", set.vertex_shader->shader_src);
+    gs_println("Fragment shader: %s", set.fragment_shader->shader_src);
+
     size_t vert_src_size = strlen(set.vertex_shader->shader_name);
     size_t frag_src_size = strlen(set.fragment_shader->shader_name);
 
@@ -392,16 +395,18 @@ rxcore_shader_program_t *rxcore_shader_program_set(rxcore_shader_set_t set)
     // combine the names of the shaders
     strncat(program_name, set.fragment_shader->shader_name,
             gs_clamp(strlen(set.fragment_shader->shader_name), 1, 31));
-    strcat(program_name, "_");
+    strcat(program_name, "/");
     strncat(program_name, set.vertex_shader->shader_name,
             gs_clamp(strlen(set.vertex_shader->shader_name), 1, 31));
+            
+    gs_println("Creating shader program: %s", program_name);
 
     gs_graphics_shader_desc_t shader_desc =
-        {
-            .name = set.vertex_shader->shader_name,
-            .size = 2 * sizeof(gs_graphics_shader_source_desc_t),
-            .sources = sources,
-        };
+    {
+        .name = program_name,
+        .size = 2 * sizeof(gs_graphics_shader_source_desc_t),
+        .sources = sources,
+    };
 
     gs_handle(gs_graphics_shader_t) shader = gs_graphics_shader_create(&shader_desc);
 

@@ -1,5 +1,7 @@
 // fragment_util.glsl
 
+layout(location = 0) out vec4 FragColor;
+
 // generic unifroms
 uniform vec4 u_color;
 // varying from vertex shader

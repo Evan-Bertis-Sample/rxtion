@@ -36,7 +36,7 @@ void rxcore_rendering_init()
         rxcore_scene_node_create(
             rxcore_transform_empty(),
             rxcore_mesh_registry_get_mesh(g_rendering_context.mesh_registry, "quad"),
-            rxcore_material_registry_get_material(g_rendering_context.material_registry, "lit")
+            rxcore_material_registry_get_material(g_rendering_context.material_registry, "unlit")
         )
     );
     RXCORE_PROFILER_END_TASK();
@@ -149,6 +149,13 @@ void _rxcore_rendering_load_core_material_prorotypes(rxcore_material_registry_t 
     rxcore_material_registry_add_prototype(reg, "lit", &lit_prototype);
 
     rxcore_shader_set_t unlit_shader_set = rxcore_shader_registry_get_shader_set(shader_reg, RXCORE_SHADER_SET_UNLIT_DEFAULT);
+
+    gs_println("unlit_shader_set.vertex_shader->shader_name: %s", unlit_shader_set.vertex_shader->shader_name);
+    gs_println("unlit_shader_set.fragment_shader->shader_name: %s", unlit_shader_set.fragment_shader->shader_name);
+
+    gs_println("unlit_shader_set.vertex_shader->shader_src: %s", unlit_shader_set.vertex_shader->shader_src);
+    gs_println("unlit_shader_set.fragment_shader->shader_src: %s", unlit_shader_set.fragment_shader->shader_src);
+
     rxcore_material_prototype_t unlit_prototype = RXCORE_MATERIAL_PROTOTYPE_CREATE(
         unlit_shader_set,
         RXCORE_UNIFORM_DESC("u_model", RXCORE_SHADER_STAGE_VERTEX, GS_GRAPHICS_UNIFORM_MAT4),

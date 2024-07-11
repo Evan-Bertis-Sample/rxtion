@@ -21,7 +21,15 @@ varying vec2 v_uv;
 void rxcore_send_varyings() {
     v_world_position = (u_model * vec4(a_position, 1.0)).xyz;
     v_object_position = a_position;
-    v_screen_position = rxcore_convert_object_pos_to_sceen_space(v_world_position);
+
+    vec4 pos = u_projection * u_view * u_model * vec4(a_position, 1.0);
+    if (pos.w == 0.0) {
+        v_screen_position = vec3(0.0, 0.0, 0.0);
+    } else {
+        pos /= pos.w;
+        v_screen_position = pos.xyz;
+    }
+
     v_world_normal = (u_model * vec4(a_normal, 0.0)).xyz;
     v_object_normal = a_normal;
     v_uv = a_uv;
