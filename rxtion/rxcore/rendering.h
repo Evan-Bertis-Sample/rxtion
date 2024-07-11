@@ -7,6 +7,7 @@
 #include <rxcore/rendering/material.h>
 #include <rxcore/rendering/mesh.h>
 #include <rxcore/rendering/scene_graph.h>
+#include <rxcore/rendering/camera.h>
 
 #define CORE_ASSET(ASSET_NAME) "rxtion/rxcore/" ASSET_NAME
 #define APP_ASSET(ASSET_NAME) "rxtion/rxapp/assets/" ASSET_NAME
@@ -32,6 +33,7 @@ typedef struct rxcore_rendering_context_t
     rxcore_material_registry_t *material_registry;
     rxcore_mesh_registry_t *mesh_registry;
     rxcore_scene_graph_t *scene_graph;
+    rxcore_camera_t *camera;
     // probably will add more stuff here later...
 } rxcore_rendering_context_t;
 

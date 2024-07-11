@@ -41,6 +41,19 @@ void rxcore_rendering_init()
     );
     RXCORE_PROFILER_END_TASK();
 
+    RXCORE_PROFILER_BEGIN_TASK("camera_loading");
+    g_rendering_context.camera = rxcore_camera_create_perspective(
+        (rxcore_camera_perspective_desc_t){
+            .fov = 45.f,
+            .aspect_ratio = 16.f / 9.f,
+            .near_plane = 0.1f,
+            .far_plane = 100.f
+        },
+        gs_vec3_ctor(0.f, 0.f, 5.f),
+        gs_quat_default()
+    );
+    RXCORE_PROFILER_END_TASK();
+
     RXCORE_PROFILER_END_TASK();
 }
 

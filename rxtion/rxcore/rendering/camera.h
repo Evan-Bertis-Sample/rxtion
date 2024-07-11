@@ -14,8 +14,8 @@ typedef struct rxcore_camera_perspective_desc_t
 {
     float fov;
     float aspect_ratio;
-    float near;
-    float far;
+    float near_plane;
+    float far_plane;
 } rxcore_camera_perspective_desc_t;
 
 typedef struct rxcore_camera_orthographic_desc_t
@@ -24,8 +24,8 @@ typedef struct rxcore_camera_orthographic_desc_t
     float right;
     float bottom;
     float top;
-    float near;
-    float far;
+    float near_plane;
+    float far_plane;
 } rxcore_camera_orthographic_desc_t;
 
 typedef struct rxcore_camera_t
@@ -36,13 +36,13 @@ typedef struct rxcore_camera_t
         rxcore_camera_perspective_desc_t perspective_desc;
         rxcore_camera_orthographic_desc_t orthographic_desc;
     };
-
     gs_vec3 position;
     gs_quat rotation;
+    gs_handle(gs_graphics_framebuffer_t) framebuffer;
 } rxcore_camera_t;
 
-rxcore_camera_t rxcore_camera_create_perspective(rxcore_camera_perspective_desc_t desc, gs_vec3 position, gs_quat rotation);
-rxcore_camera_t rxcore_camera_create_orthographic(rxcore_camera_orthographic_desc_t desc, gs_vec3 position, gs_quat rotation);
+rxcore_camera_t *rxcore_camera_create_perspective(rxcore_camera_perspective_desc_t desc, gs_vec3 position, gs_quat rotation);
+rxcore_camera_t *rxcore_camera_create_orthographic(rxcore_camera_orthographic_desc_t desc, gs_vec3 position, gs_quat rotation);
 
 gs_mat4 rxcore_camera_get_view_matrix(rxcore_camera_t *camera);
 gs_mat4 rxcore_camera_get_projection_matrix(rxcore_camera_t *camera);
