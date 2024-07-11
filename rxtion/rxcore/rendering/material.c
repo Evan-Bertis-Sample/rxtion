@@ -50,6 +50,10 @@ rxcore_material_t *rxcore_material_create_base(rxcore_shader_set_t set, gs_graph
         material->uniform_name_to_index[i] = name_cpy;
     }
 
+    // compile the shader program
+    rxcore_shader_program_t *program = rxcore_shader_program_set(material->shader_set);
+    material->shader_program = program;
+
     return material;
 }
 

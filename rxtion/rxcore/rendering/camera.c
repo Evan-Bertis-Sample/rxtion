@@ -3,25 +3,45 @@
 #include <rxcore/rendering/camera.h>
 #include <gs/gs.h>
 
-rxcore_camera_t *rxcore_camera_create_perspective(rxcore_camera_perspective_desc_t desc, gs_vec3 position, gs_quat rotation)
+rxcore_camera_t *_rxcore_camera_create_base()
 {
     rxcore_camera_t *camera = malloc(sizeof(rxcore_camera_t));
+    camera->framebuffer = gs_graphics_framebuffer_create(NULL);
+
+    // Create view and projection uniforms
+    camera->view_uniform = gs_graphics_uniform_create(
+        &(gs_graphics_uniform_desc_t){
+            .name = "u_view",
+            .layout = (gs_graphics_uniform_layout_desc_t[]){{.type = GS_GRAPHICS_UNIFORM_MAT4}}});
+
+
+    camera->projection_uniform = gs_graphics_uniform_create(
+        &(gs_graphics_uniform_desc_t){
+            .name = "u_projection",
+            .layout = (gs_graphics_uniform_layout_desc_t[]){{.type = GS_GRAPHICS_UNIFORM_MAT4}}});
+
+    
+
+    return camera;
+}
+
+rxcore_camera_t *rxcore_camera_create_perspective(rxcore_camera_perspective_desc_t desc, gs_vec3 position, gs_quat rotation)
+{
+    rxcore_camera_t *camera = _rxcore_camera_create_base();
     camera->projection_type = RXCORE_CAMERA_PROJECTION_PERSPECTIVE;
     camera->perspective_desc = desc;
     camera->position = position;
     camera->rotation = rotation;
-    camera->framebuffer = gs_graphics_framebuffer_create(NULL);
     return camera;
 }
 
 rxcore_camera_t *rxcore_camera_create_orthographic(rxcore_camera_orthographic_desc_t desc, gs_vec3 position, gs_quat rotation)
 {
-    rxcore_camera_t *camera = malloc(sizeof(rxcore_camera_t));
+    rxcore_camera_t *camera = _rxcore_camera_create_base();
     camera->projection_type = RXCORE_CAMERA_PROJECTION_ORTHOGRAPHIC;
     camera->orthographic_desc = desc;
     camera->position = position;
     camera->rotation = rotation;
-    camera->framebuffer = gs_graphics_framebuffer_create(NULL);
     return camera;
 }
 
@@ -65,3 +85,31 @@ bool rxcore_camera_frustum_cull_aabb(gs_mat4 view_projection, gs_vec3 position, 
     return clip.x + clip.w < -1 || clip.x - clip.w > 1 || clip.y + clip.w < -1 || clip.y - clip.w > 1 || clip.z + clip.w < -1 || clip.z - clip.w > 1;
 }
 
+void rxcore_camera_apply_bindings(rxcore_camera_t *camera, gs_command_buffer_t *cb)
+{
+    gs_graphics_bind_uniform_desc_t view_binding = {
+        .uniform = camera->view_uniform,
+        .data = &camera->view_matrix,
+    };
+
+    gs_graphics_bind_uniform_desc_t projection_binding = {
+        .uniform = camera->projection_uniform,
+        .data = &camera->projection_matrix,
+    };
+
+    gs_graphics_bind_uniform_desc_t bindings[] = {view_binding, projection_binding};
+    gs_graphics_bind_desc_t bind_desc = {
+        .uniforms = {
+            .desc = bindings,
+            .size = sizeof(bindings),
+        }
+    };
+
+    gs_graphics_apply_bindings(cb, &bind_desc);
+}
+
+void rxcore_camera_destroy(rxcore_camera_t *camera)
+{
+    gs_graphics_framebuffer_destroy(camera->framebuffer);
+    free(camera);
+}

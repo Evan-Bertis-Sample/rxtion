@@ -25,7 +25,7 @@ typedef struct rxcore_render_pass_t
 
 typedef struct rxcore_pipeline_t
 {
-    gs_handle(gs_graphics_pipeline_t) pipeline;
+    gs_handle(gs_graphics_pipeline_t) pipeline_hndl;
     rxcore_render_pass_t *render_passes;
     void **render_pass_data;
     uint32_t render_pass_count;
@@ -37,7 +37,9 @@ typedef struct rxcore_pipeline_t
 rxcore_pipeline_t *rxcore_pipeline_create(gs_graphics_pipeline_desc_t pipeline_desc);
 rxcore_pipeline_t *rxcore_pipeline_default();
 rxcore_pipeline_t *rxcore_pipeline_add_render_pass(rxcore_pipeline_t *pipeline, rxcore_render_pass_t pass, void *data);
-void rxcore_pipeline_render(rxcore_pipeline_t *pipeline, gs_command_buffer_t *cb, rxcore_rendering_context_t *ctx);
+void rxcore_pipeline_render(rxcore_rendering_context_t *ctx);
 void rxcore_pipeline_destroy(rxcore_pipeline_t *pipeline);
+
+void rxcore_pipeline_render_traversal(rxcore_scene_node_t *node, gs_mat4 model_matrix, int depth, void *user_data);
 
 #endif // __PIPELINE_H__

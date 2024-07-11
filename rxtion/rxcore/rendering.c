@@ -59,7 +59,7 @@ void rxcore_rendering_init()
 
 void rxcore_rendering_update()
 {
-
+    rxcore_pipeline_render(g_rendering_context);
 }
 
 void rxcore_rendering_shutdown()
@@ -74,6 +74,11 @@ rxcore_rendering_context_t rxcore_rendering_context_create()
     context.material_registry = rxcore_material_registry_create();
     context.mesh_registry = rxcore_mesh_registry_create();
     context.scene_graph = rxcore_scene_graph_create();
+    gs_command_buffer_t *cb = malloc(sizeof(gs_command_buffer_t));
+    *cb = gs_command_buffer_new();
+    context.cb = cb;
+    context.pipeline = rxcore_pipeline_default();
+
     return context;
 }
 

@@ -53,6 +53,7 @@ rxcore_mesh_t rxcore_mesh_buffer_add_mesh(rxcore_mesh_buffer_t *buffer, rxcore_v
 rxcore_mesh_t rxcore_mesh_buffer_add_mesh_from_file(rxcore_mesh_buffer_t *buffer, const char *file_path);
 gs_handle(gs_graphics_vertex_buffer_t) rxcore_mesh_buffer_get_vertex_buffer(rxcore_mesh_buffer_t *buffer);
 gs_handle(gs_graphics_index_buffer_t) rxcore_mesh_buffer_get_index_buffer(rxcore_mesh_buffer_t *buffer);
+void rxcore_mesh_buffer_apply_bindings(rxcore_mesh_buffer_t *buffer, gs_command_buffer_t *cb);
 void rxcore_mesh_buffer_destroy(rxcore_mesh_buffer_t *buffer);
 
 rxcore_mesh_t rxcore_mesh_empty();

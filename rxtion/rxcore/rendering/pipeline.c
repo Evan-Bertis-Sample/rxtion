@@ -5,7 +5,7 @@
 rxcore_pipeline_t *rxcore_pipeline_create(gs_graphics_pipeline_desc_t pipeline_desc)
 {
     rxcore_pipeline_t *pipeline = malloc(sizeof(rxcore_pipeline_t));
-    pipeline->pipeline = gs_graphics_pipeline_create(&pipeline_desc);
+    pipeline->pipeline_hndl = gs_graphics_pipeline_create(&pipeline_desc);
     pipeline->render_passes = NULL;
     pipeline->render_pass_data = NULL;
     pipeline->render_pass_count = 0;
@@ -45,16 +45,64 @@ rxcore_pipeline_t *rxcore_pipeline_add_render_pass(rxcore_pipeline_t *pipeline, 
     return pipeline;
 }
 
-void rxcore_pipeline_render(rxcore_pipeline_t *pipeline, gs_command_buffer_t *cb, rxcore_rendering_context_t *ctx)
+void rxcore_pipeline_render(rxcore_rendering_context_t *ctx)
 {
-    // before scene render
-    for (uint32_t i = 0; i < pipeline->render_pass_count; i++)
+    rxcore_pipeline_t *pipeline = ctx->pipeline;
+    gs_command_buffer_t *cb = ctx->cb;
+    gs_vec2 fs = gs_platform_framebuffer_sizev(gs_platform_main_window());
+    gs_vec2 ws = gs_platform_window_sizev(gs_platform_main_window());
+
+    gs_graphics_renderpass_begin(cb, GS_GRAPHICS_RENDER_PASS_DEFAULT);
+    gs_graphics_pipeline_bind(cb, pipeline->pipeline_hndl);
+    gs_graphics_set_viewport(cb, 0, 0, fs.x, fs.y);
+    gs_graphics_clear_desc_t clear = {.actions = &(gs_graphics_clear_action_t){.color = {0.1f, 0.1f, 0.1f, 1.f}}};
+    gs_graphics_clear(cb, &clear);
+
+    // now create the bindings for the meshes
+    rxcore_mesh_buffer_apply_bindings(ctx->mesh_registry->buffer, cb);
+    // now create the bindings for the cameras
+    rxcore_camera_apply_bindings(ctx->camera, cb);
+
+    // now traverse the scene graph to draw meshes
+    rxcore_scene_graph_traverse(ctx->scene_graph, rxcore_pipeline_render_traversal, ctx);
+    gs_graphics_renderpass_end(cb);
+    // now execute the render passes
+    gs_graphics_command_buffer_submit(cb);
+}
+
+void rxcore_pipeline_destroy(rxcore_pipeline_t *pipeline)
+{
+    gs_graphics_pipeline_destroy(pipeline->pipeline_hndl);
+    free(pipeline->render_passes);
+    free(pipeline->render_pass_data);
+    free(pipeline);
+}
+
+void rxcore_pipeline_render_traversal(rxcore_scene_node_t *node, gs_mat4 model_matrix, int depth, void *user_data)
+{
+    rxcore_rendering_context_t *ctx = (rxcore_rendering_context_t *)user_data;
+    gs_command_buffer_t *cb = ctx->cb;
+
+    if (node->material == NULL || rxcore_mesh_is_empty(&node->mesh))
     {
-        if (pipeline->render_passes[i].type == RXCORE_BEFORE_SCENE_RENDER)
-        {
-            pipeline->render_passes[i].begin(cb, &pipeline->render_passes[i], pipeline->render_pass_data[i]);
-            pipeline->render_passes[i].execute(cb, &pipeline->render_passes[i], pipeline->render_pass_data[i]);
-            pipeline->render_passes[i].end(cb, &pipeline->render_passes[i], pipeline->render_pass_data[i]);
-        }
-    }    
+        return;
+    }
+
+    // check we are not using the same shader set
+    if (ctx->pipeline->current_shader_set != node->material->shader_set)
+    {
+        // we need to bind the shader
+        ctx->pipeline->current_shader_set = node->material->shader_set;
+        gs_graphics_bind_shader(cb, ctx->pipeline->current_shader_set->shader_program);
+    }
+
+    // are we using the same material?
+    if (ctx->pipeline->current_material != node->material)
+    {
+        // we need to bind the material
+        rxcore_material_bind(node->material, cb);
+    }
+
+    // now draw the mesh
+    rxcore_mesh_draw(&node->mesh, cb);
 }
