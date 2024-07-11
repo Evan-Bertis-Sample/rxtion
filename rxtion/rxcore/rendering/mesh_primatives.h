@@ -6,6 +6,19 @@
 
 #define RXCORE_MESH_OUT_ARGS rxcore_vertex_t **vertex_out, uint32_t *vertex_count_out, uint32_t **indices_out, uint32_t *indices_count_out
 
+#define RXCORE_MESH_PRIMATIVE_ADD(mesh_reg, mesh_func, mesh_name)                                                                                    \
+    do                                                                                                                                               \
+    {                                                                                                                                                \
+        rxcore_vertex_t *vertices_##mesh_func = NULL;                                                                                                \
+        uint32_t vertex_count_##mesh_func = 0;                                                                                                       \
+        uint32_t *indices_##mesh_func = NULL;                                                                                                        \
+        uint32_t indices_count_##mesh_func = 0;                                                                                                      \
+        mesh_func(&vertices_##mesh_func, &vertex_count_##mesh_func, &indices_##mesh_func, &indices_count_##mesh_func);                               \
+        rxcore_mesh_registry_add_mesh(mesh_reg, mesh_name, vertices_##mesh_func, vertex_count_##mesh_func, indices_##mesh_func, indices_count_##mesh_func); \
+        free(vertices_##mesh_func);                                                                                                                  \
+        free(indices_##mesh_func);                                                                                                                   \
+    } while (0)
+
 void rxcore_mesh_primatives_quad(RXCORE_MESH_OUT_ARGS)
 {
     *vertex_count_out = 4;
@@ -42,7 +55,6 @@ void rxcore_mesh_primatives_triangle(RXCORE_MESH_OUT_ARGS)
     (*indices_out)[0] = 0;
     (*indices_out)[1] = 1;
     (*indices_out)[2] = 2;
-
 }
 
 #endif // __MESH_PRIMATIVES_H__

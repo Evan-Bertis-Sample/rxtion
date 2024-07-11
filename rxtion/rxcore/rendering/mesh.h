@@ -25,7 +25,7 @@ typedef struct rxcore_vertex_t
 typedef struct rxcore_mesh_buffer_t
 {
     gs_dyn_array(rxcore_vertex_t) vertices;
-    gs_dyn_array(uint32_t) indices;
+    gs_dyn_array          (uint32_t) indices;
     gs_handle(gs_graphics_vertex_buffer_t) vertex_buffer;
     gs_handle(gs_graphics_index_buffer_t) index_buffer;
     bool vertex_dirty;

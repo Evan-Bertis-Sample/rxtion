@@ -24,6 +24,8 @@
         "stdint.h": "c",
         "profiler.h": "c",
         "scene_graph.h": "c",
-        "transform.h": "c"
+        "transform.h": "c",
+        "camera.h": "c",
+        "stddef.h": "c"
     }
 }

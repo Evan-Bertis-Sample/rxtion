@@ -34,11 +34,10 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
     shader->stage = desc.stage;
 
     RXCORE_SHADER_DEBUG_PRINTF("Creating shader: %s", shader->shader_name);
-    RXCORE_SHADER_DEBUG_PRINTF("Shader path: %s", desc.shader_path);
+    // RXCORE_SHADER_DEBUG_PRINTF("Shader path: %s", desc.shader_path);
 
     size_t this_src_len = 0;
     char *this_shader_src = gs_platform_read_file_contents(desc.shader_path, "rb", &this_src_len);
-    RXCORE_SHADER_DEBUG_PRINTF("Size of file: %d", this_src_len);
     if (!this_shader_src)
     {
         RXCORE_SHADER_DEBUG_PRINTF("Failed to read shader source: %s", desc.shader_path);
@@ -96,7 +95,6 @@ rxcore_shader_t *_rxcore_shader_create(rxcore_shader_registry_t *reg, rxcore_sha
         shader->shader_src = this_shader_src;
     }
 
-    // RXCORE_SHADER_DEBUG_PRINTF("Shader source:%s\n%s", shader->shader_name, shader->shader_src);
     // now manually expand the #include statements
     shader->shader_src = _rxcore_shader_resolve_includes(reg, shader->shader_src);
     return shader;
@@ -117,7 +115,7 @@ int is_include_directive(const char *line, char **filename)
 
     if (*include_pos != '\"')
     {
-        fprintf(stderr, "Error: Malformed include directive\n");
+        RXCORE_SHADER_DEBUG_PRINT("Error: Malformed include directive\n");
         return -1;
     }
 
@@ -125,7 +123,7 @@ int is_include_directive(const char *line, char **filename)
     char *end_quote = strchr(include_pos, '\"');
     if (!end_quote)
     {
-        fprintf(stderr, "Error: Malformed include directive\n");
+        RXCORE_SHADER_DEBUG_PRINT("Error: Malformed include directive\n");
         return -1;
     }
 
@@ -139,9 +137,8 @@ int is_include_directive(const char *line, char **filename)
 
 char *_rxcore_shader_resolve_includes(rxcore_shader_registry_t *reg, const char *src)
 {
-    RXCORE_SHADER_DEBUG_PRINTF("Resolving includes for shader: %s", src);
-    sds resolved_src = sdsempty();
     // tokenize the source by newlines using sds
+    sds resolved_src = sdsempty();
     int line_count = 0;
     sds src_copy = sdsnew(src);
     sds *lines = sdssplitlen(src_copy, sdslen(src_copy), "\n", 1, &line_count);

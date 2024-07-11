@@ -23,11 +23,23 @@ void rxcore_rendering_init()
     rxcore_shader_registry_write_compiled_shaders_to_file(g_rendering_context.shader_registry, "bin/compiled_shaders");
     RXCORE_PROFILER_END_TASK();
 
-    // RXCORE_PROFILER_BEGIN_TASK("material_loading");
-    // _rxcore_rendering_load_core_material_prorotypes(g_rendering_context.material_registry, g_rendering_context.shader_registry);
-    // _rxcore_rendering_load_core_materials(g_rendering_context.material_registry);
-    // RXCORE_PROFILER_END_TASK();
+    RXCORE_PROFILER_BEGIN_TASK("material_loading");
+    _rxcore_rendering_load_core_material_prorotypes(g_rendering_context.material_registry, g_rendering_context.shader_registry);
+    _rxcore_rendering_load_core_materials(g_rendering_context.material_registry);
+    RXCORE_PROFILER_END_TASK();
 
+
+    RXCORE_PROFILER_BEGIN_TASK("scene_loading");
+    RXCORE_MESH_PRIMATIVE_ADD(g_rendering_context.mesh_registry, rxcore_mesh_primatives_quad, "quad");
+    rxcore_scene_graph_add_child(
+        g_rendering_context.scene_graph,
+        rxcore_scene_node_create(
+            rxcore_transform_empty(),
+            rxcore_mesh_registry_get_mesh(g_rendering_context.mesh_registry, "quad"),
+            rxcore_material_registry_get_material(g_rendering_context.material_registry, "lit")
+        )
+    );
+    RXCORE_PROFILER_END_TASK();
 
     RXCORE_PROFILER_END_TASK();
 }
