@@ -1,6 +1,11 @@
 // pipeline.c
 
 #include <rxcore/rendering/pipeline.h>
+#include <rxcore/rendering/camera.h>
+#include <rxcore/rendering/material.h>
+#include <rxcore/rendering/mesh.h>
+#include <rxcore/rendering.h>
+#include <rxcore/rendering/shader.h>
 
 rxcore_pipeline_t *rxcore_pipeline_create(gs_graphics_pipeline_desc_t pipeline_desc)
 {
@@ -9,8 +14,8 @@ rxcore_pipeline_t *rxcore_pipeline_create(gs_graphics_pipeline_desc_t pipeline_d
     pipeline->render_passes = NULL;
     pipeline->render_pass_data = NULL;
     pipeline->render_pass_count = 0;
-    pipeline->current_shader_set = NULL;
-    pipeline->current_material = NULL;
+    pipeline->current_shader_set = (rxcore_shader_set_t){0};
+    pipeline->current_material = (rxcore_material_t){0};
     return pipeline;
 }
 
@@ -89,15 +94,15 @@ void rxcore_pipeline_render_traversal(rxcore_scene_node_t *node, gs_mat4 model_m
     }
 
     // check we are not using the same shader set
-    if (ctx->pipeline->current_shader_set != node->material->shader_set)
+    // if (ctx->pipeline->current_shader_set != node->material->shader_set)
     {
         // we need to bind the shader
         ctx->pipeline->current_shader_set = node->material->shader_set;
-        gs_graphics_bind_shader(cb, ctx->pipeline->current_shader_set->shader_program);
+        rxcore_shader_program_set(node->material->shader_set);
     }
 
     // are we using the same material?
-    if (ctx->pipeline->current_material != node->material)
+    // if (ctx->pipeline->current_material != node->material)
     {
         // we need to bind the material
         rxcore_material_bind(node->material, cb);

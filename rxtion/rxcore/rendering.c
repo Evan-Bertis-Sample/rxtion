@@ -59,7 +59,7 @@ void rxcore_rendering_init()
 
 void rxcore_rendering_update()
 {
-    rxcore_pipeline_render(g_rendering_context);
+    rxcore_pipeline_render(&g_rendering_context);
 }
 
 void rxcore_rendering_shutdown()

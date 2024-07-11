@@ -3,11 +3,12 @@
 
 #include <gs/gs.h>
 #include <rxcore/profiler.h>
-#include <rxcore/rendering.h>
 #include <rxcore/rendering/shader.h>
 #include <rxcore/rendering/material.h>
+#include <rxcore/rendering/scene_graph.h>
 
 typedef struct rxcore_render_pass_t rxcore_render_pass_t;
+typedef struct rxcore_rendering_context_t rxcore_rendering_context_t;
 
 enum rxcore_render_pass_type_t
 {
@@ -30,8 +31,8 @@ typedef struct rxcore_pipeline_t
     void **render_pass_data;
     uint32_t render_pass_count;
     // state variables
-    rxcore_shader_set_t *current_shader_set;
-    rxcore_material_t *current_material;
+    rxcore_shader_set_t current_shader_set;
+    rxcore_material_t current_material;
 } rxcore_pipeline_t;
 
 rxcore_pipeline_t *rxcore_pipeline_create(gs_graphics_pipeline_desc_t pipeline_desc);

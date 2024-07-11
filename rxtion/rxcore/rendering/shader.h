@@ -137,6 +137,11 @@ rxcore_shader_t *_rxcore_shader_registry_find_shader(rxcore_shader_registry_t *r
 
 // RXCORE_SHADER_SET public methods
 
+///@brief Determines if two shader sets are equal
+///@param set1 The first shader set
+///@param set2 The second shader set
+bool rxcore_shader_set_equals(rxcore_shader_set_t a, rxcore_shader_set_t b);
+
 /// @brief Creates a shader program from a shader set
 /// @param set The shader set to create the program from
 /// @return A pointer to the created shader program, allocated on the heap, or NULL if the program could not be created. Ownership is transferred to the caller

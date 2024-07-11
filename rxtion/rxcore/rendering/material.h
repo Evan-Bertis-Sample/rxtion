@@ -26,7 +26,6 @@ typedef struct rxcore_material_prototype_t
 typedef struct rxcore_material_t
 {
     rxcore_shader_set_t shader_set;
-    rxcore_shader_program_t *shader_program;
     gs_handle(gs_graphics_uniform_t) * uniform_handles;
     gs_graphics_bind_uniform_desc_t *uniform_bindings;
     const char **uniform_name_to_index;

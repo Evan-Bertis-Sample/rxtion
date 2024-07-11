@@ -355,6 +355,11 @@ rxcore_shader_t *_rxcore_shader_registry_find_shader(rxcore_shader_registry_t *r
     return NULL;
 }
 
+bool rxcore_shader_set_equals(rxcore_shader_set_t a, rxcore_shader_set_t b)
+{
+    return a.vertex_shader == b.vertex_shader && a.fragment_shader == b.fragment_shader;
+}
+
 rxcore_shader_program_t *rxcore_shader_program_set(rxcore_shader_set_t set)
 {
     if (set.vertex_shader == NULL || set.vertex_shader->stage != RXCORE_SHADER_STAGE_VERTEX)
