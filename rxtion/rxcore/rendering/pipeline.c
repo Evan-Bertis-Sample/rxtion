@@ -63,10 +63,14 @@ void rxcore_pipeline_render(rxcore_rendering_context_t *ctx)
     gs_graphics_clear_desc_t clear = {.actions = &(gs_graphics_clear_action_t){.color = {0.1f, 0.1f, 0.1f, 1.f}}};
     gs_graphics_clear(cb, &clear);
 
+    gs_println("Rendering pipeline");
+
     // now create the bindings for the meshes
     rxcore_mesh_buffer_apply_bindings(ctx->mesh_registry->buffer, cb);
     // now create the bindings for the cameras
     rxcore_camera_apply_bindings(ctx->camera, cb);
+
+    gs_println("Pipeline camera and meshes bound");
 
     // now traverse the scene graph to draw meshes
     rxcore_scene_graph_traverse(ctx->scene_graph, rxcore_pipeline_render_traversal, ctx);
@@ -86,6 +90,7 @@ void rxcore_pipeline_destroy(rxcore_pipeline_t *pipeline)
 
 void rxcore_pipeline_render_traversal(rxcore_scene_node_t *node, gs_mat4 model_matrix, int depth, void *user_data)
 {
+    gs_println("Rendering node at depth %d", depth);
     rxcore_rendering_context_t *ctx = (rxcore_rendering_context_t *)user_data;
     gs_command_buffer_t *cb = ctx->cb;
 
@@ -93,6 +98,8 @@ void rxcore_pipeline_render_traversal(rxcore_scene_node_t *node, gs_mat4 model_m
     {
         return;
     }
+
+    gs_println("Rendering node with mesh and material");
 
     // check we are not using the same shader set
     // if (ctx->pipeline->current_shader_set != node->material->shader_set)
@@ -102,12 +109,18 @@ void rxcore_pipeline_render_traversal(rxcore_scene_node_t *node, gs_mat4 model_m
         rxcore_shader_program_set(node->material->shader_set);
     }
 
+    gs_println("Shader set bound");
+
     // are we using the same material?
     // if (ctx->pipeline->current_material != node->material)
     {
         // we need to bind the material
         rxcore_material_bind(node->material, cb);
     }
+
+    gs_println("Material bound");
+
+    
 
     // now draw the mesh
     rxcore_mesh_draw(&node->mesh, cb);

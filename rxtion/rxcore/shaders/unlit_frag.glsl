@@ -7,5 +7,5 @@ precision mediump float;
 void main()
 {
     vec2 uv = v_uv;
-    FragColor = vec4(uv.x, uv.y, 0.0, 1.0);
+    FragColor = vec4(uv.x * u_color.x, uv.y * u_color.y, u_color.z, 1.0);
 }

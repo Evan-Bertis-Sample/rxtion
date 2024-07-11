@@ -151,9 +151,6 @@ void _rxcore_rendering_load_core_material_prorotypes(rxcore_material_registry_t 
     rxcore_shader_set_t lit_shader_set = rxcore_shader_registry_get_shader_set(shader_reg, RXCORE_SHADER_SET_LIT_DEFAULT);
     rxcore_material_prototype_t lit_prototype = RXCORE_MATERIAL_PROTOTYPE_CREATE(
         lit_shader_set,
-        RXCORE_UNIFORM_DESC("u_model", RXCORE_SHADER_STAGE_VERTEX, GS_GRAPHICS_UNIFORM_MAT4),
-        RXCORE_UNIFORM_DESC("u_view", RXCORE_SHADER_STAGE_VERTEX, GS_GRAPHICS_UNIFORM_MAT4),
-        RXCORE_UNIFORM_DESC("u_projection", RXCORE_SHADER_STAGE_VERTEX, GS_GRAPHICS_UNIFORM_MAT4),
         RXCORE_UNIFORM_DESC("u_color", RXCORE_SHADER_STAGE_FRAGMENT, GS_GRAPHICS_UNIFORM_VEC4)
     );
     rxcore_material_registry_add_prototype(reg, "lit", &lit_prototype);
@@ -162,9 +159,6 @@ void _rxcore_rendering_load_core_material_prorotypes(rxcore_material_registry_t 
 
     rxcore_material_prototype_t unlit_prototype = RXCORE_MATERIAL_PROTOTYPE_CREATE(
         unlit_shader_set,
-        RXCORE_UNIFORM_DESC("u_model", RXCORE_SHADER_STAGE_VERTEX, GS_GRAPHICS_UNIFORM_MAT4),
-        RXCORE_UNIFORM_DESC("u_view", RXCORE_SHADER_STAGE_VERTEX, GS_GRAPHICS_UNIFORM_MAT4),
-        RXCORE_UNIFORM_DESC("u_projection", RXCORE_SHADER_STAGE_VERTEX, GS_GRAPHICS_UNIFORM_MAT4),
         RXCORE_UNIFORM_DESC("u_color", RXCORE_SHADER_STAGE_FRAGMENT, GS_GRAPHICS_UNIFORM_VEC4)
     );
     rxcore_material_registry_add_prototype(reg, "unlit", &unlit_prototype);

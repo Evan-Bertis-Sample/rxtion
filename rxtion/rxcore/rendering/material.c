@@ -138,6 +138,7 @@ void rxcore_material_add_binding(rxcore_material_t *material, const char *unifor
 
 void rxcore_material_bind(rxcore_material_t *material, gs_command_buffer_t *cb)
 {
+    gs_println("Binding material with %d uniforms", material->num_uniforms);
     gs_graphics_bind_desc_t bind = {
         .uniforms = { 
             .desc = material->uniform_bindings,
