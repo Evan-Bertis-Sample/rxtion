@@ -14,5 +14,5 @@ void main()
     pos /= pos.w;
     gl_Position = pos;
 
-    rxcore_send_varyings();
+    rxcore_send_out();
 }

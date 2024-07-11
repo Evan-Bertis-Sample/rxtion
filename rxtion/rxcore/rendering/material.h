@@ -6,7 +6,7 @@
 #include <rxcore/profiler.h>
 #include <gs/gs.h>
 
-#define RXCORE_MATERIAL_DEBUG
+// #define RXCORE_MATERIAL_DEBUG
 
 #ifdef RXCORE_MATERIAL_DEBUG
 #define RXCORE_MATERIAL_DEBUG_PRINT(str) gs_println("RXCORE::rendering::material::" str)

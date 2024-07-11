@@ -18,20 +18,20 @@ gs_global rxcore_systems_t *g_debug_systems;
 void rxapp_init()
 {
     g_debug_systems = RXCORE_SYSTEMS(
-        rxcore_profiling_system,
-    );
+        rxcore_profiling_system, );
 
     g_core_systems = RXCORE_SYSTEMS(
-        rxcore_rendering_system,
-    );
+        rxcore_rendering_system, );
 
     rxcore_init(g_debug_systems);
+
+    setvbuf(stdout, NULL, _IONBF, 0);
 
     RXCORE_PROFILER_BEGIN_TASK("rxapp_init");
     rxcore_init(g_core_systems);
     RXCORE_PROFILER_END_TASK();
     RXCORE_PROFILER_REPORT();
-    RXCORE_PROFILER_CLEAR();
+    // RXCORE_PROFILER_CLEAR();
 }
 
 void rxapp_update()

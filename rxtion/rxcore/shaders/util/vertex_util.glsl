@@ -10,15 +10,15 @@ attribute vec3 a_normal;
 attribute vec2 a_uv;
 
 // pass to fragment shader
-varying vec3 v_world_position;
-varying vec3 v_object_position;
-varying vec3 v_screen_position;
-varying vec3 v_world_normal;
-varying vec3 v_object_normal;
-varying vec2 v_uv;
+out vec3 v_world_position;
+out vec3 v_object_position;
+out vec3 v_screen_position;
+out vec3 v_world_normal;
+out vec3 v_object_normal;
+out vec2 v_uv;
 
 
-void rxcore_send_varyings() {
+void rxcore_send_out() {
     v_world_position = (u_model * vec4(a_position, 1.0)).xyz;
     v_object_position = a_position;
 

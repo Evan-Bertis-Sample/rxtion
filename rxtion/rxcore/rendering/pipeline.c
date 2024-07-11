@@ -73,6 +73,7 @@ void rxcore_pipeline_render(rxcore_rendering_context_t *ctx)
     gs_graphics_renderpass_end(cb);
     // now execute the render passes
     gs_graphics_command_buffer_submit(cb);
+    gs_println("Pipeline rendered");
 }
 
 void rxcore_pipeline_destroy(rxcore_pipeline_t *pipeline)

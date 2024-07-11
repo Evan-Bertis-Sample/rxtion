@@ -371,26 +371,13 @@ rxcore_shader_program_t *rxcore_shader_program_set(rxcore_shader_set_t set)
     if (set.fragment_shader == NULL || set.fragment_shader->stage != RXCORE_SHADER_STAGE_FRAGMENT)
     {
         RXCORE_SHADER_DEBUG_PRINT("Invalid fragment shader in set!");
-        return 0;
+        return NULL;
     }
-
-    gs_println("Vertex shader: %s", set.vertex_shader->shader_src);
-    gs_println("Fragment shader: %s", set.fragment_shader->shader_src);
 
     size_t vert_src_size = strlen(set.vertex_shader->shader_name);
     size_t frag_src_size = strlen(set.fragment_shader->shader_name);
 
-    gs_graphics_shader_source_desc_t vert_src_desc = {
-        .source = set.vertex_shader->shader_src,
-        .type = GS_GRAPHICS_SHADER_STAGE_VERTEX};
-
-    gs_graphics_shader_source_desc_t frag_shader_src = {
-        .source = set.fragment_shader->shader_src,
-        .type = GS_GRAPHICS_SHADER_STAGE_VERTEX};
-
-    gs_graphics_shader_source_desc_t sources[] = {vert_src_desc, frag_shader_src};
-
-    char *program_name = malloc(64); // 64 cause that is the max expected size of the program name
+    char program_name[64];
     program_name[0] = '\0';
     // combine the names of the shaders
     strncat(program_name, set.fragment_shader->shader_name,
@@ -399,14 +386,19 @@ rxcore_shader_program_t *rxcore_shader_program_set(rxcore_shader_set_t set)
     strncat(program_name, set.vertex_shader->shader_name,
             gs_clamp(strlen(set.vertex_shader->shader_name), 1, 31));
             
-    gs_println("Creating shader program: %s", program_name);
+    // gs_println("Creating shader program: %s", program_name);
 
     gs_graphics_shader_desc_t shader_desc =
     {
-        .name = program_name,
         .size = 2 * sizeof(gs_graphics_shader_source_desc_t),
-        .sources = sources,
+        .sources = (gs_graphics_shader_source_desc_t[]){
+            { .source = set.vertex_shader->shader_src, .type = GS_GRAPHICS_SHADER_STAGE_VERTEX },
+            { .source = set.fragment_shader->shader_src, .type = GS_GRAPHICS_SHADER_STAGE_FRAGMENT },
+        },
     };
+
+    strncpy(shader_desc.name, program_name, 63);
+    shader_desc.name[64] = '\0';
 
     gs_handle(gs_graphics_shader_t) shader = gs_graphics_shader_create(&shader_desc);
 

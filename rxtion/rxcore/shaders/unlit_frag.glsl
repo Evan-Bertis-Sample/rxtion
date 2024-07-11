@@ -1,4 +1,4 @@
-#version 330 core
+#version 330
 precision mediump float;
 // unlit_frag.glsl
 
@@ -7,5 +7,5 @@ precision mediump float;
 void main()
 {
     vec2 uv = v_uv;
-    FragColor = float4(uv.x, uv.y, 0.0, 1.0);
+    FragColor = vec4(uv.x, uv.y, 0.0, 1.0);
 }

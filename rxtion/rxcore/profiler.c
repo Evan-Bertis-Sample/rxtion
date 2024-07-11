@@ -179,6 +179,8 @@ void rxcore_profiler_report(rxcore_profiler_t *profiler)
         rxcore_profiling_task_t *task = profiler->completed_tasks[i];
         rxcore_profiling_task_traverse(task, rxcore_profiling_task_traversal_print, 0, printf);
     }
+
+    printf("\n");
 }
 
 void rxcore_profiler_destroy(rxcore_profiler_t *profiler)

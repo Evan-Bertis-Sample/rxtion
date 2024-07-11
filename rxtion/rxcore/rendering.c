@@ -31,6 +31,7 @@ void rxcore_rendering_init()
 
     RXCORE_PROFILER_BEGIN_TASK("scene_loading");
     RXCORE_MESH_PRIMATIVE_ADD(g_rendering_context.mesh_registry, rxcore_mesh_primatives_quad, "quad");
+    RXCORE_MESH_PRIMATIVE_ADD(g_rendering_context.mesh_registry, rxcore_mesh_primatives_triangle, "triangle");
     rxcore_scene_graph_add_child(
         g_rendering_context.scene_graph,
         rxcore_scene_node_create(
@@ -39,6 +40,15 @@ void rxcore_rendering_init()
             rxcore_material_registry_get_material(g_rendering_context.material_registry, "unlit")
         )
     );
+    // rxcore_scene_graph_add_child(
+    //     g_rendering_context.scene_graph,
+    //     rxcore_scene_node_create(
+    //         rxcore_transform_create(gs_v3(0.f, 2.f, 5.f), gs_v3(1.f, 1.f, 1.f), gs_quat_default()),
+    //         rxcore_mesh_registry_get_mesh(g_rendering_context.mesh_registry, "quad"),
+    //         rxcore_material_registry_get_material(g_rendering_context.material_registry, "unlit")
+    //     )
+    // );
+
     RXCORE_PROFILER_END_TASK();
 
     RXCORE_PROFILER_BEGIN_TASK("camera_loading");
@@ -53,12 +63,12 @@ void rxcore_rendering_init()
         gs_quat_default()
     );
     RXCORE_PROFILER_END_TASK();
-
     RXCORE_PROFILER_END_TASK();
 }
 
 void rxcore_rendering_update()
 {
+    g_rendering_context.camera->position.x = sin(gs_platform_elapsed_time()) * 5.f;
     rxcore_pipeline_render(&g_rendering_context);
 }
 
@@ -149,12 +159,6 @@ void _rxcore_rendering_load_core_material_prorotypes(rxcore_material_registry_t 
     rxcore_material_registry_add_prototype(reg, "lit", &lit_prototype);
 
     rxcore_shader_set_t unlit_shader_set = rxcore_shader_registry_get_shader_set(shader_reg, RXCORE_SHADER_SET_UNLIT_DEFAULT);
-
-    gs_println("unlit_shader_set.vertex_shader->shader_name: %s", unlit_shader_set.vertex_shader->shader_name);
-    gs_println("unlit_shader_set.fragment_shader->shader_name: %s", unlit_shader_set.fragment_shader->shader_name);
-
-    gs_println("unlit_shader_set.vertex_shader->shader_src: %s", unlit_shader_set.vertex_shader->shader_src);
-    gs_println("unlit_shader_set.fragment_shader->shader_src: %s", unlit_shader_set.fragment_shader->shader_src);
 
     rxcore_material_prototype_t unlit_prototype = RXCORE_MATERIAL_PROTOTYPE_CREATE(
         unlit_shader_set,

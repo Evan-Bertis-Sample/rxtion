@@ -23,6 +23,8 @@ rxcore_mesh_t rxcore_mesh_buffer_add_mesh(rxcore_mesh_buffer_t *buffer, rxcore_v
     mesh.starting_index = gs_dyn_array_size(buffer->indices);
     mesh.index_count = index_count;
 
+    uint32_t vert_offset = gs_dyn_array_size(buffer->vertices);
+
     for (uint32_t i = 0; i < vertex_count; i++)
     {
         gs_dyn_array_push(buffer->vertices, vertices[i]);
@@ -30,7 +32,7 @@ rxcore_mesh_t rxcore_mesh_buffer_add_mesh(rxcore_mesh_buffer_t *buffer, rxcore_v
 
     for (uint32_t i = 0; i < index_count; i++)
     {
-        gs_dyn_array_push(buffer->indices, indices[i]);
+        gs_dyn_array_push(buffer->indices, indices[i] + vert_offset);
     }
 
     buffer->vertex_dirty = true;

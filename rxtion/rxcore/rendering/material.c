@@ -138,14 +138,22 @@ void rxcore_material_add_binding(rxcore_material_t *material, const char *unifor
 
 void rxcore_material_bind(rxcore_material_t *material, gs_command_buffer_t *cb)
 {
-    gs_graphics_apply_bindings(cb, material->uniform_bindings);
+    gs_graphics_bind_desc_t bind = {
+        .uniforms = { 
+            .desc = material->uniform_bindings,
+            .size = (material->num_uniforms) * sizeof(gs_graphics_bind_uniform_desc_t)
+        }
+    };
+    gs_graphics_apply_bindings(cb, &bind);
 }
 
 void rxcore_material_print(rxcore_material_t *material)
 {
     RXCORE_MATERIAL_DEBUG_PRINT("Material:");
     RXCORE_MATERIAL_DEBUG_PRINTF("  Vertex Shader: %s", material->shader_set.vertex_shader->shader_name);
+    RXCORE_MATERIAL_DEBUG_PRINTF("      Source: %s", material->shader_set.vertex_shader->shader_src);
     RXCORE_MATERIAL_DEBUG_PRINTF("  Fragment Shader: %s", material->shader_set.fragment_shader->shader_name);
+    RXCORE_MATERIAL_DEBUG_PRINTF("      Source: %s", material->shader_set.fragment_shader->shader_src);
     RXCORE_MATERIAL_DEBUG_PRINT("  Uniforms:");
     for (uint32_t i = 0; i < material->num_uniforms; i++)
     {
