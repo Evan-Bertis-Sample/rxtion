@@ -62,8 +62,10 @@ void rxcore_rendering_init()
         gs_vec3_ctor(0.f, 0.f, 5.f),
         gs_quat_default()
     );
+
     RXCORE_PROFILER_END_TASK();
     RXCORE_PROFILER_END_TASK();
+    g_rendering_context.pipeline = rxcore_pipeline_default(g_rendering_context.shader_registry);
 }
 
 void rxcore_rendering_update()
@@ -87,7 +89,7 @@ rxcore_rendering_context_t rxcore_rendering_context_create()
     gs_command_buffer_t *cb = malloc(sizeof(gs_command_buffer_t));
     *cb = gs_command_buffer_new();
     context.cb = cb;
-    context.pipeline = rxcore_pipeline_default();
+    // context.pipeline = rxcore_pipeline_default();
 
     return context;
 }
@@ -169,7 +171,7 @@ void _rxcore_rendering_load_core_materials(rxcore_material_registry_t *reg)
     rxcore_material_t *lit_material = RXCORE_MATERIAL_CREATE_FROM_PROTOTYPE(
         rxcore_material_registry_get_prototype(reg, "lit")
     );
-    rxcore_material_add_binding(lit_material, "u_color", &(gs_vec4){1.f, 0.f, 0.f, 1.f}, sizeof(gs_vec4));
+    rxcore_material_add_binding(lit_material, "u_color", &(gs_vec4){1.f, 0.f, 1.f, 1.f}, sizeof(gs_vec4));
     rxcore_material_registry_add_material(reg, "lit", lit_material);
 
     rxcore_material_t *unlit_material = RXCORE_MATERIAL_CREATE_FROM_PROTOTYPE(

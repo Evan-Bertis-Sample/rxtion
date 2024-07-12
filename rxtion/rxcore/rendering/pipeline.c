@@ -19,13 +19,20 @@ rxcore_pipeline_t *rxcore_pipeline_create(gs_graphics_pipeline_desc_t pipeline_d
     return pipeline;
 }
 
-rxcore_pipeline_t *rxcore_pipeline_default()
+rxcore_pipeline_t *rxcore_pipeline_default(rxcore_shader_registry_t *shader_registry)
 {
     gs_graphics_pipeline_desc_t pipeline_desc = {
         .raster = {
             .face_culling = GS_GRAPHICS_FACE_CULLING_BACK,
             .index_buffer_element_size = sizeof(uint32_t),
             .winding_order = GS_GRAPHICS_WINDING_ORDER_CCW,
+            .shader = (rxcore_shader_program_set(
+                rxcore_shader_registry_get_shader_set(
+                    shader_registry,
+                    RXCORE_SHADER_SET_UNLIT_DEFAULT
+                )
+            )->program),
+
         },
         .layout = {
             .attrs = (gs_graphics_vertex_attribute_desc_t[]){
@@ -106,7 +113,7 @@ void rxcore_pipeline_render_traversal(rxcore_scene_node_t *node, gs_mat4 model_m
     {
         // we need to bind the shader
         ctx->pipeline->current_shader_set = node->material->shader_set;
-        rxcore_shader_program_set(node->material->shader_set);
+        // rxcore_shader_program_set(node->material->shader_set);
     }
 
     gs_println("Shader set bound");
@@ -120,7 +127,7 @@ void rxcore_pipeline_render_traversal(rxcore_scene_node_t *node, gs_mat4 model_m
 
     gs_println("Material bound");
 
-    
+
 
     // now draw the mesh
     rxcore_mesh_draw(&node->mesh, cb);

@@ -1,6 +1,6 @@
 // fragment_util.glsl
 
-layout(location = 0) out vec4 FragColor;
+out vec4 frag_color;
 
 // generic unifroms
 uniform vec4 u_color;

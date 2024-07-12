@@ -24,7 +24,7 @@ rxcore_material_t *rxcore_material_create_base(rxcore_shader_set_t set, gs_graph
     material->uniform_handles = malloc(sizeof(gs_handle(gs_graphics_uniform_t)) * num_uniforms);
     for (uint32_t i = 0; i < num_uniforms; i++)
     {
-        gs_println("Creating uniform %d: %s", i, uniform_descs[i].name);
+        gs_println("Creating uniform %d: %s of type: %d", i, uniform_descs[i].name, uniform_descs[i].layout->type);
         gs_handle(gs_graphics_uniform_t) uniform = gs_graphics_uniform_create(&uniform_descs[i]);
         material->uniform_handles[i] = uniform;
     }
@@ -132,7 +132,17 @@ void rxcore_material_add_binding(rxcore_material_t *material, const char *unifor
     }
 
     RXCORE_MATERIAL_DEBUG_PRINTF("Binding %s to index %d", uniform_name, index);
-    material->uniform_bindings[index].data = data;
+
+    // malloc a new buffer for the data
+    void *data_copy = malloc(size);
+    memcpy(data_copy, data, size);
+
+    if (material->uniform_bindings[index].data != NULL)
+    {
+        free(material->uniform_bindings[index].data);
+    }
+    
+    material->uniform_bindings[index].data = data_copy;
     material->uniform_bindings[index].binding = size;
 }
 
@@ -264,8 +274,16 @@ rxcore_material_prototype_t *rxcore_material_registry_add_prototype(rxcore_mater
         // copy over the uniforms
         gs_graphics_uniform_desc_t uniform_src = prototype->uniform_descs[i];
         gs_graphics_uniform_desc_t uniform_copy = uniform_src;
+
+        // copy the name
         strcpy(uniform_copy.name, uniform_src.name);
         proto_copy->uniform_descs[i] = uniform_copy;
+
+        // copy the layout
+        gs_graphics_uniform_layout_desc_t layout_src = *uniform_src.layout;
+        gs_graphics_uniform_layout_desc_t* layout_copy = malloc(sizeof(gs_graphics_uniform_layout_desc_t));
+        *layout_copy = layout_src;
+        proto_copy->uniform_descs[i].layout = layout_copy;
     }
 
     // add the prototype to the registry
@@ -307,6 +325,19 @@ void rxcore_material_registry_destroy(rxcore_material_registry_t *reg)
     {
         rxcore_material_destroy(reg->materials[i]);
     }
+
+    // free all of the prototype's layout copies
+    for (uint32_t i = 0; i < gs_dyn_array_size(reg->prototypes); i++)
+    {
+        rxcore_material_prototype_t *proto = reg->prototypes[i];
+        for (uint32_t j = 0; j < proto->num_uniforms; j++)
+        {
+            free(proto->uniform_descs[j].layout);
+        }
+        free(proto->uniform_descs);
+        free(proto);
+    }
+
     gs_dyn_array_free(reg->prototypes);
     gs_dyn_array_free(reg->prototype_names);
     gs_dyn_array_free(reg->materials);

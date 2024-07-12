@@ -11,7 +11,7 @@ void main()
         return;
     }
 
-    pos /= pos.w;
+    pos = vec4(u_uv.x * 2.0 - 1.0, u_uv.y, 0.0, 1.0);
     gl_Position = pos;
 
     rxcore_send_out();

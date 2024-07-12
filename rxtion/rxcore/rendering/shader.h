@@ -63,6 +63,7 @@ typedef struct rxcore_shader_program_t
 {
     const char *program_name;
     gs_handle(gs_graphics_shader_t) program;
+    // gonna need a pipeline to stored here or smth
 } rxcore_shader_program_t;
 
 /// @brief Creates a shader description, allocated on the stack, which can be used to create a shader.
