@@ -40,14 +40,14 @@ void rxcore_rendering_init()
             rxcore_material_registry_get_material(g_rendering_context.material_registry, "unlit")
         )
     );
-    // rxcore_scene_graph_add_child(
-    //     g_rendering_context.scene_graph,
-    //     rxcore_scene_node_create(
-    //         rxcore_transform_create(gs_v3(0.f, 2.f, 5.f), gs_v3(1.f, 1.f, 1.f), gs_quat_default()),
-    //         rxcore_mesh_registry_get_mesh(g_rendering_context.mesh_registry, "quad"),
-    //         rxcore_material_registry_get_material(g_rendering_context.material_registry, "unlit")
-    //     )
-    // );
+    rxcore_scene_graph_add_child(
+        g_rendering_context.scene_graph,
+        rxcore_scene_node_create(
+            rxcore_transform_create(gs_v3(0.f, 2.f, 5.f), gs_v3(1.f, 1.f, 1.f), gs_quat_default()),
+            rxcore_mesh_registry_get_mesh(g_rendering_context.mesh_registry, "quad"),
+            rxcore_material_registry_get_material(g_rendering_context.material_registry, "unlit")
+        )
+    );
 
     RXCORE_PROFILER_END_TASK();
 

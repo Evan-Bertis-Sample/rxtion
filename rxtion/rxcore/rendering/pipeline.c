@@ -27,11 +27,10 @@ rxcore_pipeline_t *rxcore_pipeline_default(rxcore_shader_registry_t *shader_regi
             .index_buffer_element_size = sizeof(uint32_t),
             .winding_order = GS_GRAPHICS_WINDING_ORDER_CCW,
             .shader = (rxcore_shader_program_set(
-                rxcore_shader_registry_get_shader_set(
-                    shader_registry,
-                    RXCORE_SHADER_SET_UNLIT_DEFAULT
-                )
-            )->program),
+                           rxcore_shader_registry_get_shader_set(
+                               shader_registry,
+                               RXCORE_SHADER_SET_UNLIT_DEFAULT))
+                           ->program),
 
         },
         .layout = {
@@ -127,7 +126,29 @@ void rxcore_pipeline_render_traversal(rxcore_scene_node_t *node, gs_mat4 model_m
 
     gs_println("Material bound");
 
+    // pass in the model matrix
+    gs_handle(gs_graphics_uniform_t) model_binding = gs_graphics_uniform_create(
+        &(gs_graphics_uniform_desc_t){
+            .stage = GS_GRAPHICS_SHADER_STAGE_VERTEX,
+            .name = "u_model",
+            .layout = &(gs_graphics_uniform_layout_desc_t){
+                .type = GS_GRAPHICS_UNIFORM_MAT4,
+            },
+        });
 
+    // bind the model matrix
+    gs_graphics_bind_uniform_desc_t model_desc = {
+        .uniform = model_binding,
+        .data = &model_matrix,
+    };
+
+    gs_graphics_bind_desc_t bind_desc = {
+        .uniforms = {
+            .desc = &model_desc,
+        }
+    };
+
+    gs_graphics_apply_bindings(cb, &bind_desc);
 
     // now draw the mesh
     rxcore_mesh_draw(&node->mesh, cb);
