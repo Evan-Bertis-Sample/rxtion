@@ -59,7 +59,7 @@ void rxcore_rendering_init()
             .near_plane = 0.1f,
             .far_plane = 100.f
         },
-        gs_vec3_ctor(0.f, 0.f, -10.0f),
+        gs_vec3_ctor(0.f, 0.f, 5.0f),
         gs_quat_default()
     );
 
@@ -73,9 +73,57 @@ void rxcore_rendering_update()
     // g_rendering_context.camera->position.x = sin(gs_platform_elapsed_time()) * 5.f;
 
     // rotate the camera
+    // g_rendering_context.camera->rotation = gs_quat_mul(g_rendering_context.camera->rotation, 
+    //     gs_quat_angle_axis(0.5f * gs_platform_delta_time(), gs_v3(0.f, 1.f, 0.f))
+    // );
+
+    // really quick movement
+    gs_vec3 movement = gs_v3(0.f, 0.f, 0.f);
+    float rot = 0;
+    if (gs_platform_key_down(GS_KEYCODE_W))
+    {
+        movement.z -= 1.f;
+    }
+    if (gs_platform_key_down(GS_KEYCODE_S))
+    {
+        movement.z += 1.f;
+    }
+    if (gs_platform_key_down(GS_KEYCODE_A))
+    {
+        movement.x -= 1.f;
+    }
+    if (gs_platform_key_down(GS_KEYCODE_D))
+    {
+        movement.x += 1.f;
+    }
+    if (gs_platform_key_down(GS_KEYCODE_SPACE))
+    {
+        movement.y += 1.f;
+    }
+    if (gs_platform_key_down(GS_KEYCODE_LEFT_SHIFT))
+    {
+        movement.y -= 1.f;
+    }
+    if (gs_platform_key_down(GS_KEYCODE_Q))
+    {
+        rot -= 1.f;
+    } 
+    if (gs_platform_key_down(GS_KEYCODE_E))
+    {
+        rot += 1.f;
+    }
+
     g_rendering_context.camera->rotation = gs_quat_mul(g_rendering_context.camera->rotation, 
-        gs_quat_angle_axis(0.5f * gs_platform_delta_time(), gs_v3(0.f, 1.f, 0.f))
+        gs_quat_angle_axis(rot * gs_platform_delta_time(), gs_v3(0.f, 1.f, 0.f))
     );
+
+    gs_mat4 rot_mat = gs_quat_to_mat4(g_rendering_context.camera->rotation);
+    gs_vec4 rot_mov = gs_mat4_mul_vec4(rot_mat, gs_v4_xyz_s(movement, 0.f));
+    movement = gs_vec3_ctor(rot_mov.x, rot_mov.y, rot_mov.z);
+
+    g_rendering_context.camera->position = gs_vec3_add(g_rendering_context.camera->position, gs_vec3_scale(movement, 5.f * gs_platform_delta_time()));
+    float fps = 1.f / gs_platform_delta_time();
+    gs_println("FPS: %f", fps);
 
     rxcore_pipeline_render(&g_rendering_context);
 }

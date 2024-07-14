@@ -47,8 +47,15 @@ rxcore_camera_t *rxcore_camera_create_orthographic(rxcore_camera_orthographic_de
 
 gs_mat4 rxcore_camera_get_view_matrix(rxcore_camera_t *camera)
 {
-    gs_vqs vqs = gs_vqs_ctor(camera->position, camera->rotation, gs_vec3_ctor(1, 1, 1));
-    return gs_vqs_to_mat4(&vqs);
+    gs_mat4 m = gs_mat4_identity();
+    m = gs_mat4_mul(m, gs_quat_to_mat4(camera->rotation));
+    m = gs_mat4_mul(m, gs_mat4_translate(
+        -camera->position.x,
+        -camera->position.y,
+        -camera->position.z
+    ));
+
+    return m;
 }
 
 gs_mat4 rxcore_camera_get_projection_matrix(rxcore_camera_t *camera)

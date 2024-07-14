@@ -18,6 +18,7 @@ rxcore_transform_t rxcore_transform_empty()
     t.position = gs_vec3_ctor(0, 0, 0);
     t.scale = gs_vec3_ctor(1, 1, 1);
     t.rotation = gs_quat_default();
+    return t;
 }
 
 gs_mat4 rxcore_transform_to_mat4(rxcore_transform_t *transform)

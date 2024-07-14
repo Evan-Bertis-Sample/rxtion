@@ -65,7 +65,7 @@ void rxcore_pipeline_render(rxcore_rendering_context_t *ctx)
 
     gs_graphics_renderpass_begin(cb, GS_GRAPHICS_RENDER_PASS_DEFAULT);
     gs_graphics_pipeline_bind(cb, pipeline->pipeline_hndl);
-    gs_graphics_set_viewport(cb, 0, 0, fs.x, fs.y);
+    gs_graphics_set_viewport(cb, 0, 0, (uint32_t)fs.x, (uint32_t)fs.y);
     gs_graphics_clear_desc_t clear = {.actions = &(gs_graphics_clear_action_t){.color = {0.1f, 0.1f, 0.1f, 1.f}}};
     gs_graphics_clear(cb, &clear);
 
@@ -74,6 +74,12 @@ void rxcore_pipeline_render(rxcore_rendering_context_t *ctx)
     // now create the bindings for the meshes
     rxcore_mesh_buffer_apply_bindings(ctx->mesh_registry->buffer, cb);
     // now create the bindings for the cameras
+    if (ctx->camera->projection_type = RXCORE_CAMERA_PROJECTION_PERSPECTIVE)
+    {
+        // update the aspect ratio
+        ctx->camera->perspective_desc.aspect_ratio = fs.x / fs.y;
+    }
+
     rxcore_camera_apply_bindings(ctx->camera, cb);
 
     // gs_println("Pipeline camera and meshes bound");
