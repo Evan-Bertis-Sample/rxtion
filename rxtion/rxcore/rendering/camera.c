@@ -87,6 +87,9 @@ bool rxcore_camera_frustum_cull_aabb(gs_mat4 view_projection, gs_vec3 position, 
 
 void rxcore_camera_apply_bindings(rxcore_camera_t *camera, gs_command_buffer_t *cb)
 {
+    camera->view_matrix = rxcore_camera_get_view_matrix(camera);
+    camera->projection_matrix = rxcore_camera_get_projection_matrix(camera);
+
     gs_graphics_bind_uniform_desc_t view_binding = {
         .uniform = camera->view_uniform,
         .data = &camera->view_matrix,

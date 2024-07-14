@@ -59,7 +59,7 @@ void rxcore_rendering_init()
             .near_plane = 0.1f,
             .far_plane = 100.f
         },
-        gs_vec3_ctor(0.f, 0.f, 5.f),
+        gs_vec3_ctor(0.f, 0.f, -10.0f),
         gs_quat_default()
     );
 
@@ -70,7 +70,13 @@ void rxcore_rendering_init()
 
 void rxcore_rendering_update()
 {
-    g_rendering_context.camera->position.x = sin(gs_platform_elapsed_time()) * 5.f;
+    // g_rendering_context.camera->position.x = sin(gs_platform_elapsed_time()) * 5.f;
+
+    // rotate the camera
+    g_rendering_context.camera->rotation = gs_quat_mul(g_rendering_context.camera->rotation, 
+        gs_quat_angle_axis(0.5f * gs_platform_delta_time(), gs_v3(0.f, 1.f, 0.f))
+    );
+
     rxcore_pipeline_render(&g_rendering_context);
 }
 

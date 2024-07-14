@@ -4,14 +4,14 @@
 
 void main()
 {
-    
     vec4 pos = u_projection * u_view * u_model * vec4(a_position, 1.0);
-    if (pos.w == 0.0) {
-        gl_Position = vec4(0.0, 0.0, 0.0, 0.0);
-        return;
+    // check that the vertex is in front of the camera
+    if(pos.z < 0.0) {
+        // if not, set the vertex position to the origin
+        pos = vec4(0.0, 0.0, 0.0, 0.0);
     }
 
-    pos = vec4(u_uv.x * 2.0 - 1.0, u_uv.y, 0.0, 1.0);
+    pos /= pos.w;
     gl_Position = pos;
 
     rxcore_send_out();
