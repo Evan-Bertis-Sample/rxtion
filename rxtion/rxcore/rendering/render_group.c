@@ -26,7 +26,9 @@ void _rxcore_render_group_traversal(rxcore_scene_node_t *node, gs_mat4 model_mat
     if (gs_hash_table_exists(*materials_to_draw_items, node->material))
     {
         gs_println("Material already exists in hash table, adding draw item");
+        gs_println("Material: %p", node->material);
         gs_dyn_array(rxcore_draw_item_t) draw_items = gs_hash_table_get(*materials_to_draw_items, node->material);
+        gs_println("Draw items: %p", draw_items);
         gs_dyn_array_push(draw_items, draw_item);
     }
     else
@@ -34,6 +36,8 @@ void _rxcore_render_group_traversal(rxcore_scene_node_t *node, gs_mat4 model_mat
         gs_println("Material does not exist in hash table, creating new draw item array");
         gs_dyn_array(rxcore_draw_item_t) draw_items = gs_dyn_array_new(rxcore_draw_item_t);
         gs_dyn_array_push(draw_items, draw_item);
+        gs_println("Draw items: %p", draw_items);
+        gs_println("Number of draw items: %d", gs_dyn_array_size(draw_items));
         gs_hash_table_insert(*materials_to_draw_items, node->material, draw_items);
     }
 }
@@ -70,18 +74,30 @@ rxcore_render_group_t *rxcore_render_group_create(rxcore_scene_graph_t *graph)
         gs_hash_table_iter_advance(materials_to_draw_items, it))
     {
         rxcore_material_t *material = gs_hash_table_iter_getk(materials_to_draw_items, it);
+        gs_dyn_array(rxcore_draw_item_t) draw_items = gs_hash_table_iter_get(materials_to_draw_items, it);
+        gs_println("Material has %d draw items", gs_dyn_array_size(draw_items));
+
         gs_dyn_array_push(materials, material);
     }
 
     // sort the materials by shader set
     uint32_t material_count = gs_dyn_array_size(materials);
-    qsort(materials, material_count, sizeof(rxcore_material_t *), rxcore_material_compare);
+    gs_println("Sorting %d materials", material_count);
 
+
+    qsort(materials, material_count, sizeof(rxcore_material_t *), rxcore_material_compare);
     // now we can create the render items
     for (uint32_t i = 0; i < material_count; i++)
     {
         rxcore_material_t *material = materials[i];
+        if (gs_hash_table_exists(materials_to_draw_items, material) == false)
+        {
+            gs_println("Material does not exist in hash table");
+            continue;
+        }
+
         gs_dyn_array(rxcore_draw_item_t) draw_items = gs_hash_table_get(materials_to_draw_items, material);
+
 
         rxcore_render_item_t render_item = {
             .type = RXCORE_SWAP_ITEM,
@@ -91,8 +107,9 @@ rxcore_render_group_t *rxcore_render_group_create(rxcore_scene_graph_t *graph)
         };
 
         gs_dyn_array_push(group->items, render_item);
-
-        for (uint32_t j = 0; j < gs_dyn_array_size(draw_items); j++)
+        uint32_t draw_item_count = gs_dyn_array_size(draw_items);
+        gs_println("Adding %d draw items", draw_item_count);
+        for (uint32_t j = 0; j < draw_item_count; j++)
         {
             rxcore_draw_item_t draw_item = draw_items[j];
             render_item = (rxcore_render_item_t){
