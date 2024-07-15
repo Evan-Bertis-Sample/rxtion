@@ -22,8 +22,7 @@ rxcore_mesh_t rxcore_mesh_buffer_add_mesh(rxcore_mesh_buffer_t *buffer, rxcore_v
     mesh.buffer = buffer;
     mesh.starting_index = gs_dyn_array_size(buffer->indices);
     mesh.index_count = index_count;
-
-    uint32_t vert_offset = gs_dyn_array_size(buffer->vertices);
+    mesh.base_vertex = gs_dyn_array_size(buffer->vertices);
 
     for (uint32_t i = 0; i < vertex_count; i++)
     {
@@ -32,7 +31,7 @@ rxcore_mesh_t rxcore_mesh_buffer_add_mesh(rxcore_mesh_buffer_t *buffer, rxcore_v
 
     for (uint32_t i = 0; i < index_count; i++)
     {
-        gs_dyn_array_push(buffer->indices, indices[i] + vert_offset);
+        gs_dyn_array_push(buffer->indices, indices[i]);
     }
 
     buffer->vertex_dirty = true;
@@ -132,6 +131,7 @@ rxcore_mesh_t rxcore_mesh_empty()
     return (rxcore_mesh_t){
         .buffer = NULL,
         .starting_index = 0,
+        .base_vertex = 0,
         .index_count = 0};
 }
 
@@ -142,7 +142,7 @@ rxcore_vertex_t *rxcore_mesh_get_vertices(rxcore_mesh_t *mesh)
 
     for (uint32_t i = 0; i < mesh->index_count; i++)
     {
-        vertices[i] = mesh->buffer->vertices[indices[i]];
+        vertices[i] = mesh->buffer->vertices[indices[i] + mesh->base_vertex];
     }
 
     return vertices;
@@ -157,13 +157,13 @@ void rxcore_mesh_draw(rxcore_mesh_t *mesh, gs_command_buffer_t *cb)
 {
     // gs_println("Drawing mesh starting at %d for %d verts", mesh->starting_index, mesh->index_count);
     gs_graphics_draw(cb, &(gs_graphics_draw_desc_t){
-                             .start = mesh->starting_index,
-                             .count = mesh->index_count,
+                            .start = 0,
+                            .count = mesh->index_count,
                              .range = {
-                                .start = mesh->starting_index,
-                                .end = mesh->starting_index + mesh->index_count
+                                 .start = mesh->starting_index,
+                                 .end = mesh->starting_index + mesh->index_count,
                              },
-                             .base_vertex = 0,
+                             .base_vertex = mesh->base_vertex,
                              .instances = 1});
 }
 

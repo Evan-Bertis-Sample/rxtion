@@ -30,9 +30,6 @@ typedef struct rxcore_pipeline_t
     rxcore_render_pass_t *render_passes;
     void **render_pass_data;
     uint32_t render_pass_count;
-    // state variables
-    rxcore_shader_set_t current_shader_set;
-    rxcore_material_t current_material;
 } rxcore_pipeline_t;
 
 rxcore_pipeline_t *rxcore_pipeline_create(gs_graphics_pipeline_desc_t pipeline_desc);

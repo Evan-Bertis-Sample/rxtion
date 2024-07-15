@@ -9,6 +9,7 @@
 #include <rxcore/rendering/scene_graph.h>
 #include <rxcore/rendering/camera.h>
 #include <rxcore/rendering/pipeline.h>
+#include <rxcore/rendering/render_group.h>
 
 #define CORE_ASSET(ASSET_NAME) "rxtion/rxcore/" ASSET_NAME
 #define APP_ASSET(ASSET_NAME) "rxtion/rxapp/assets/" ASSET_NAME
@@ -36,6 +37,7 @@ typedef struct rxcore_rendering_context_t
     rxcore_scene_graph_t *scene_graph;
     rxcore_camera_t *camera;
     gs_command_buffer_t *cb;
+    rxcore_render_group_t *render_group;
     rxcore_pipeline_t *pipeline;
     // probably will add more stuff here later...
 } rxcore_rendering_context_t;

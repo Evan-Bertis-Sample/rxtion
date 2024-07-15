@@ -39,6 +39,7 @@ typedef struct rxcore_mesh_t
     rxcore_mesh_buffer_t *buffer;
     uint32_t starting_index;
     uint32_t index_count;
+    uint32_t base_vertex;
 } rxcore_mesh_t;
 
 typedef struct rxcore_mesh_registry_t

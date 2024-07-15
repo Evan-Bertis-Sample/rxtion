@@ -160,18 +160,18 @@ void rxcore_material_bind(rxcore_material_t *material, gs_command_buffer_t *cb)
 
 void rxcore_material_print(rxcore_material_t *material)
 {
-    RXCORE_MATERIAL_DEBUG_PRINT("Material:");
-    RXCORE_MATERIAL_DEBUG_PRINTF("  Vertex Shader: %s", material->shader_set.vertex_shader->shader_name);
-    RXCORE_MATERIAL_DEBUG_PRINTF("      Source: %s", material->shader_set.vertex_shader->shader_src);
-    RXCORE_MATERIAL_DEBUG_PRINTF("  Fragment Shader: %s", material->shader_set.fragment_shader->shader_name);
-    RXCORE_MATERIAL_DEBUG_PRINTF("      Source: %s", material->shader_set.fragment_shader->shader_src);
-    RXCORE_MATERIAL_DEBUG_PRINT("  Uniforms:");
+    gs_println("Material:");
+    gs_println("  Vertex Shader: %s", material->shader_set.vertex_shader->shader_name);
+    gs_println("      Source: %s", material->shader_set.vertex_shader->shader_src);
+    gs_println("  Fragment Shader: %s", material->shader_set.fragment_shader->shader_name);
+    gs_println("      Source: %s", material->shader_set.fragment_shader->shader_src);
+    gs_println("  Uniforms:");
     for (uint32_t i = 0; i < material->num_uniforms; i++)
     {
-        RXCORE_MATERIAL_DEBUG_PRINTF("    %s", material->uniform_name_to_index[i]);
+        gs_println("    %s", material->uniform_name_to_index[i]);
     }
 
-    RXCORE_MATERIAL_DEBUG_PRINT("End Material");
+    gs_println("End Material");
 }
 
 bool rxcore_material_uniform_exists(rxcore_material_t *material, const char *uniform_name)

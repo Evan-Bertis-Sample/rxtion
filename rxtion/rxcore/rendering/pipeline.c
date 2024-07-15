@@ -14,8 +14,6 @@ rxcore_pipeline_t *rxcore_pipeline_create(gs_graphics_pipeline_desc_t pipeline_d
     pipeline->render_passes = NULL;
     pipeline->render_pass_data = NULL;
     pipeline->render_pass_count = 0;
-    pipeline->current_shader_set = (rxcore_shader_set_t){0};
-    pipeline->current_material = (rxcore_material_t){0};
     return pipeline;
 }
 
@@ -31,6 +29,7 @@ rxcore_pipeline_t *rxcore_pipeline_default(rxcore_shader_registry_t *shader_regi
                                shader_registry,
                                RXCORE_SHADER_SET_UNLIT_DEFAULT))
                            ->program),
+            .primitive = GS_GRAPHICS_PRIMITIVE_TRIANGLES,
         },
         .layout = {
             .attrs = (gs_graphics_vertex_attribute_desc_t[]){
@@ -64,8 +63,8 @@ void rxcore_pipeline_begin(rxcore_rendering_context_t *ctx)
 
 void rxcore_pipeline_render(rxcore_rendering_context_t *ctx)
 {
-    rxcore_pipeline_t *pipeline = ctx->pipeline;
     gs_command_buffer_t *cb = ctx->cb;
+    rxcore_pipeline_t *pipeline = ctx->pipeline;
     gs_vec2 fs = gs_platform_framebuffer_sizev(gs_platform_main_window());
     gs_vec2 ws = gs_platform_window_sizev(gs_platform_main_window());
 
@@ -89,6 +88,18 @@ void rxcore_pipeline_render(rxcore_rendering_context_t *ctx)
 
     rxcore_camera_apply_bindings(ctx->camera, cb);
     // now traverse the scene graph to draw meshes
+    if (ctx->scene_graph->is_dirty || ctx->render_group == NULL)
+    {
+        gs_println("Scene graph is dirty, updating render group");
+        // free the old render_group
+        if (ctx->render_group != NULL)
+        {
+            rxcore_render_group_destroy(ctx->render_group);
+        }
+
+        ctx->render_group = rxcore_render_group_create(ctx->scene_graph);
+    }
+
     rxcore_scene_graph_traverse(ctx->scene_graph, rxcore_pipeline_render_traversal, ctx);
     gs_graphics_renderpass_end(cb);
     // now execute the render passes
@@ -121,7 +132,7 @@ void rxcore_pipeline_render_traversal(rxcore_scene_node_t *node, gs_mat4 model_m
     // if (ctx->pipeline->current_shader_set != node->material->shader_set)
     {
         // we need to bind the shader
-        ctx->pipeline->current_shader_set = node->material->shader_set;
+        // ctx->pipeline->current_shader_set = node->material->shader_set;
         rxcore_shader_program_set(node->material->shader_set);
     }
 

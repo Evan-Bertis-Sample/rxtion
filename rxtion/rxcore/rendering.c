@@ -74,7 +74,6 @@ void rxcore_rendering_init()
     rxcore_mesh_print(&triangle, printf, true);
 
     g_rendering_context.pipeline = rxcore_pipeline_default(g_rendering_context.shader_registry);
-
     rxcore_pipeline_begin(&g_rendering_context);
 }
 
@@ -153,7 +152,7 @@ rxcore_rendering_context_t rxcore_rendering_context_create()
     gs_command_buffer_t *cb = malloc(sizeof(gs_command_buffer_t));
     *cb = gs_command_buffer_new();
     context.cb = cb;
-    // context.pipeline = rxcore_pipeline_default();
+    context.render_group = NULL;
 
     return context;
 }
