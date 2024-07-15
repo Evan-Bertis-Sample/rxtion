@@ -11,41 +11,49 @@ rxcore_render_group_t *_rxcore_render_group_create_empty()
 
 void _rxcore_render_group_traversal(rxcore_scene_node_t *node, gs_mat4 model_matrix, int depth, void *user_data)
 {
-    gs_hash_table(rxcore_material_t *, gs_dyn_array(rxcore_draw_item_t)) *materials_to_draw_items = (gs_hash_table(rxcore_material_t *, gs_dyn_array(rxcore_draw_item_t)) *)user_data;
+    gs_dyn_array(rxcore_material_group_t) *material_groups = (gs_dyn_array(rxcore_material_group_t) *)user_data;
 
     if (node->material == NULL || rxcore_mesh_is_empty(&node->mesh))
     {
         return;
     }
 
-    rxcore_draw_item_t draw_item = {
-        .model_matrix = model_matrix,
-        .node = node,
-    };
+    gs_println("Number of material groups: %d", gs_dyn_array_size(*material_groups));
 
-    if (gs_hash_table_exists(*materials_to_draw_items, node->material))
+    // check if we have a material group for this material
+    rxcore_material_group_t *material_group = NULL;
+    for (uint32_t i = 0; i < gs_dyn_array_size(*material_groups); i++)
     {
-        gs_println("Material already exists in hash table, adding draw item");
-        gs_println("Material: %p", node->material);
-        gs_dyn_array(rxcore_draw_item_t) draw_items = gs_hash_table_get(*materials_to_draw_items, node->material);
-        gs_println("Draw items: %p", draw_items);
-        gs_dyn_array_push(draw_items, draw_item);
+        if ((*material_groups)[i].material == node->material)
+        {
+            gs_println("Found material group for material %p", node->material);
+            material_group = &(*material_groups)[i];
+            break;
+        }
     }
-    else
+
+    if (material_group == NULL)
     {
-        gs_println("Material does not exist in hash table, creating new draw item array");
-        gs_dyn_array(rxcore_draw_item_t) draw_items = gs_dyn_array_new(rxcore_draw_item_t);
-        gs_dyn_array_push(draw_items, draw_item);
-        gs_println("Draw items: %p", draw_items);
-        gs_println("Number of draw items: %d", gs_dyn_array_size(draw_items));
-        gs_hash_table_insert(*materials_to_draw_items, node->material, draw_items);
+        gs_println("Creating new material group for material %p", node->material);
+        rxcore_material_group_t new_group = {0};
+        gs_dyn_array_push(*material_groups, new_group);
+        gs_println("Number of material groups: %d", gs_dyn_array_size(*material_groups));
+        material_group = &(*material_groups)[gs_dyn_array_size(*material_groups) - 1];
     }
+
+    gs_println("Adding draw item to material group");
+    gs_println("Material group: %p", material_group);
+
+    rxcore_draw_item_t draw_item = {0};
+    draw_item.model_matrix = model_matrix;
+    draw_item.node = node;
+    gs_dyn_array_push(material_group->draw_items, draw_item);
 }
 
-bool rxcore_material_compare(const void *a, const void *b)
+bool rxcore_material_group_compare(const void *a, const void *b)
 {
-    rxcore_material_t *ma = *(rxcore_material_t **)a;
-    rxcore_material_t *mb = *(rxcore_material_t **)b;
+    rxcore_material_t *ma = ((rxcore_material_group_t *)a)->material;
+    rxcore_material_t *mb = ((rxcore_material_group_t *)b)->material;
 
     // sort by shader set
     // this doesn't really matter, just that all the materials with the same shader set are together
@@ -57,103 +65,40 @@ bool rxcore_material_compare(const void *a, const void *b)
 
 rxcore_render_group_t *rxcore_render_group_create(rxcore_scene_graph_t *graph)
 {
-    rxcore_render_group_t *group = _rxcore_render_group_create_empty();
-    gs_hash_table(rxcore_material_t *, gs_dyn_array(rxcore_draw_item_t)) materials_to_draw_items = gs_hash_table_new(rxcore_material_t *, gs_dyn_array(rxcore_draw_item_t));
-    rxcore_scene_graph_traverse(graph, _rxcore_render_group_traversal, &materials_to_draw_items);
+    gs_dyn_array(rxcore_material_group_t) material_groups = gs_dyn_array_new(rxcore_material_group_t);
+    rxcore_scene_graph_traverse(graph, _rxcore_render_group_traversal, &material_groups);
 
-    // get all the materials, then sort them by shader set
-    // that way we can minimize the number of shader swaps
-    // and draw all the meshes that use the same material
+    // now we need to sort the material groups by material
+    // so that we can swap materials efficiently
+    uint32_t num_groups = gs_dyn_array_size(material_groups);
+    gs_println("Number of material groups: %d", num_groups);
+    // qsort(material_groups, num_groups, sizeof(rxcore_material_group_t), rxcore_material_group_compare);
 
-    gs_dyn_array(rxcore_material_t *) materials = gs_dyn_array_new(rxcore_material_t *);
+    rxcore_render_group_t *res = _rxcore_render_group_create_empty();
 
-    // iterate through the hash table
-    for (
-        gs_hash_table_iter it = gs_hash_table_iter_new(materials_to_draw_items);
-        gs_hash_table_iter_valid(materials_to_draw_items, it);
-        gs_hash_table_iter_advance(materials_to_draw_items, it))
+    for (uint32_t i = 0; i < num_groups; i++)
     {
-        rxcore_material_t *material = gs_hash_table_iter_getk(materials_to_draw_items, it);
-        gs_dyn_array(rxcore_draw_item_t) draw_items = gs_hash_table_iter_get(materials_to_draw_items, it);
-        gs_println("Material has %d draw items", gs_dyn_array_size(draw_items));
+        gs_println("Adding material group %d", i);
+        gs_println("Num draw items: %d", gs_dyn_array_size(material_groups[i].draw_items));
+        rxcore_material_group_t group = material_groups[i];
+        rxcore_render_item_t item = {0};
+        item.type = RXCORE_SWAP_ITEM;
+        item.swap_item.material = group.material;
+        gs_dyn_array_push(res->items, item);
 
-        gs_dyn_array_push(materials, material);
+        for (uint32_t j = 0; j < gs_dyn_array_size(group.draw_items); j++)
+        {
+            rxcore_draw_item_t draw_item = group.draw_items[j];
+            rxcore_render_item_t item = {0};
+            item.type = RXCORE_DRAW_ITEM;
+            item.draw_item = draw_item;
+            gs_dyn_array_push(res->items, item);
+        }
+    
     }
 
-    // sort the materials by shader set
-    uint32_t material_count = gs_dyn_array_size(materials);
-    gs_println("Sorting %d materials", material_count);
-
-
-    qsort(materials, material_count, sizeof(rxcore_material_t *), rxcore_material_compare);
-    // now we can create the render items
-    for (uint32_t i = 0; i < material_count; i++)
-    {
-        rxcore_material_t *material = materials[i];
-        if (gs_hash_table_exists(materials_to_draw_items, material) == false)
-        {
-            gs_println("Material does not exist in hash table");
-            continue;
-        }
-
-        gs_dyn_array(rxcore_draw_item_t) draw_items = gs_hash_table_get(materials_to_draw_items, material);
-
-
-        rxcore_render_item_t render_item = {
-            .type = RXCORE_SWAP_ITEM,
-            .swap_item = {
-                .material = *material,
-            },
-        };
-
-        gs_dyn_array_push(group->items, render_item);
-        uint32_t draw_item_count = gs_dyn_array_size(draw_items);
-        gs_println("Adding %d draw items", draw_item_count);
-        for (uint32_t j = 0; j < draw_item_count; j++)
-        {
-            rxcore_draw_item_t draw_item = draw_items[j];
-            render_item = (rxcore_render_item_t){
-                .type = RXCORE_DRAW_ITEM,
-                .draw_item = draw_item,
-            };
-
-            gs_dyn_array_push(group->items, render_item);
-        }
-    }
-
-    // now free the hash table and all of their draw items
-    for (
-        gs_hash_table_iter it = gs_hash_table_iter_new(materials_to_draw_items);
-        gs_hash_table_iter_valid(materials_to_draw_items, it);
-        gs_hash_table_iter_advance(materials_to_draw_items, it))
-    {
-        gs_dyn_array(rxcore_draw_item_t) draw_items = gs_hash_table_iter_get(materials_to_draw_items, it);
-        gs_dyn_array_free(draw_items);
-    }
-
-    // now print out the render group
-    gs_println("Render group:");
-    for (size_t i = 0; i < gs_dyn_array_size(group->items); i++)
-    {
-        rxcore_render_item_t item = group->items[i];
-        if (item.type == RXCORE_SWAP_ITEM)
-        {
-            rxcore_material_print(&item.swap_item.material);
-        }
-        else
-        {
-            rxcore_draw_item_t draw_item = item.draw_item;
-            rxcore_scene_node_t *node = draw_item.node;
-            rxcore_material_t *material = node->material;
-            rxcore_mesh_t mesh = node->mesh;
-            rxcore_material_print(material);
-            rxcore_mesh_print(&mesh, printf, true);
-        }
-    }
-
-    gs_hash_table_free(materials_to_draw_items);
-
-    return group;
+    // gs_dyn_array_free(material_groups);
+    return res;
 }
 
 void rxcore_render_group_destroy(rxcore_render_group_t *group)

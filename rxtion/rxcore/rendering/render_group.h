@@ -16,9 +16,14 @@ typedef struct rxcore_draw_item_t
 
 typedef struct rxcore_swap_item_t
 {
-    rxcore_material_t material;
+    rxcore_material_t *material;
 } rxcore_swap_item_t;
 
+typedef struct rxcore_material_group_t 
+{
+    rxcore_material_t *material;
+    gs_dyn_array(rxcore_draw_item_t) draw_items;
+} rxcore_material_group_t;
 
 enum rxcore_render_item_type_t
 {
