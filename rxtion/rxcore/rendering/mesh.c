@@ -73,6 +73,10 @@ gs_handle(gs_graphics_vertex_buffer_t) rxcore_mesh_buffer_get_vertex_buffer(rxco
             .size = sizeof(rxcore_vertex_t) * gs_dyn_array_size(buffer->vertices),
             .usage = GS_GRAPHICS_BUFFER_USAGE_STATIC};
         buffer->vertex_buffer = gs_graphics_vertex_buffer_create(&desc);
+
+        buffer->vertex_dirty = false;
+
+        gs_println("Generated vertex buffer with %d vertices", gs_dyn_array_size(buffer->vertices));
     }
 
     return buffer->vertex_buffer;
@@ -94,6 +98,8 @@ gs_handle(gs_graphics_index_buffer_t) rxcore_mesh_buffer_get_index_buffer(rxcore
             .size = sizeof(uint32_t) * gs_dyn_array_size(buffer->indices),
             .usage = GS_GRAPHICS_BUFFER_USAGE_STATIC};
         buffer->index_buffer = gs_graphics_index_buffer_create(&desc);
+
+        buffer->index_dirty = false;
     }
 
     return buffer->index_buffer;
@@ -149,9 +155,15 @@ uint32_t *rxcore_mesh_get_indices(rxcore_mesh_t *mesh)
 
 void rxcore_mesh_draw(rxcore_mesh_t *mesh, gs_command_buffer_t *cb)
 {
+    // gs_println("Drawing mesh starting at %d for %d verts", mesh->starting_index, mesh->index_count);
     gs_graphics_draw(cb, &(gs_graphics_draw_desc_t){
                              .start = mesh->starting_index,
                              .count = mesh->index_count,
+                             .range = {
+                                .start = mesh->starting_index,
+                                .end = mesh->starting_index + mesh->index_count
+                             },
+                             .base_vertex = 0,
                              .instances = 1});
 }
 

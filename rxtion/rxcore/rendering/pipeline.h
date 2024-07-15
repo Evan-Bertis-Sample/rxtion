@@ -38,6 +38,7 @@ typedef struct rxcore_pipeline_t
 rxcore_pipeline_t *rxcore_pipeline_create(gs_graphics_pipeline_desc_t pipeline_desc);
 rxcore_pipeline_t *rxcore_pipeline_default();
 rxcore_pipeline_t *rxcore_pipeline_add_render_pass(rxcore_pipeline_t *pipeline, rxcore_render_pass_t pass, void *data);
+void rxcore_pipeline_begin(rxcore_rendering_context_t *ctx);
 void rxcore_pipeline_render(rxcore_rendering_context_t *ctx);
 void rxcore_pipeline_destroy(rxcore_pipeline_t *pipeline);
 

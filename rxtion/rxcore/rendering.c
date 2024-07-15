@@ -36,7 +36,7 @@ void rxcore_rendering_init()
         g_rendering_context.scene_graph,
         rxcore_scene_node_create(
             rxcore_transform_empty(),
-            rxcore_mesh_registry_get_mesh(g_rendering_context.mesh_registry, "quad"),
+            rxcore_mesh_registry_get_mesh(g_rendering_context.mesh_registry, "triangle"),
             rxcore_material_registry_get_material(g_rendering_context.material_registry, "unlit")
         )
     );
@@ -65,7 +65,17 @@ void rxcore_rendering_init()
 
     RXCORE_PROFILER_END_TASK();
     RXCORE_PROFILER_END_TASK();
+
+    // print out the two meshes
+    rxcore_mesh_t quad = rxcore_mesh_registry_get_mesh(g_rendering_context.mesh_registry, "quad");
+    rxcore_mesh_t triangle = rxcore_mesh_registry_get_mesh(g_rendering_context.mesh_registry, "triangle");
+
+    rxcore_mesh_print(&quad, printf, true);
+    rxcore_mesh_print(&triangle, printf, true);
+
     g_rendering_context.pipeline = rxcore_pipeline_default(g_rendering_context.shader_registry);
+
+    rxcore_pipeline_begin(&g_rendering_context);
 }
 
 void rxcore_rendering_update()
@@ -123,7 +133,7 @@ void rxcore_rendering_update()
 
     g_rendering_context.camera->position = gs_vec3_add(g_rendering_context.camera->position, gs_vec3_scale(movement, 5.f * gs_platform_delta_time()));
     float fps = 1.f / gs_platform_delta_time();
-    gs_println("FPS: %f", fps);
+    // gs_println("FPS: %f", fps);
 
     rxcore_pipeline_render(&g_rendering_context);
 }

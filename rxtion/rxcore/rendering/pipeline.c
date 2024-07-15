@@ -31,7 +31,6 @@ rxcore_pipeline_t *rxcore_pipeline_default(rxcore_shader_registry_t *shader_regi
                                shader_registry,
                                RXCORE_SHADER_SET_UNLIT_DEFAULT))
                            ->program),
-
         },
         .layout = {
             .attrs = (gs_graphics_vertex_attribute_desc_t[]){
@@ -41,7 +40,9 @@ rxcore_pipeline_t *rxcore_pipeline_default(rxcore_shader_registry_t *shader_regi
             },
             .size = 3 * sizeof(gs_graphics_vertex_attribute_desc_t),
         },
-    };
+        .depth = {
+            .func = GS_GRAPHICS_DEPTH_FUNC_LESS,
+        }};
 
     return rxcore_pipeline_create(pipeline_desc);
 }
@@ -54,6 +55,11 @@ rxcore_pipeline_t *rxcore_pipeline_add_render_pass(rxcore_pipeline_t *pipeline, 
     pipeline->render_pass_data[pipeline->render_pass_count] = data;
     pipeline->render_pass_count++;
     return pipeline;
+}
+
+void rxcore_pipeline_begin(rxcore_rendering_context_t *ctx)
+{
+
 }
 
 void rxcore_pipeline_render(rxcore_rendering_context_t *ctx)
@@ -69,10 +75,11 @@ void rxcore_pipeline_render(rxcore_rendering_context_t *ctx)
     gs_graphics_clear_desc_t clear = {.actions = &(gs_graphics_clear_action_t){.color = {0.1f, 0.1f, 0.1f, 1.f}}};
     gs_graphics_clear(cb, &clear);
 
-    // gs_println("Rendering pipeline");
-
     // now create the bindings for the meshes
     rxcore_mesh_buffer_apply_bindings(ctx->mesh_registry->buffer, cb);
+
+    // gs_println("Rendering pipeline");
+
     // now create the bindings for the cameras
     if (ctx->camera->projection_type = RXCORE_CAMERA_PROJECTION_PERSPECTIVE)
     {
@@ -81,9 +88,6 @@ void rxcore_pipeline_render(rxcore_rendering_context_t *ctx)
     }
 
     rxcore_camera_apply_bindings(ctx->camera, cb);
-
-    // gs_println("Pipeline camera and meshes bound");
-
     // now traverse the scene graph to draw meshes
     rxcore_scene_graph_traverse(ctx->scene_graph, rxcore_pipeline_render_traversal, ctx);
     gs_graphics_renderpass_end(cb);
@@ -118,7 +122,7 @@ void rxcore_pipeline_render_traversal(rxcore_scene_node_t *node, gs_mat4 model_m
     {
         // we need to bind the shader
         ctx->pipeline->current_shader_set = node->material->shader_set;
-        // rxcore_shader_program_set(node->material->shader_set);
+        rxcore_shader_program_set(node->material->shader_set);
     }
 
     // gs_println("Shader set bound");
@@ -142,7 +146,6 @@ void rxcore_pipeline_render_traversal(rxcore_scene_node_t *node, gs_mat4 model_m
             },
         });
 
-
     // bind the model matrix
     gs_graphics_bind_uniform_desc_t model_desc = {
         .uniform = model_binding,
@@ -152,8 +155,7 @@ void rxcore_pipeline_render_traversal(rxcore_scene_node_t *node, gs_mat4 model_m
     gs_graphics_bind_desc_t bind_desc = {
         .uniforms = {
             .desc = &model_desc,
-        }
-    };
+        }};
 
     gs_graphics_apply_bindings(cb, &bind_desc);
 
