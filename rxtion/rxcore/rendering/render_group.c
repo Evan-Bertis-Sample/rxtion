@@ -26,8 +26,8 @@ void _rxcore_render_group_traversal(rxcore_scene_node_t *node, gs_mat4 model_mat
     if (gs_hash_table_exists(*materials_to_draw_items, node->material))
     {
         gs_println("Material already exists in hash table, adding draw item");
-        gs_dyn_array(rxcore_draw_item_t) *draw_items = gs_hash_table_get(*materials_to_draw_items, node->material);
-        gs_dyn_array_push(*draw_items, draw_item);
+        gs_dyn_array(rxcore_draw_item_t) draw_items = gs_hash_table_get(*materials_to_draw_items, node->material);
+        gs_dyn_array_push(draw_items, draw_item);
     }
     else
     {
@@ -70,20 +70,18 @@ rxcore_render_group_t *rxcore_render_group_create(rxcore_scene_graph_t *graph)
         gs_hash_table_iter_advance(materials_to_draw_items, it))
     {
         rxcore_material_t *material = gs_hash_table_iter_getk(materials_to_draw_items, it);
-        gs_println("Material: %p", material);
-        gs_dyn_array(rxcore_draw_item_t) *draw_items = gs_hash_table_iter_get(materials_to_draw_items, it);
         gs_dyn_array_push(materials, material);
     }
 
     // sort the materials by shader set
-    size_t material_count = gs_dyn_array_size(materials);
+    uint32_t material_count = gs_dyn_array_size(materials);
     qsort(materials, material_count, sizeof(rxcore_material_t *), rxcore_material_compare);
 
     // now we can create the render items
-    for (size_t i = 0; i < material_count; i++)
+    for (uint32_t i = 0; i < material_count; i++)
     {
         rxcore_material_t *material = materials[i];
-        gs_dyn_array(rxcore_draw_item_t) *draw_items = gs_hash_table_get(materials_to_draw_items, material);
+        gs_dyn_array(rxcore_draw_item_t) draw_items = gs_hash_table_get(materials_to_draw_items, material);
 
         rxcore_render_item_t render_item = {
             .type = RXCORE_SWAP_ITEM,
@@ -94,9 +92,9 @@ rxcore_render_group_t *rxcore_render_group_create(rxcore_scene_graph_t *graph)
 
         gs_dyn_array_push(group->items, render_item);
 
-        for (size_t j = 0; j < gs_dyn_array_size(*draw_items); j++)
+        for (uint32_t j = 0; j < gs_dyn_array_size(draw_items); j++)
         {
-            rxcore_draw_item_t draw_item = (*draw_items)[j];
+            rxcore_draw_item_t draw_item = draw_items[j];
             render_item = (rxcore_render_item_t){
                 .type = RXCORE_DRAW_ITEM,
                 .draw_item = draw_item,
@@ -112,8 +110,8 @@ rxcore_render_group_t *rxcore_render_group_create(rxcore_scene_graph_t *graph)
         gs_hash_table_iter_valid(materials_to_draw_items, it);
         gs_hash_table_iter_advance(materials_to_draw_items, it))
     {
-        gs_dyn_array(rxcore_draw_item_t) *draw_items = gs_hash_table_iter_get(materials_to_draw_items, it);
-        gs_dyn_array_free(*draw_items);
+        gs_dyn_array(rxcore_draw_item_t) draw_items = gs_hash_table_iter_get(materials_to_draw_items, it);
+        gs_dyn_array_free(draw_items);
     }
 
     // now print out the render group
