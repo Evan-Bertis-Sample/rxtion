@@ -7,7 +7,6 @@
 #include <rxcore/rendering/shader.h>
 #include <rxcore/rendering/scene_graph.h>
 
-
 typedef struct rxcore_draw_item_t
 {
     gs_mat4 model_matrix;

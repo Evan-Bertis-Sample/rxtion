@@ -31,16 +31,16 @@ libs=(
 	-lAdvapi32
 )
 
-# # Preprocess main.c and output to a file
-# main_src="../src/main.c"
-# preprocessed_output="../preprocessed_main.i"
-# preprocess_cmd="gcc -E ${inc[*]} $main_src ${flags[*]} -o $preprocessed_output"
+# Preprocess main.c and output to a file
+main_src="../src/main.c"
+preprocessed_output="../preprocessed_main.i"
+preprocess_cmd="gcc -E ${inc[*]} $main_src ${flags[*]} -o $preprocessed_output"
 
-# echo " "
+echo " "
 
-# echo "Preprocessing main.c..."
-# echo $preprocess_cmd
-# $preprocess_cmd
+echo "Preprocessing main.c..."
+echo $preprocess_cmd
+$preprocess_cmd
 
 # Build
 build_cmd="gcc -O0 ${inc[*]} ${src[*]} ${flags[*]} ${libs[*]} -lm -o ${proj_name}"

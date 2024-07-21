@@ -160,8 +160,6 @@ void rxcore_scene_graph_remove_child(rxcore_scene_graph_t *graph, rxcore_scene_n
 
 void rxcore_scene_graph_traverse(rxcore_scene_graph_t *graph, rxcore_scene_graph_traveral_fn fn, void *user_data)
 {
-    assert(fn != NULL);
-
     if (graph->is_dirty)
     {
         _rxcore_scene_graph_regen_stacks(graph);
@@ -189,8 +187,11 @@ void rxcore_scene_graph_traverse(rxcore_scene_graph_t *graph, rxcore_scene_graph
         node = node_stack[--node_stack_ptr];
         model_matrix = matrix_stack[--model_stack_ptr];
         depth = depth_stack[--depth_stack_ptr];
+        node->world_matrix = model_matrix;
+
         // call the traversal function
-        fn(node, model_matrix, depth, user_data);
+        if (fn)
+            fn(node, model_matrix, depth, user_data);
 
         // push children onto the stack
         for (uint32_t i = 0; i < gs_dyn_array_size(node->children); i++)

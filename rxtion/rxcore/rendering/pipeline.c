@@ -6,6 +6,7 @@
 #include <rxcore/rendering/mesh.h>
 #include <rxcore/rendering.h>
 #include <rxcore/rendering/shader.h>
+#include <rxcore/rendering/render_group.h>
 
 rxcore_pipeline_t *rxcore_pipeline_create(gs_graphics_pipeline_desc_t pipeline_desc)
 {
@@ -99,8 +100,29 @@ void rxcore_pipeline_render(rxcore_rendering_context_t *ctx)
 
         ctx->render_group = rxcore_render_group_create(ctx->scene_graph);
     }
+    else
+    {
+        RXCORE_SCENE_GRAPH_UPDATE_MATRICES(ctx->scene_graph);
+    }
 
-    rxcore_scene_graph_traverse(ctx->scene_graph, rxcore_pipeline_render_traversal, ctx);
+    uint32_t num_render_items = gs_dyn_array_size(ctx->render_group->items);
+
+    for (uint32_t i = 0; i < num_render_items; i++)
+    {
+        rxcore_render_item_t item = ctx->render_group->items[i];
+        switch (item.type)
+        {
+        case RXCORE_SWAP_ITEM:
+            rxcore_shader_program_set(item.swap_item.material->shader_set);
+            rxcore_material_bind(item.swap_item.material, cb);
+            break;
+        case RXCORE_DRAW_ITEM:
+            rxcore_draw_item_t draw_item = item.draw_item;
+            rxcore_pipeline_render_node(cb, draw_item);
+            break;
+        }
+    }
+
     gs_graphics_renderpass_end(cb);
     // now execute the render passes
     gs_graphics_command_buffer_submit(cb);
@@ -115,38 +137,8 @@ void rxcore_pipeline_destroy(rxcore_pipeline_t *pipeline)
     free(pipeline);
 }
 
-void rxcore_pipeline_render_traversal(rxcore_scene_node_t *node, gs_mat4 model_matrix, int depth, void *user_data)
+void rxcore_pipeline_render_node(gs_command_buffer_t *cb, rxcore_draw_item_t item)
 {
-    // gs_println("Rendering node at depth %d", depth);
-    rxcore_rendering_context_t *ctx = (rxcore_rendering_context_t *)user_data;
-    gs_command_buffer_t *cb = ctx->cb;
-
-    if (node->material == NULL || rxcore_mesh_is_empty(&node->mesh))
-    {
-        return;
-    }
-
-    // gs_println("Rendering node with mesh and material");
-
-    // check we are not using the same shader set
-    // if (ctx->pipeline->current_shader_set != node->material->shader_set)
-    {
-        // we need to bind the shader
-        // ctx->pipeline->current_shader_set = node->material->shader_set;
-        rxcore_shader_program_set(node->material->shader_set);
-    }
-
-    // gs_println("Shader set bound");
-
-    // are we using the same material?
-    // if (ctx->pipeline->current_material != node->material)
-    {
-        // we need to bind the material
-        rxcore_material_bind(node->material, cb);
-    }
-
-    // gs_println("Material bound");
-
     // pass in the model matrix
     gs_handle(gs_graphics_uniform_t) model_binding = gs_graphics_uniform_create(
         &(gs_graphics_uniform_desc_t){
@@ -160,7 +152,7 @@ void rxcore_pipeline_render_traversal(rxcore_scene_node_t *node, gs_mat4 model_m
     // bind the model matrix
     gs_graphics_bind_uniform_desc_t model_desc = {
         .uniform = model_binding,
-        .data = &model_matrix,
+        .data = &item.node->world_matrix,
     };
 
     gs_graphics_bind_desc_t bind_desc = {
@@ -171,5 +163,5 @@ void rxcore_pipeline_render_traversal(rxcore_scene_node_t *node, gs_mat4 model_m
     gs_graphics_apply_bindings(cb, &bind_desc);
 
     // now draw the mesh
-    rxcore_mesh_draw(&node->mesh, cb);
+    rxcore_mesh_draw(&item.node->mesh, cb);
 }

@@ -21,6 +21,7 @@ typedef struct rxcore_scene_node_t
     gs_dyn_array(rxcore_scene_node_t *) children;
     rxcore_scene_node_t *parent;
     rxcore_scene_graph_t *graph;
+    gs_mat4 world_matrix;
 } rxcore_scene_node_t;
 
 typedef struct rxcore_scene_graph_t
@@ -51,6 +52,7 @@ rxcore_scene_graph_t *rxcore_scene_graph_create_from_node(rxcore_scene_node_t *n
 void rxcore_scene_graph_add_child(rxcore_scene_graph_t *graph, rxcore_scene_node_t *node);
 void rxcore_scene_graph_remove_child(rxcore_scene_graph_t *graph, rxcore_scene_node_t *node);
 void rxcore_scene_graph_traverse(rxcore_scene_graph_t *graph, rxcore_scene_graph_traveral_fn fn, void *user_data);
+#define RXCORE_SCENE_GRAPH_UPDATE_MATRICES(graph) rxcore_scene_graph_traverse(graph, NULL, NULL)
 void rxcore_scene_graph_print(rxcore_scene_graph_t *graph, void (*print_fn)(const char *str, ...));
 void rxcore_scene_graph_destroy(rxcore_scene_graph_t *graph);
 

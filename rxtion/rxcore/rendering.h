@@ -8,8 +8,8 @@
 #include <rxcore/rendering/mesh.h>
 #include <rxcore/rendering/scene_graph.h>
 #include <rxcore/rendering/camera.h>
-#include <rxcore/rendering/pipeline.h>
 #include <rxcore/rendering/render_group.h>
+#include <rxcore/rendering/pipeline.h>
 
 #define CORE_ASSET(ASSET_NAME) "rxtion/rxcore/" ASSET_NAME
 #define APP_ASSET(ASSET_NAME) "rxtion/rxapp/assets/" ASSET_NAME

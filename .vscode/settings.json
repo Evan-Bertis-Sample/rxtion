@@ -26,6 +26,7 @@
         "scene_graph.h": "c",
         "transform.h": "c",
         "camera.h": "c",
-        "stddef.h": "c"
+        "stddef.h": "c",
+        "render_group.h": "c"
     }
 }

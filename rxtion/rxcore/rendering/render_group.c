@@ -97,7 +97,7 @@ rxcore_render_group_t *rxcore_render_group_create(rxcore_scene_graph_t *graph)
     
     }
 
-    // gs_dyn_array_free(material_groups);
+    gs_dyn_array_free(material_groups);
     return res;
 }
 

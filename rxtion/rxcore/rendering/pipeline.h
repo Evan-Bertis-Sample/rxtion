@@ -9,6 +9,7 @@
 
 typedef struct rxcore_render_pass_t rxcore_render_pass_t;
 typedef struct rxcore_rendering_context_t rxcore_rendering_context_t;
+typedef struct rxcore_draw_item_t rxcore_draw_item_t;
 
 enum rxcore_render_pass_type_t
 {
@@ -39,6 +40,6 @@ void rxcore_pipeline_begin(rxcore_rendering_context_t *ctx);
 void rxcore_pipeline_render(rxcore_rendering_context_t *ctx);
 void rxcore_pipeline_destroy(rxcore_pipeline_t *pipeline);
 
-void rxcore_pipeline_render_traversal(rxcore_scene_node_t *node, gs_mat4 model_matrix, int depth, void *user_data);
+void rxcore_pipeline_render_node(gs_command_buffer_t *cb, rxcore_draw_item_t item);
 
 #endif // __PIPELINE_H__
