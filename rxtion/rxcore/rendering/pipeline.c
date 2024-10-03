@@ -117,8 +117,7 @@ void rxcore_pipeline_render(rxcore_rendering_context_t *ctx)
             rxcore_material_bind(item.swap_item.material, cb);
             break;
         case RXCORE_DRAW_ITEM:
-            rxcore_draw_item_t draw_item = item.draw_item;
-            rxcore_pipeline_render_node(cb, draw_item);
+            rxcore_pipeline_render_node(cb, item.draw_item);
             break;
         }
     }

@@ -97,7 +97,13 @@ rxcore_render_group_t *rxcore_render_group_create(rxcore_scene_graph_t *graph)
     
     }
 
+    gs_println("Number of items in render group: %d", gs_dyn_array_size(res->items));
+    gs_println("Number of material groups: %d", gs_dyn_array_size(material_groups));
+
     gs_dyn_array_free(material_groups);
+
+    gs_println("Render group created");
+
     return res;
 }
 
