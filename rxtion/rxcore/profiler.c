@@ -196,15 +196,31 @@ void rxcore_profiler_destroy(rxcore_profiler_t *profiler)
 void *rxcore_profiler_malloc(size_t size)
 {
     // gs_println("custom malloc called");
-    void *ptr = malloc(size + sizeof(size_t));
-    *((size_t *)ptr) = size;
-    ptr = (void *)((size_t)ptr + 1);
+    void *ptr = malloc(size + sizeof(rxcore_profiler_heap_header_t) + sizeof(rxcore_profiler_heap_footer_t));
+
+    if (!ptr)
+    {
+        return NULL;
+    }
+
+    rxcore_profiler_heap_header_t *header = (rxcore_profiler_heap_header_t *)ptr;
+    header->malloc_num = 0;
+    header->size = size;
+
+    rxcore_profiler_heap_footer_t *footer = (rxcore_profiler_heap_footer_t *)((char *)ptr + sizeof(rxcore_profiler_heap_header_t) + size);
+    footer->padding = 0;
+
+    ptr = (void *)((char *)ptr + sizeof(rxcore_profiler_heap_header_t));
     if (rxcore_profiler_any_tasks(&g_profiler))
     {
         rxcore_profiling_task_t *current_task = rxcore_profiler_get_current_task(&g_profiler);
+        header->malloc_num = current_task->num_mallocs;
         current_task->num_mallocs++;
         current_task->bytes_allocated += size;
     }
+
+    header->checksum = rxcore_profiler_heap_header_checksum(header);
+
     return ptr;
 }
 
@@ -216,8 +232,27 @@ void rxcore_profiler_free(void *ptr)
         return;
     }
 
-    ptr = (void *)((size_t)ptr - 1);
-    size_t size = *((size_t *)ptr);
+    rxcore_profiler_heap_header_t *header = (rxcore_profiler_heap_header_t *)((char *)ptr - sizeof(rxcore_profiler_heap_header_t));
+    size_t size = header->size;
+
+    ptr = (void *)((char *)ptr + sizeof(rxcore_profiler_heap_header_t));
+
+    rxcore_profiler_heap_footer_t *footer = (rxcore_profiler_heap_footer_t *)((char *)ptr + size);
+
+    // validate the header and footer
+    if (rxcore_profiler_heap_header_checksum(header) != header->checksum)
+    {
+        RXCORE_PROFILER_PANIC("Header checksum failed");
+        return;
+    }
+
+    if (footer->padding != 0)
+    {
+        RXCORE_PROFILER_PANIC("Footer padding failed");
+        return;
+    }
+
+    gs_println("Freeing %d bytes", size);
     if (rxcore_profiler_any_tasks(&g_profiler))
     {
         rxcore_profiling_task_t *current_task = rxcore_profiler_get_current_task(&g_profiler);
@@ -226,4 +261,15 @@ void rxcore_profiler_free(void *ptr)
     }
 
     free(ptr);
+}
+
+uint32_t rxcore_profiler_heap_header_checksum(rxcore_profiler_heap_header_t *header)
+{
+    return header->malloc_num ^ header->size;
+}
+
+void rxcore_profiler_panic_impl(const char *msg)
+{
+    gs_println("Profiler panic: %s", msg);
+    exit(1);
 }

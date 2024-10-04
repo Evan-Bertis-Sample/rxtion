@@ -12,7 +12,7 @@ rxcore_render_group_t *_rxcore_render_group_create_empty()
 void _rxcore_render_group_traversal(rxcore_scene_node_t *node, gs_mat4 model_matrix, int depth, void *user_data)
 {
     gs_dyn_array(rxcore_material_group_t) *material_groups = (gs_dyn_array(rxcore_material_group_t) *)user_data;
-
+                 
     if (node->material == NULL || rxcore_mesh_is_empty(&node->mesh))
     {
         return;

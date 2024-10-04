@@ -6,6 +6,7 @@
 #include <stdbool.h>
 
 #define RXCORE_PROFILING_ENABLED
+#define RXCORE_PROFILER_ALLOW_PANIC
 
 #ifdef RXCORE_PROFILING_ENABLED
 // redefine malloc and free
@@ -45,6 +46,18 @@ typedef struct rxcore_profiler_t
     uint32_t stack_index;
 } rxcore_profiler_t;
 
+typedef struct rxcore_profiler_heap_header_t
+{
+    size_t size;
+    uint32_t malloc_num;
+    uint32_t checksum;
+} rxcore_profiler_heap_header_t;
+
+typedef struct rxcore_profiler_heap_footer_t
+{
+    uint32_t padding;
+} rxcore_profiler_heap_footer_t;
+
 // global state
 extern rxcore_profiler_t g_profiler;
 
@@ -69,6 +82,9 @@ void rxcore_profiler_destroy(rxcore_profiler_t *profiler);
 
 void *rxcore_profiler_malloc(size_t size);
 void rxcore_profiler_free(void *ptr);
+uint32_t rxcore_profiler_heap_header_checksum(rxcore_profiler_heap_header_t *header);
+
+void rxcore_profiler_panic_impl(const char *msg);
 
 #ifdef RXCORE_PROFILING_ENABLED
 #define RXCORE_PROFILER_BEGIN_TASK(name) rxcore_profiler_begin_task(&g_profiler, name)
@@ -81,12 +97,21 @@ void rxcore_profiler_free(void *ptr);
         g_profiler = rxcore_profiler_create(); \
     } while (0)
 
+#ifdef RXCORE_PROFILER_ALLOW_PANIC
+#define RXCORE_PROFILER_PANIC(msg) rxcore_profiler_panic_impl(msg)
+#else
+#define RXCORE_PROFILER_PANIC(msg) ((void)0)
+#endif
+
 #else
 #define RXCORE_PROFILER_BEGIN_TASK(name) ((void)0)
 #define RXCORE_PROFILER_END_TASK(name) ((void)0)
 #define RXCORE_PROFILER_REPORT() ((void)0)
 #define RXCORE_PROFILER_CLEAR() ((void)0)
+#define RXCORE_PROFILER_PANIC(msg) ((void)0)
 #endif
+
+
 
 #define rxcore_profiling_system RXCORE_SYSTEM(rxcore_profiling_system_init, rxcore_profiling_system_update, rxcore_profiling_system_shutdown)
 
