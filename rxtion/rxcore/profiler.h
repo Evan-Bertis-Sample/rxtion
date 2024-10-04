@@ -85,6 +85,7 @@ void rxcore_profiler_free(void *ptr);
 uint32_t rxcore_profiler_heap_header_checksum(rxcore_profiler_heap_header_t *header);
 
 void rxcore_profiler_panic_impl(const char *msg);
+char* rxcore_profiler_corrupted_heap_msg(rxcore_profiler_heap_header_t *header, rxcore_profiler_heap_footer_t *footer, const char *msg);
 
 #ifdef RXCORE_PROFILING_ENABLED
 #define RXCORE_PROFILER_BEGIN_TASK(name) rxcore_profiler_begin_task(&g_profiler, name)

@@ -207,10 +207,11 @@ void *rxcore_profiler_malloc(size_t size)
     header->malloc_num = 0;
     header->size = size;
 
-    rxcore_profiler_heap_footer_t *footer = (rxcore_profiler_heap_footer_t *)((char *)ptr + sizeof(rxcore_profiler_heap_header_t) + size);
+    ptr = (void *)((char *)ptr + sizeof(rxcore_profiler_heap_header_t));
+
+    rxcore_profiler_heap_footer_t *footer = (rxcore_profiler_heap_footer_t *)((char *)ptr + size);
     footer->padding = 0;
 
-    ptr = (void *)((char *)ptr + sizeof(rxcore_profiler_heap_header_t));
     if (rxcore_profiler_any_tasks(&g_profiler))
     {
         rxcore_profiling_task_t *current_task = rxcore_profiler_get_current_task(&g_profiler);
@@ -220,6 +221,8 @@ void *rxcore_profiler_malloc(size_t size)
     }
 
     header->checksum = rxcore_profiler_heap_header_checksum(header);
+
+    gs_println(rxcore_profiler_corrupted_heap_msg(header, footer, "Test"));
 
     return ptr;
 }
@@ -234,21 +237,18 @@ void rxcore_profiler_free(void *ptr)
 
     rxcore_profiler_heap_header_t *header = (rxcore_profiler_heap_header_t *)((char *)ptr - sizeof(rxcore_profiler_heap_header_t));
     size_t size = header->size;
-
-    ptr = (void *)((char *)ptr + sizeof(rxcore_profiler_heap_header_t));
-
     rxcore_profiler_heap_footer_t *footer = (rxcore_profiler_heap_footer_t *)((char *)ptr + size);
 
     // validate the header and footer
     if (rxcore_profiler_heap_header_checksum(header) != header->checksum)
     {
-        RXCORE_PROFILER_PANIC("Header checksum failed");
+        RXCORE_PROFILER_PANIC(rxcore_profiler_corrupted_heap_msg(header, footer, "Header checksum failed"));
         return;
     }
 
     if (footer->padding != 0)
     {
-        RXCORE_PROFILER_PANIC("Footer padding failed");
+        RXCORE_PROFILER_PANIC(rxcore_profiler_corrupted_heap_msg(header, footer, "Footer padding failed"));
         return;
     }
 
@@ -261,6 +261,13 @@ void rxcore_profiler_free(void *ptr)
     }
 
     free(ptr);
+}
+
+char *rxcore_profiler_corrupted_heap_msg(rxcore_profiler_heap_header_t *header, rxcore_profiler_heap_footer_t *footer, const char *msg)
+{
+    char *buf = malloc(strlen(msg) + 256);
+    sprintf(buf, "%s\nHeader: { size: %d, malloc_num: %d, checksum: %d }\nFooter: { padding: %d }", msg, header->size, header->malloc_num, header->checksum, footer->padding);
+    return buf;
 }
 
 uint32_t rxcore_profiler_heap_header_checksum(rxcore_profiler_heap_header_t *header)
