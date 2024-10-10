@@ -6,7 +6,6 @@
 #include <stdbool.h>
 
 #define RXCORE_PROFILING_ENABLED
-// #define RXCORE_PROFILER_ALLOW_PANIC
 
 #ifdef RXCORE_PROFILING_ENABLED
 // redefine malloc and free
@@ -26,6 +25,13 @@
 typedef struct rxcore_profiling_task_t rxcore_profiling_task_t;
 typedef void (*rxcore_profiling_task_traversal_fn)(rxcore_profiling_task_t *, uint32_t, void *);
 
+typedef struct rxcore_profiler_settings_t
+{
+    bool allow_panic;
+    bool crash_on_panic;
+    bool panic_on_memory_leak;
+} rxcore_profiler_settings_t;
+
 typedef struct rxcore_profiling_task_t
 {
     const char *name;
@@ -44,6 +50,7 @@ typedef struct rxcore_profiler_t
     gs_dyn_array(rxcore_profiling_task_t *) completed_tasks;
     gs_dyn_array(rxcore_profiling_task_t *) stack;
     uint32_t stack_index;
+    rxcore_profiler_settings_t settings;
 } rxcore_profiler_t;
 
 typedef struct rxcore_profiler_heap_header_t
@@ -73,10 +80,12 @@ void rxcore_proffiling_task_traversal_destroy(rxcore_profiling_task_t *task, uin
 void rxcore_profiling_task_destroy(rxcore_profiling_task_t *task);
 
 rxcore_profiler_t rxcore_profiler_create();
+void rxcore_profiler_set_settings(rxcore_profiler_t *profiler, rxcore_profiler_settings_t settings);
 rxcore_profiling_task_t *rxcore_profiler_get_current_task(rxcore_profiler_t *profiler);
 void rxcore_profiler_begin_task(rxcore_profiler_t *profiler, const char *name);
 void rxcore_profiler_end_task(rxcore_profiler_t *profiler);
 bool rxcore_profiler_any_tasks(rxcore_profiler_t *profiler);
+bool rxcore_profiler_any_unfreed_memory(rxcore_profiler_t *profiler);
 void rxcore_profiler_report(rxcore_profiler_t *profiler);
 void rxcore_profiler_destroy(rxcore_profiler_t *profiler);
 
@@ -84,12 +93,14 @@ void *rxcore_profiler_malloc(size_t size);
 void rxcore_profiler_free(void *ptr);
 uint32_t rxcore_profiler_heap_header_checksum(rxcore_profiler_heap_header_t *header);
 
-void rxcore_profiler_panic_impl(const char *msg);
+void rxcore_profiler_panic(const char *msg);
 char* rxcore_profiler_corrupted_heap_msg(rxcore_profiler_heap_header_t *header, rxcore_profiler_heap_footer_t *footer, const char *msg);
 
 #ifdef RXCORE_PROFILING_ENABLED
+#define RXCORE_PROFILER_CONFIGURE(settings) rxcore_profiler_set_settings(&g_profiler, settings)
 #define RXCORE_PROFILER_BEGIN_TASK(name) rxcore_profiler_begin_task(&g_profiler, name)
 #define RXCORE_PROFILER_END_TASK() rxcore_profiler_end_task(&g_profiler)
+#define RXCORE_PROFILER_ANY_UNFREED_MEMORY() rxcore_profiler_any_unfreed_memory(&g_profiler)
 #define RXCORE_PROFILER_REPORT() rxcore_profiler_report(&g_profiler)
 #define RXCORE_PROFILER_CLEAR()                \
     do                                         \
@@ -98,12 +109,7 @@ char* rxcore_profiler_corrupted_heap_msg(rxcore_profiler_heap_header_t *header, 
         g_profiler = rxcore_profiler_create(); \
     } while (0)
 
-#ifdef RXCORE_PROFILER_ALLOW_PANIC
-#define RXCORE_PROFILER_PANIC(msg) rxcore_profiler_panic_impl(msg)
-#else
-#define RXCORE_PROFILER_PANIC(msg) ((void)0)
-#endif
-
+#define RXCORE_PROFILER_PANIC(msg) rxcore_profiler_panic(msg)
 #else
 #define RXCORE_PROFILER_BEGIN_TASK(name) ((void)0)
 #define RXCORE_PROFILER_END_TASK(name) ((void)0)

@@ -18,6 +18,12 @@ void rxcore_profiling_system_init()
 {
     // gs_println("Initializing profiling system");
     g_profiler = rxcore_profiler_create();
+
+    rxcore_profiler_settings_t settings = {
+        .allow_panic = false,
+        .panic_on_memory_leak = false,
+    };
+    RXCORE_PROFILER_CONFIGURE(settings);
 }
 
 void rxcore_profiling_system_update()
@@ -99,7 +105,16 @@ rxcore_profiler_t rxcore_profiler_create()
     profiler.completed_tasks = gs_dyn_array_new(rxcore_profiling_task_t *);
     profiler.stack = gs_dyn_array_new(rxcore_profiling_task_t *);
     profiler.stack_index = 0;
+    profiler.settings = (rxcore_profiler_settings_t){
+        .allow_panic = false,
+        .panic_on_memory_leak = false,
+    };
     return profiler;
+}
+
+void rxcore_profiler_set_settings(rxcore_profiler_t *profiler, rxcore_profiler_settings_t settings)
+{
+    profiler->settings = settings;
 }
 
 rxcore_profiling_task_t *rxcore_profiler_get_current_task(rxcore_profiler_t *profiler)
@@ -142,6 +157,14 @@ void rxcore_profiler_end_task(rxcore_profiler_t *profiler)
 
     task->end = (double)clock() / CLOCKS_PER_SEC;
 
+    // let's check if we have a memory leak
+    if (profiler->settings.allow_panic &&
+        profiler->settings.panic_on_memory_leak &&
+        task->bytes_allocated != task->bytes_freed)
+    {
+        RXCORE_PROFILER_PANIC("Memory leak detected!");
+    }
+
     // now update all the data of the parent task
     if (profiler->stack_index != 0)
     {
@@ -155,7 +178,7 @@ void rxcore_profiler_end_task(rxcore_profiler_t *profiler)
 
     profiler->stack_index--;
     gs_dyn_array_pop(profiler->stack);
-    
+
     // is this task complete?
     // we know a task is complete if this is the last thing in the stack
     if (profiler->stack_index == 0)
@@ -169,6 +192,17 @@ void rxcore_profiler_end_task(rxcore_profiler_t *profiler)
 bool rxcore_profiler_any_tasks(rxcore_profiler_t *profiler)
 {
     return profiler->stack_index > 0;
+}
+
+bool rxcore_profiler_any_unfreed_memory(rxcore_profiler_t *profiler)
+{
+    // check only the last task
+    if (rxcore_profiler_any_tasks(profiler))
+    {
+        rxcore_profiling_task_t *task = profiler->stack[profiler->stack_index - 1];
+        return task->bytes_allocated != task->bytes_freed;
+    }
+    return false;
 }
 
 void rxcore_profiler_report(rxcore_profiler_t *profiler)
@@ -238,13 +272,13 @@ void rxcore_profiler_free(void *ptr)
     rxcore_profiler_heap_footer_t *footer = (rxcore_profiler_heap_footer_t *)((char *)ptr + size);
 
     // validate the header and footer
-    if (rxcore_profiler_heap_header_checksum(header) != header->checksum)
+    if (g_profiler.settings.allow_panic && rxcore_profiler_heap_header_checksum(header) != header->checksum)
     {
         RXCORE_PROFILER_PANIC(rxcore_profiler_corrupted_heap_msg(header, footer, "Header checksum failed"));
         return;
     }
 
-    if (footer->padding != 0)
+    if (g_profiler.settings.allow_panic && footer->padding != 0)
     {
         RXCORE_PROFILER_PANIC(rxcore_profiler_corrupted_heap_msg(header, footer, "Footer padding failed"));
         return;
@@ -276,8 +310,15 @@ uint32_t rxcore_profiler_heap_header_checksum(rxcore_profiler_heap_header_t *hea
     return header->malloc_num ^ header->size;
 }
 
-void rxcore_profiler_panic_impl(const char *msg)
+void rxcore_profiler_panic(const char *msg)
 {
+    if (g_profiler.settings.crash_on_panic == false)
+    {
+        rxcore_profiler_report(&g_profiler);
+        gs_println("Profiler panic: %s", msg);
+        return;
+    }
+
     // end all tasks, and report
     while (rxcore_profiler_any_tasks(&g_profiler))
     {

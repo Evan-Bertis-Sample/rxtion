@@ -36,8 +36,13 @@ void rxapp_init()
 
 void rxapp_update()
 {
+    RXCORE_PROFILER_BEGIN_TASK("rxapp_update_debug");
     rxcore_update(g_debug_systems);
+    RXCORE_PROFILER_END_TASK();
+
+    RXCORE_PROFILER_BEGIN_TASK("rxapp_update_core");
     rxcore_update(g_core_systems);
+    RXCORE_PROFILER_END_TASK();
 }
 
 void rxapp_shutdown()
