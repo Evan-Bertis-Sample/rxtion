@@ -36,6 +36,8 @@ void _rxcore_render_group_traversal(rxcore_scene_node_t *node, gs_mat4 model_mat
     {
         gs_println("Creating new material group for material %p", node->material);
         rxcore_material_group_t new_group = {0};
+        new_group.material = node->material;
+        new_group.draw_items = gs_dyn_array_new(rxcore_draw_item_t);
         gs_dyn_array_push(*material_groups, new_group);
         gs_println("Number of material groups: %d", gs_dyn_array_size(*material_groups));
         material_group = &(*material_groups)[gs_dyn_array_size(*material_groups) - 1];

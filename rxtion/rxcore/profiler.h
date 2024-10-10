@@ -6,7 +6,7 @@
 #include <stdbool.h>
 
 #define RXCORE_PROFILING_ENABLED
-#define RXCORE_PROFILER_ALLOW_PANIC
+// #define RXCORE_PROFILER_ALLOW_PANIC
 
 #ifdef RXCORE_PROFILING_ENABLED
 // redefine malloc and free

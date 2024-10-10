@@ -386,7 +386,7 @@ rxcore_shader_program_t *rxcore_shader_program_set(rxcore_shader_set_t set)
     strncat(program_name, set.vertex_shader->shader_name,
             gs_clamp(strlen(set.vertex_shader->shader_name), 1, 31));
             
-    // gs_println("Creating shader program: %s", program_name);
+    gs_println("Creating shader program: %s", program_name);
 
     gs_graphics_shader_desc_t shader_desc =
     {

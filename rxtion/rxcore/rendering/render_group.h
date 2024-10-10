@@ -44,6 +44,7 @@ typedef struct rxcore_render_group_t
     gs_dyn_array(rxcore_render_item_t) items;
 } rxcore_render_group_t;
 
+rxcore_material_group_t *_rxcore_material_group_create(rxcore_material_t *material);
 
 rxcore_render_group_t *_rxcore_render_group_create_empty();
 void _rxcore_render_group_traversal(rxcore_scene_node_t *node, gs_mat4 model_matrix, int depth, void *user_data);

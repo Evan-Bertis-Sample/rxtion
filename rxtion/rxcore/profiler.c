@@ -45,7 +45,6 @@ rxcore_profiling_task_t *rxcore_profiling_task_create(const char *name)
     return task;
 }
 
-
 inline bool rxcore_profiling_task_is_done(rxcore_profiling_task_t *task)
 {
     return task->end != 0;
@@ -54,14 +53,14 @@ inline bool rxcore_profiling_task_is_done(rxcore_profiling_task_t *task)
 void rxcore_profiling_task_traverse(rxcore_profiling_task_t *task, rxcore_profiling_task_traversal_fn fn, uint32_t depth, void *user_data)
 {
     // dfs of task tree
-    fn(task, depth, user_data);       
+    fn(task, depth, user_data);
     for (int i = 0; i < gs_dyn_array_size(task->children); ++i)
     {
         rxcore_profiling_task_traverse(task->children[i], fn, depth + 1, user_data);
     }
 }
 
-void rxcore_profiling_task_traversal_print(rxcore_profiling_task_t *task, uint32_t depth, void* user_data)
+void rxcore_profiling_task_traversal_print(rxcore_profiling_task_t *task, uint32_t depth, void *user_data)
 {
     depth = depth * 4;
     char *indent = malloc(depth + 1);
@@ -74,7 +73,7 @@ void rxcore_profiling_task_traversal_print(rxcore_profiling_task_t *task, uint32
 
     void (*print_fn)(const char *str, ...) = (void (*)(const char *str, ...))user_data;
 
-    int64_t bytes_unfreed = (int64_t)task->bytes_allocated - (int64_t)task->bytes_freed; 
+    uint32_t bytes_unfreed = task->bytes_allocated - task->bytes_freed;
 
     print_fn("%s%s: Start: %.3f, End: %.3f, Duration: %.3f ", indent, task->name, task->start, task->end, task->end - task->start);
     print_fn("Mallocs: %d, Frees: %d, Bytes Allocated: %d, Bytes Freed %d, Bytes Unfreed %d\n", task->bytes_allocated, task->bytes_freed, bytes_unfreed);
@@ -142,13 +141,11 @@ void rxcore_profiler_end_task(rxcore_profiler_t *profiler)
     // gs_println("Ending task: %s, child of %s", task->name, profiler->stack_index > 1 ? profiler->stack[profiler->stack_index - 2]->name : "root");
 
     task->end = (double)clock() / CLOCKS_PER_SEC;
-    profiler->stack_index--;
-    gs_dyn_array_pop(profiler->stack);
 
-    // now update all the data of the parents of the tasks
-    for (int i = profiler->stack_index - 1; i >= 0; --i)
+    // now update all the data of the parent task
+    if (profiler->stack_index != 0)
     {
-        rxcore_profiling_task_t *parent = profiler->stack[i];
+        rxcore_profiling_task_t *parent = profiler->stack[profiler->stack_index - 1];
         parent->bytes_allocated += task->bytes_allocated;
         parent->bytes_freed += task->bytes_freed;
         parent->num_mallocs += task->num_mallocs;
@@ -156,6 +153,9 @@ void rxcore_profiler_end_task(rxcore_profiler_t *profiler)
         parent->num_reallocs += task->num_reallocs;
     }
 
+    profiler->stack_index--;
+    gs_dyn_array_pop(profiler->stack);
+    
     // is this task complete?
     // we know a task is complete if this is the last thing in the stack
     if (profiler->stack_index == 0)
@@ -222,8 +222,6 @@ void *rxcore_profiler_malloc(size_t size)
 
     header->checksum = rxcore_profiler_heap_header_checksum(header);
 
-    gs_println(rxcore_profiler_corrupted_heap_msg(header, footer, "Test"));
-
     return ptr;
 }
 
@@ -260,6 +258,9 @@ void rxcore_profiler_free(void *ptr)
         current_task->bytes_freed += size;
     }
 
+    // free the memory, we need to add the size of the header to the pointer
+    ptr = (void *)((char *)ptr - sizeof(rxcore_profiler_heap_header_t));
+
     free(ptr);
 }
 
@@ -277,6 +278,14 @@ uint32_t rxcore_profiler_heap_header_checksum(rxcore_profiler_heap_header_t *hea
 
 void rxcore_profiler_panic_impl(const char *msg)
 {
+    // end all tasks, and report
+    while (rxcore_profiler_any_tasks(&g_profiler))
+    {
+        rxcore_profiler_end_task(&g_profiler);
+    }
+
+    rxcore_profiler_report(&g_profiler);
+
     gs_println("Profiler panic: %s", msg);
     exit(1);
 }

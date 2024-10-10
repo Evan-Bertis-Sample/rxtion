@@ -109,10 +109,14 @@ void rxcore_pipeline_render(rxcore_rendering_context_t *ctx)
 
     for (uint32_t i = 0; i < num_render_items; i++)
     {
+        gs_println("Processing rendering item %d", i);
         rxcore_render_item_t item = ctx->render_group->items[i];
         switch (item.type)
         {
         case RXCORE_SWAP_ITEM:
+            gs_println("Swapping material");
+            gs_println("Material: %p", item.swap_item.material);
+            gs_println("Shader set: %p", item.swap_item.material->shader_set);
             rxcore_shader_program_set(item.swap_item.material->shader_set);
             rxcore_material_bind(item.swap_item.material, cb);
             break;
