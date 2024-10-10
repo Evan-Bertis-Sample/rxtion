@@ -2,6 +2,12 @@
 
 #include <rxcore/rendering/render_group.h>
 
+void _rxcore_material_group_destroy(rxcore_material_group_t *group)
+{
+    gs_dyn_array_free(group->draw_items);
+    free(group);
+}
+
 rxcore_render_group_t *_rxcore_render_group_create_empty()
 {
     rxcore_render_group_t *group = malloc(sizeof(rxcore_render_group_t));
@@ -18,7 +24,6 @@ void _rxcore_render_group_traversal(rxcore_scene_node_t *node, gs_mat4 model_mat
         return;
     }
 
-    gs_println("Number of material groups: %d", gs_dyn_array_size(*material_groups));
 
     // check if we have a material group for this material
     rxcore_material_group_t *material_group = NULL;
@@ -26,7 +31,7 @@ void _rxcore_render_group_traversal(rxcore_scene_node_t *node, gs_mat4 model_mat
     {
         if ((*material_groups)[i].material == node->material)
         {
-            gs_println("Found material group for material %p", node->material);
+            // gs_println("Found material group for material %p", node->material);
             material_group = &(*material_groups)[i];
             break;
         }
@@ -39,12 +44,11 @@ void _rxcore_render_group_traversal(rxcore_scene_node_t *node, gs_mat4 model_mat
         new_group.material = node->material;
         new_group.draw_items = gs_dyn_array_new(rxcore_draw_item_t);
         gs_dyn_array_push(*material_groups, new_group);
-        gs_println("Number of material groups: %d", gs_dyn_array_size(*material_groups));
         material_group = &(*material_groups)[gs_dyn_array_size(*material_groups) - 1];
     }
 
-    gs_println("Adding draw item to material group");
-    gs_println("Material group: %p", material_group);
+    // gs_println("Adding draw item to material group");
+    // gs_println("Material group: %p", material_group);
 
     rxcore_draw_item_t draw_item = {0};
     draw_item.model_matrix = model_matrix;
@@ -102,11 +106,38 @@ rxcore_render_group_t *rxcore_render_group_create(rxcore_scene_graph_t *graph)
     gs_println("Number of items in render group: %d", gs_dyn_array_size(res->items));
     gs_println("Number of material groups: %d", gs_dyn_array_size(material_groups));
 
+    rxcore_render_group_print(res, printf);
+
+    for (uint32_t i = 0; i < gs_dyn_array_size(material_groups); i++)
+    {
+        _rxcore_material_group_destroy(&material_groups[i]);
+    }
     gs_dyn_array_free(material_groups);
 
     gs_println("Render group created");
 
     return res;
+}
+
+void rxcore_render_group_print(rxcore_render_group_t *group, void (*print_fn)(const char *str, ...))
+{
+    print_fn("Render Group:\n");
+    for (uint32_t i = 0; i < gs_dyn_array_size(group->items); i++)
+    {
+        rxcore_render_item_t item = group->items[i];
+        switch (item.type)
+        {
+        case RXCORE_DRAW_ITEM:
+            print_fn("  Draw Item\n");
+            print_fn("    Model Matrix: %f %f %f %f\n", item.draw_item.model_matrix.elements[0], item.draw_item.model_matrix.elements[1], item.draw_item.model_matrix.elements[2], item.draw_item.model_matrix.elements[3]);
+            print_fn("    Node: %p\n", item.draw_item.node);
+            break;
+        case RXCORE_SWAP_ITEM:
+            print_fn("  Swap Item\n");
+            print_fn("    Material: %p\n", item.swap_item.material);
+            break;
+        }
+    }
 }
 
 void rxcore_render_group_destroy(rxcore_render_group_t *group)
