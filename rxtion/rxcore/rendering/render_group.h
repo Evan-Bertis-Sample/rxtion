@@ -52,5 +52,4 @@ rxcore_render_group_t *rxcore_render_group_create(rxcore_scene_graph_t *graph);
 void rxcore_render_group_print(rxcore_render_group_t *group, void (*print_fn)(const char *str, ...));
 void rxcore_render_group_destroy(rxcore_render_group_t *group);
 
-
 #endif // __RENDER_GROUP_H__
